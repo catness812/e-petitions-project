@@ -5,4 +5,10 @@ postgres:
   password: pass
   host: localhost
   port: 5435
-  db_name: postgres
+  db_name: e-petitions-project-db
+
+redis:
+  host: localhost
+  port: 6379
+  password: redispass
+  db: 0

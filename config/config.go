@@ -10,6 +10,7 @@ import (
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
 	Database Postgres `yaml:"postgres"`
+	Redis    Redis    `yaml:"redis"`
 }
 
 type Postgres struct {
@@ -18,6 +19,13 @@ type Postgres struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	DBName   string `yaml:"db_name"`
+}
+
+type Redis struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
+	RedisDB  int    `yaml:"db"`
 }
 
 func LoadConfig() *Config {
