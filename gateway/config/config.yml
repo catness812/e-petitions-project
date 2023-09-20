@@ -1,0 +1,7 @@
+petition_port: 50051
+user_port: 8080
+security_port: 8090
+http_port: 1337
+
+
+
