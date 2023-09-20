@@ -1,2 +1,2 @@
-gateway:
-	cd gateway/cmd && go run main.go
+run-gateway:
+	go run gateway/main.go
