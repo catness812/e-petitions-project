@@ -1,3 +1,5 @@
-module github.com/catness812/e-petitions-project
+module notifications
 
 go 1.21.0
+
+require github.com/joho/godotenv v1.5.1

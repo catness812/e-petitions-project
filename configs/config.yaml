@@ -1,0 +1,2 @@
+smtpHost: "smtp-mail.outlook.com"
+smtpPort: "587"
