@@ -1,0 +1,20 @@
+syntax="proto3";
+
+option go_package="./pb";
+
+package proto;
+
+message Petition {
+  string title = 1;
+  string category = 2;
+  string description = 3;
+  string image = 4;
+}
+
+message CreatePetitionRequest {
+  Petition petition = 1;
+}
+
+message CreatePetitionResponse {
+  uint32 petition_id = 1;
+}
