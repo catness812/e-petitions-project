@@ -9,10 +9,12 @@ message Petition {
 	string category = 2;
 	string description = 3;
 	string image = 4;
+    uint32 status = 5;
 }
 
 message CreatePetitionRequest {
     Petition petition = 1;
+    uint32 user_id = 2;
 }
 
 message CreatePetitionResponse {

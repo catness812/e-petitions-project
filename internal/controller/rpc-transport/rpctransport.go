@@ -14,12 +14,15 @@ type Server struct {
 
 func (*Server) CreatePetition(ctx context.Context, req *pb.CreatePetitionRequest) (*pb.CreatePetitionResponse, error) {
 	petition := req.GetPetition()
+	userID := req.GetUserId()
 
 	newPetition := models.Petition{
 		Title:       petition.Title,
 		Category:    petition.Category,
 		Description: petition.Description,
 		Image:       petition.Image,
+		Status:      uint(petition.Status),
+		UserID:      uint(userID),
 	}
 
 	savedPetitionID, err := service.CreateNew(newPetition)
