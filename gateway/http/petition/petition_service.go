@@ -9,15 +9,8 @@ import (
 type IPetitionService interface {
 }
 
-type petitionService struct {
+type PetitionService struct {
 	cfg    config.Config
 	conn   *grpc.ClientConn
 	client pb.PetitionServiceClient
 }
-
-//func (s *petitionService) Delete(id string) error {
-//	_, err := s.client.Delete(context.Background(), &pb.{
-//		PId: pid,
-//	})
-//	return err
-//}
