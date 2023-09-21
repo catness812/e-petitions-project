@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+  postgres:
+    container_name: e-petitions-project-db
+    image: postgres:latest
+    environment:
+      POSTGRES_DB : e-petitions-project-db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass
+      PGDATA: /data/e-petitions-project-db
+    volumes:
+      - postgres-db:/data/postgres
+    ports:
+      - "5435:5432"
+  redis:
+    image: redis:latest
+    container_name: e-petitions-redis-db
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=redispass
+    volumes:
+      - redis-data:/data
+
+volumes:
+  postgres-db:
+  redis-data:
