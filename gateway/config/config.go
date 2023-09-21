@@ -1,10 +1,9 @@
 package config
 
 import (
+	"gopkg.in/yaml.v3"
 	"log"
 	"os"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -14,9 +13,9 @@ type Config struct {
 	HttpPort     string `yaml:"http_port"`
 }
 
-func LoadConfig() *Config {
-	var cfg *Config
-	data, err := os.ReadFile("config/config.yml")
+func LoadConfig() Config {
+	var cfg Config
+	data, err := os.ReadFile("config.yml")
 	if err != nil {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}
