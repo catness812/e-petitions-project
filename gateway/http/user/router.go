@@ -5,15 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterUserRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
-	svc := &ServiceClient{
-		Client: InitUserControllerClient(c),
+func RegisterUserRoutes(r *gin.Engine, c config.Config) {
+	usersvc, err := NewUserService(c)
+	if err != nil {
+		panic(err)
 	}
 
+	userctrl := NewUserController(usersvc)
+
 	route := r.Group("/user")
-	route.GET("/", svc.Get)
-	route.POST("/", svc.Create)
-	route.POST("/update", svc.Update)
-	route.DELETE("/", svc.Delete)
-	return svc
+	route.GET("/", userctrl.GetUser)
+	route.POST("/", userctrl.CreateUser)
+	route.POST("/update", userctrl.UpdateUser)
+	route.DELETE("/", userctrl.DeleteUser)
 }
