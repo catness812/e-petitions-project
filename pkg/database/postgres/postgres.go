@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/catness812/e-petitions-project/config"
+	"github.com/catness812/e-petitions-project/internal/security/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -12,16 +12,15 @@ import (
 var Database *gorm.DB
 
 func Connect() {
-	dbConfig := config.Cfg.Database
+	dbConfig := config.LoadConfig()
 	var err error
-	log.Printf("%s", dbConfig);
 	dsn := fmt.Sprintf("host=%s dbname=%s user=%s password=%s port=%d sslmode=disable",
-    dbConfig.Host,
-    dbConfig.DBName,
-    dbConfig.User,
-    dbConfig.Password,
-    dbConfig.Port,
-)
+		dbConfig.Database.Host,
+		dbConfig.Database.DBName,
+		dbConfig.Database.User,
+		dbConfig.Database.Password,
+		dbConfig.Database.Port,
+	)
 
 	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 

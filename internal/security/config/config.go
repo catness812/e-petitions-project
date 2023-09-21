@@ -9,7 +9,8 @@ import (
 
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
-	Database Postgres `yaml:"database"`
+	Database Postgres `yaml:"postgres"`
+	Redis    Redis    `yaml:"redis"`
 }
 
 type Postgres struct {
@@ -20,18 +21,22 @@ type Postgres struct {
 	DBName   string `yaml:"db_name"`
 }
 
-var (
-	configFile string
-	Cfg        Config
-)
+type Redis struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Password string `yaml:"password"`
+	RedisDB  int    `yaml:"db"`
+}
 
-func init() {
+func LoadConfig() *Config {
+	var cfg *Config
 	data, err := os.ReadFile("config/config.yml")
 	if err != nil {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}
 
-	if err := yaml.Unmarshal(data, &Cfg); err != nil {
-		log.Fatalf("Failed to unmarshal YAML data: %v", err)
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		log.Fatalf("Failed to unmarshal YAML data to config: %v", err)
 	}
+	return cfg
 }

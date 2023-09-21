@@ -1,0 +1,14 @@
+syntax="proto3";
+
+option go_package="./pb";
+
+package proto;
+
+import "e-petitions-project/internal/security/proto/security_msg.proto";
+
+
+ service SecurityService{
+    rpc Register (UserInfo) returns (CreateUserRequest);
+    rpc Login (UserCredentials) returns (Tokens);
+    rpc RefreshSession (RefreshRequest) returns (RefreshResponse);
+}

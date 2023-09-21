@@ -1,0 +1,14 @@
+grpc_port: 50051
+
+postgres:
+  user: admin
+  password: pass
+  host: localhost
+  port: 5435
+  db_name: e-petitions-project-db
+
+redis:
+  host: localhost
+  port: :6379
+  password: redispass
+  db: 0
