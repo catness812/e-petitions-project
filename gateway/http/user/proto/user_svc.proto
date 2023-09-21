@@ -1,6 +1,6 @@
 syntax = "proto3";
 package rpctransport;
-option go_package = "UserServise/internal/pb";
+option go_package = "./pb";
 
 import "google/protobuf/wrappers.proto";
 import "user_msg.proto";
@@ -9,5 +9,6 @@ import "user_msg.proto";
 service UserController{
   rpc CreateUser(UserRequest) returns (google.protobuf.StringValue);
   rpc UpdateUser(UserRequest) returns (google.protobuf.StringValue);
-
+  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.StringValue);
+  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
 }
