@@ -19,6 +19,8 @@ func SendMail(to []string, code string) {
 	// handling the errors
 	if err != nil {
 		log.Fatalf("failed to send message: \t%v", err)
+		return
 	}
 	log.Printf("successfully sent message")
+	return
 }

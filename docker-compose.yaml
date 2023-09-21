@@ -1,0 +1,12 @@
+version: '3.9'
+
+services:
+ rabbitmq:
+    image: rabbitmq:management
+    container_name: e-petitions_rabbitMQ
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"

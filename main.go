@@ -2,17 +2,20 @@ package main
 
 import (
 	"log"
-	"notifications/internal/service/mail"
+	"notifications/internal/controllers"
+	"notifications/pkg/rabbitMQ"
+	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
+	"github.com/streadway/amqp"
 )
 
-func main() {
-	to := []string{
-		"popov.adrian@outlook.com",
-	}
+var ch *amqp.Channel
 
-	mail.SendMail(to, "454665")
+func main() {
+	ctrl := controllers.NewEmailController(ch)
+	ctrl.ReadFromQueue()
 }
 
 func init() {
@@ -20,4 +23,14 @@ func init() {
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
+
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("configs/")
+	err = viper.ReadInConfig()
+	if err != nil {
+		log.Fatalf("failed to read config")
+	}
+
+	ch = rabbitMQ.ConnectAMQPDataBase(os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS"), viper.GetString("rabbitHost"), viper.GetString("rabbitPort"))
 }
