@@ -5,18 +5,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) *ServiceClient {
-	svc := &ServiceClient{
-		Client: InitPetitionServiceClient(c),
+func RegisterPetitionRoutes(r *gin.Engine, c config.Config) {
+	petitionService, err := NewPetitionService(c)
+	if err != nil {
+		panic(err)
 	}
-	// route := r.Group("/petition")
-	// route.POST("/", svc.Client.CreatePetition())
-	// route.POST("/update", svc.Update)
-	// route.DELETE("/", svc.Delete)
-	// route.POST("/sign", svc.SignPetition)
-	// route.GET("/all", svc.AllPetitions)
-	// route.GET("/", svc.GetPetition)
-	// route.POST("/status", svc.UpdatePetitionStatus)
 
-	return svc
+	petitionController := NewPetitionController(petitionService)
+
+	route := r.Group("/petition")
+	route.POST("/", petitionController.CreatePetition)
+	route.GET("/", petitionController.GetPetition)
+	route.DELETE("/", petitionController.DeletePetition)
+	route.POST("/update", petitionController.UpdatePetition)
+	route.GET("/all", petitionController.GetAllPetitions)
+
 }
