@@ -14,7 +14,6 @@ type Server struct {
 
 func (*Server) CreatePetition(ctx context.Context, req *pb.CreatePetitionRequest) (*pb.CreatePetitionResponse, error) {
 	petition := req.GetPetition()
-	userID := req.GetUserId()
 
 	newPetition := models.Petition{
 		Title:       petition.Title,
@@ -22,7 +21,7 @@ func (*Server) CreatePetition(ctx context.Context, req *pb.CreatePetitionRequest
 		Description: petition.Description,
 		Image:       petition.Image,
 		Status:      uint(petition.Status),
-		UserID:      uint(userID),
+		UserID:      uint(petition.UserId),
 	}
 
 	savedPetitionID, err := service.CreateNew(newPetition)
