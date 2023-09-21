@@ -8,10 +8,10 @@ import (
 )
 
 type Config struct {
-	PetitionPort int `yaml:"petition_port"`
-	UserPort     int `yaml:"user_port"`
-	SecurityPort int `yaml:"security_port"`
-	HttpPort     int `yaml:"http_port"`
+	PetitionPort string `yaml:"petition_port"`
+	UserPort     string `yaml:"user_port"`
+	SecurityPort string `yaml:"security_port"`
+	HttpPort     string `yaml:"http_port"`
 }
 
 func LoadConfig() *Config {
