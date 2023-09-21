@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
-	Database Postgres `yaml:"database"`
+	Database Postgres `yaml:"postgres"`
 }
 
 type Postgres struct {
@@ -20,10 +20,7 @@ type Postgres struct {
 	DBName   string `yaml:"db_name"`
 }
 
-var (
-	configFile string
-	Cfg        Config
-)
+var Cfg Config
 
 func init() {
 	data, err := os.ReadFile("config/config.yml")

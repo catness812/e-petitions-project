@@ -13,6 +13,11 @@ import (
 	"google.golang.org/grpc"
 )
 
+func main() {
+	loadDatabase()
+	grpcStart()
+}
+
 func loadDatabase() {
 	postgres.Connect()
 	postgres.Database.AutoMigrate(&models.Petition{})
