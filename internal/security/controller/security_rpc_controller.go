@@ -2,13 +2,13 @@ package security_controller
 
 import (
 	"context"
+	"log"
 
-	"github.com/catness812/e-petitions-project/internal/security/pb"
 	"github.com/catness812/e-petitions-project/internal/model"
+	"github.com/catness812/e-petitions-project/internal/security/pb"
 	"github.com/catness812/e-petitions-project/pkg/token"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
 )
 
 type ISecurityService interface {
@@ -30,8 +30,8 @@ func NewSecurityRpcServer(securitySvc ISecurityService) *SecurityRpcServer {
 func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) (*pb.Tokens, error) {
 
 	userLogin := models.UserCredentialsModel{
-		Email : req.GetEmail(),
-		Password : req.GetPassword(),
+		Email:    req.GetEmail(),
+		Password: req.GetPassword(),
 	}
 
 	token, err := s.securitySvc.Login(&userLogin)
@@ -41,7 +41,7 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) 
 	}
 
 	return &pb.Tokens{
-		AccessToken: token["access_token"],
+		AccessToken:  token["access_token"],
 		RefreshToken: token["refresh_token"],
 	}, nil
 }
@@ -49,15 +49,15 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) 
 func (s *SecurityRpcServer) Register(ctx context.Context, req *pb.UserInfo) (*pb.CreateUserRequest, error) {
 
 	user := models.UserModel{
-		ID: uint(req.GetId()),
-		Email : req.GetEmail(),
-		Password : req.GetPassword(),
-		Role: "user",
+		ID:       uint(req.GetId()),
+		Email:    req.GetEmail(),
+		Password: req.GetPassword(),
+		Role:     "user",
 	}
 
-	err := s.securitySvc.Register(&user);
+	err := s.securitySvc.Register(&user)
 
-	if err != nil {	
+	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
@@ -82,7 +82,9 @@ func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *pb.RefreshR
 		}, nil
 	}
 	uid := claims["userID"]
-	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, uid.(uint))
+	log.Println(uid)
+	uid64 := uid.(float64)
+	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, uint(uid64))
 	if err != nil {
 		return &pb.RefreshResponse{
 			Tokens:  nil,

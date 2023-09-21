@@ -4,7 +4,7 @@ option go_package="./pb";
 
 package proto;
 
-import "e-petitions-project/internal/security/proto/security_msg.proto";
+import "security_msg.proto";
 
 
  service SecurityService{
