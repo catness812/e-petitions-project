@@ -5,7 +5,6 @@ import (
 )
 
 func main() {
-
 	// c := config.LoadConfig()
 
 	r := gin.Default()
