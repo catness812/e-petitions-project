@@ -16,11 +16,13 @@ func Connect() {
 
 	dsn := fmt.Sprintf(`host=%s
 	dbname=%s
+	user=%s
 	password=%s
 	port=%d
 	sslmode=disable`,
 		config.Cfg.Database.Host,
 		config.Cfg.Database.DBName,
+		config.Cfg.Database.User,
 		config.Cfg.Database.Password,
 		config.Cfg.Database.Port,
 	)
