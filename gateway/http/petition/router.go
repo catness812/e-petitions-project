@@ -3,12 +3,14 @@ package petition
 import (
 	"github.com/catness812/e-petitions-project/gateway/config"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func RegisterPetitionRoutes(r *gin.Engine, c config.Config) {
 	petitionService, err := NewPetitionService(c)
 	if err != nil {
-		panic(err)
+		log.Fatal("Failed to connect to petition service grpc: ", err)
+
 	}
 
 	petitionController := NewPetitionController(petitionService)

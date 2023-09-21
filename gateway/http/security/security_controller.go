@@ -2,7 +2,6 @@ package security
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -12,7 +11,6 @@ type ISecurityController interface {
 }
 
 func NewSecurityController(service ISecurityService) ISecurityController {
-	log.Print("Creating new user controller")
 
 	return &securityController{
 		service: service,

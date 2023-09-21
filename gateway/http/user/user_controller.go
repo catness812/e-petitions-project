@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 )
 
@@ -14,7 +13,6 @@ type IUserController interface {
 }
 
 func NewUserController(service IUserService) IUserController {
-	log.Print("Creating new user controller")
 
 	return &userController{
 		service: service,

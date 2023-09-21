@@ -3,12 +3,14 @@ package user
 import (
 	"github.com/catness812/e-petitions-project/gateway/config"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func RegisterUserRoutes(r *gin.Engine, c config.Config) {
 	usersvc, err := NewUserService(c)
 	if err != nil {
-		panic(err)
+		log.Fatal("Failed to connect to user service grpc: ", err)
+
 	}
 
 	userctrl := NewUserController(usersvc)
