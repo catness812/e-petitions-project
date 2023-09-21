@@ -16,9 +16,8 @@ services:
   redis:
     image: redis:latest
     container_name: e-petitions-redis-db
-    command: redis-server --save 50 1 --loglevel warning --requirepass redispass
     ports:
-      - 6379:6379
+      - "6379:6379"
 volumes:
   postgres-db:
   redis-data:

@@ -2,6 +2,7 @@ package security_service
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -20,27 +21,27 @@ type IUserRepostory interface {
 }
 
 type IRedisRepository interface {
-	ReplaceToken(currentToken, newToken string, expires time.Duration)error
-	InsertUserToken(key uint, value string, expires time.Duration) (error, string)
+	ReplaceToken(currentToken, newToken string, expires time.Duration) error
+	InsertUserToken(key string, value string, expires time.Duration) error
 }
 
 type SecurityService struct {
-	userRepo IUserRepostory
+	userRepo  IUserRepostory
 	redisRepo IRedisRepository
 }
 
 func NewSecurityService(userRepo IUserRepostory, redisRepo IRedisRepository) *SecurityService {
 	return &SecurityService{
-		userRepo: userRepo,
+		userRepo:  userRepo,
 		redisRepo: redisRepo,
 	}
 }
 
-func(svc *SecurityService) Register(user *models.UserModel) error {
-	if svc.userRepo.CheckIfEmailExists(user.Email){
+func (svc *SecurityService) Register(user *models.UserModel) error {
+	if svc.userRepo.CheckIfEmailExists(user.Email) {
 		return errors.New("user already exists")
 	}
-	
+
 	hash, err := svc.generatePasswordHash(user.Password)
 	if err != nil {
 		return errors.New("err can't register user")
@@ -50,12 +51,12 @@ func(svc *SecurityService) Register(user *models.UserModel) error {
 	return svc.userRepo.Register(user)
 }
 
-func(svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, error){
-	
+func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, error) {
+
 	user, err := svc.userRepo.GetUserByEmail(userLogin.Email)
 
 	if err != nil {
-		log.Printf("invalid credentials: %v",err)
+		log.Printf("invalid credentials: %v", err)
 		return nil, err
 	}
 
@@ -71,13 +72,16 @@ func(svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[st
 		return nil, errors.New("can't generate token")
 	}
 
-	token_lifespan, err := strconv.Atoi(os.Getenv("RTOKEN_HOUR_LIFESPAN"));
+	//token_lifespan, err := strconv.Atoi(os.Getenv("RTOKEN_HOUR_LIFESPAN"))
 
 	if err != nil {
 		return nil, nil
 	}
 
-	svc.redisRepo.InsertUserToken(user.ID, token["refresh_token"], time.Duration(token_lifespan))
+	err = svc.redisRepo.InsertUserToken(token["refresh_token"], fmt.Sprint(user.ID), time.Hour*5)
+	if err != nil {
+		return nil, err
+	}
 
 	return token, nil
 }
@@ -119,12 +123,11 @@ func (svc *SecurityService) RefreshUserToken(token string, id uint) (map[string]
 }
 
 func generateTokenPair(userId uint) (map[string]string, error) {
-	err := godotenv.Load()
-
+	err := godotenv.Load("internal/security/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file", err)
 	}
-	
+
 	token := jwt.New(jwt.SigningMethodHS256)
 	token_lifespan, err := strconv.Atoi(os.Getenv("TOKEN_MINUTE_LIFESPAN"))
 	if err != nil {
@@ -151,7 +154,7 @@ func generateTokenPair(userId uint) (map[string]string, error) {
 
 	rtClaims := refreshToken.Claims.(jwt.MapClaims)
 
-	rtClaims["sub"] = 1
+	rtClaims["userID"] = userId
 	rtClaims["exp"] = time.Now().Add(time.Hour * time.Duration(rtoken_lifespan)).Unix()
 
 	rt, err := refreshToken.SignedString([]byte(os.Getenv("RT_KEY")))

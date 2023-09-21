@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -16,15 +15,9 @@ type RedisRepository struct {
 func NewRedisRepository(redisClient *redis.Client) *RedisRepository {
 	return &RedisRepository{redisClient: redisClient}
 }
-func (redisRepo *RedisRepository) InsertUserToken(key uint, value string, expires time.Duration) (error, string) {
-
-	err := redisRepo.redisClient.Set(context.Background(), strconv.FormatUint(uint64(key), 10), value, expires).Err()
-
-	if err != nil{
-		log.Printf("failed to set token: %v\n", err)
-	}
-
-	return err, "Insertion successful."
+func (redisRepo *RedisRepository) InsertUserToken(key string, value string, expires time.Duration) error {
+	log.Println(expires)
+	return redisRepo.redisClient.Set(context.Background(), key, value, expires).Err()
 }
 
 func (redisRepo *RedisRepository) ReplaceToken(currentToken, newToken string, expires time.Duration) error {

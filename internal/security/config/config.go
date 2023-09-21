@@ -30,7 +30,7 @@ type Redis struct {
 
 func LoadConfig() *Config {
 	var cfg *Config
-	data, err := os.ReadFile("config/config.yml")
+	data, err := os.ReadFile("internal/security/config/config.yml")
 	if err != nil {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}
