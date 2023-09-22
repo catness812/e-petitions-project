@@ -5,6 +5,7 @@ go 1.21.0
 require github.com/joho/godotenv v1.5.1
 
 require (
+	github.com/aymerick/raymond v2.0.2+incompatible
 	github.com/spf13/viper v1.16.0
 	github.com/streadway/amqp v1.1.0
 )

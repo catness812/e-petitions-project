@@ -1,7 +1,14 @@
 version: '3.9'
 
 services:
- rabbitmq:
+  mailcatcher:
+    restart: on-failure
+    image: dockage/mailcatcher:0.9.0
+    ports:
+    - "1080:1080"
+    - "1025:1025"
+
+  rabbitmq:
     image: rabbitmq:management
     container_name: e-petitions_rabbitMQ
     environment:
