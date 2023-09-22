@@ -6,10 +6,10 @@ package proto;
 
 message Petition {
     uint32 petition_id = 1;
-    string title = 2;     
-	string category = 3;
-	string description = 4;
-	string image = 5;
+    string title = 2;
+    string category = 3;
+    string description = 4;
+    string image = 5;
     uint32 status = 6;
     uint32 user_id = 7;
 }
@@ -20,4 +20,13 @@ message CreatePetitionRequest {
 
 message CreatePetitionResponse {
     uint32 petition_id = 1;
+}
+
+message GetPetitionsRequest {
+    uint32 page = 1;
+    uint32 limit = 2;
+}
+
+message GetPetitionsResponse {
+    repeated Petition petitions = 1;
 }
