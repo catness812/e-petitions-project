@@ -2,9 +2,9 @@ package repository
 
 import (
 	"fmt"
-	"user_service/internal/models"
 
-	"golang.org/x/exp/slog"
+	"github.com/catness812/e-petitions-project/user_service/internal/models"
+	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 

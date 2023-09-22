@@ -3,9 +3,9 @@ package postgres
 import (
 	"fmt"
 	"log"
-	"user_service/config"
-	"user_service/internal/models"
 
+	"github.com/catness812/e-petitions-project/user_service/config"
+	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

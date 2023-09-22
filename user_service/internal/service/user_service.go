@@ -2,10 +2,10 @@ package service
 
 import (
 	"errors"
-	"user_service/internal/models"
 
+	"github.com/catness812/e-petitions-project/user_service/internal/models"
+	"github.com/gookit/slog"
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/exp/slog"
 )
 
 type IUserRepository interface {
