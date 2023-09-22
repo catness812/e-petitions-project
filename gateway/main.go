@@ -16,7 +16,6 @@ func main() {
 	user.RegisterUserRoutes(r, c)
 	petition.RegisterPetitionRoutes(r, c)
 	security.RegisterSecurityRoutes(r, c)
-	petition.RegisterPetitionRoutes(r, c)
 
 	r.Run(":1337")
 
