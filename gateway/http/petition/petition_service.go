@@ -1,8 +1,6 @@
 package petition
 
 import (
-	"log"
-
 	"github.com/catness812/e-petitions-project/gateway/config"
 	"github.com/catness812/e-petitions-project/gateway/http/petition/pb"
 	"google.golang.org/grpc"
@@ -21,7 +19,7 @@ func NewPetitionService(c config.Config) (IPetitionService, error) {
 	conn, err := grpc.Dial(c.UserPort, grpc.WithInsecure())
 
 	if err != nil {
-		log.Fatal("Could not connect:", err)
+		return nil, err
 	}
 	client := pb.NewPetitionServiceClient(conn)
 

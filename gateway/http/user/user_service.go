@@ -4,7 +4,6 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/config"
 	"github.com/catness812/e-petitions-project/gateway/http/user/pb"
 	"google.golang.org/grpc"
-	"log"
 )
 
 type IUserService interface {
@@ -18,7 +17,7 @@ func NewUserService(c config.Config) (IUserService, error) {
 	conn, err := grpc.Dial(c.UserPort, grpc.WithInsecure())
 
 	if err != nil {
-		log.Fatal("Could not connect:", err)
+		return nil, err
 	}
 	client := pb.NewUserControllerClient(conn)
 

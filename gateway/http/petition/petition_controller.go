@@ -1,7 +1,6 @@
 package petition
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -22,7 +21,6 @@ type petitionController struct {
 }
 
 func NewPetitionController(service IPetitionService) IPetitionController {
-	log.Print("Creating new petition controller")
 
 	return &petitionController{
 		service: service,
