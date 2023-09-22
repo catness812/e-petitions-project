@@ -18,8 +18,10 @@ import (
 var DBPostgres *gorm.DB
 
 func main() {
+	DBPostgres = postgres.Connect()
 	userRepo := repository.NewUserRepository(DBPostgres)
 	userService := service.NewUserService(userRepo)
+
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
 		slog.Error("Failed to listen: %v", err)
@@ -35,10 +37,4 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil {
 		slog.Error("Failed to serve: %v", err)
 	}
-}
-
-func init() {
-	config.Init()
-	DBPostgres = postgres.Init()
-
 }

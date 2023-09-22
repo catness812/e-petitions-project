@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func Init() *gorm.DB {
+func Connect() *gorm.DB {
 	dsn := fmt.Sprintf(`host=%s
 	 dbname=%s
 	 user=%s

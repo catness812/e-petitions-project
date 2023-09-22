@@ -1,9 +1,10 @@
 package config
 
 import (
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -21,7 +22,7 @@ type Postgres struct {
 
 var Cfg Config
 
-func Init() {
+func init() {
 	data, err := os.ReadFile("config/config.yml")
 	if err != nil {
 		log.Fatalf("Failed to read configuration file: %v", err)
