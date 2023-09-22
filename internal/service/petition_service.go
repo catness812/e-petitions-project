@@ -2,17 +2,36 @@ package service
 
 import (
 	"github.com/catness812/e-petitions-project/internal/models"
-	"github.com/catness812/e-petitions-project/internal/repository"
-	"log"
+	"github.com/catness812/e-petitions-project/internal/util"
 	"gorm.io/gorm"
+	"log"
 )
 
-func CreateNew(petition models.Petition) (uint, error) {
-	if err := repository.Save(&petition); err != nil {
+type IPetitionRepository interface {
+	Save(petition *models.Petition) error
+	GetAll(pagination util.Pagination) []models.Petition
+}
+
+type PetitonService struct {
+	repo IPetitionRepository
+}
+
+func InitPetitionService(repo IPetitionRepository) *PetitonService {
+	return &PetitonService{
+		repo: repo,
+	}
+}
+
+func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
+	if err := svc.repo.Save(&petition); err != nil {
 		return 0, err
 	} else {
 		return petition.ID, nil
 	}
+}
+
+func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition {
+	return svc.repo.GetAll(pagination)
 }
 
 func Update(db *gorm.DB, petition models.Petition) error {

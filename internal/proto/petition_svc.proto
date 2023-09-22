@@ -7,5 +7,6 @@ package proto;
 import "petition_msg.proto";
 
 service PetitionService {
-    rpc CreatePetition(CreatePetitionRequest) returns (CreatePetitionResponse) {}
+    rpc CreatePetition(CreatePetitionRequest) returns (CreatePetitionResponse);
+    rpc GetPetitions(GetPetitionsRequest) returns (GetPetitionsResponse);
 }
