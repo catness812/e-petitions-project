@@ -31,7 +31,7 @@ func init() {
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("Notification/configs/")
+	viper.AddConfigPath("configs/")
 
 	err = viper.ReadInConfig()
 	if err != nil {
