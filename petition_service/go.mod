@@ -1,4 +1,4 @@
-module github.com/catness812/e-petitions-project
+module github.com/catness812/e-petitions-project/petition_service
 
 go 1.21.0
 

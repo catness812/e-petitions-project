@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/catness812/e-petitions-project/internal/models"
-	"github.com/catness812/e-petitions-project/internal/util"
-	"github.com/catness812/e-petitions-project/pkg/database/postgres"
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
+	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
 	"gorm.io/gorm"
 )
 

@@ -1,10 +1,11 @@
 package service
 
 import (
-	"github.com/catness812/e-petitions-project/internal/models"
-	"github.com/catness812/e-petitions-project/internal/util"
-	"gorm.io/gorm"
 	"log"
+
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
+	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"gorm.io/gorm"
 )
 
 type IPetitionRepository interface {

@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/catness812/e-petitions-project/internal/repository"
-	"github.com/catness812/e-petitions-project/internal/service"
-	"gorm.io/gorm"
 	"log"
 	"net"
 
-	"github.com/catness812/e-petitions-project/config"
-	rpctransport "github.com/catness812/e-petitions-project/internal/controller/rpc-transport"
-	"github.com/catness812/e-petitions-project/internal/models"
-	"github.com/catness812/e-petitions-project/internal/pb"
-	"github.com/catness812/e-petitions-project/pkg/database/postgres"
+	"github.com/catness812/e-petitions-project/petition_service/config"
+	rpctransport "github.com/catness812/e-petitions-project/petition_service/internal/controller/rpc-transport"
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
+	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
+	"github.com/catness812/e-petitions-project/petition_service/internal/repository"
+	"github.com/catness812/e-petitions-project/petition_service/internal/service"
+	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
 	"google.golang.org/grpc"
+	"gorm.io/gorm"
 )
 
 func main() {

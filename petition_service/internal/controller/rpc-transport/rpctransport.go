@@ -2,9 +2,10 @@ package rpctransport
 
 import (
 	"context"
-	"github.com/catness812/e-petitions-project/internal/models"
-	"github.com/catness812/e-petitions-project/internal/pb"
-	"github.com/catness812/e-petitions-project/internal/util"
+
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
+	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
+	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 )
 
 type IPetitionSvc interface {
