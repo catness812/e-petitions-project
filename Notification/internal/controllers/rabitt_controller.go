@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"log"
-	"notifications/internal/service/mail"
 	"strings"
 
+	"github.com/catness812/e-petitions-project/Notification/internal/service/mail"
 	"github.com/streadway/amqp"
 )
 

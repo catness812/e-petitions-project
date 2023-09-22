@@ -2,9 +2,10 @@ package main
 
 import (
 	"log"
-	"notifications/internal/controllers"
-	"notifications/pkg/rabbitMQ"
 	"os"
+
+	"github.com/catness812/e-petitions-project/Notification/internal/controllers"
+	"github.com/catness812/e-petitions-project/Notification/pkg/rabbitMQ"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -26,9 +27,10 @@ func init() {
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("configs/")
+	viper.AddConfigPath("Notification/configs/")
 	err = viper.ReadInConfig()
 	if err != nil {
+
 		log.Fatalf("failed to read config")
 	}
 
