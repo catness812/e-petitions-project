@@ -1,4 +1,4 @@
-package token
+package jwtoken
 
 import (
 	"fmt"
@@ -21,15 +21,12 @@ func verifyToken(t string) (*jwt.Token, error) {
 
 func IsTokenValid(t string) (jwt.MapClaims, error) {
 	token, err := verifyToken(t)
-
 	if err != nil {
 		return nil, err
 	}
-
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok && !token.Valid {
 		return nil, err
 	}
-
 	return claims, err
 }

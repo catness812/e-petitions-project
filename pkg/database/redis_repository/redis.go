@@ -18,6 +18,5 @@ func NewRedisDBConnection() *redis.Client {
 		log.Fatalf("failed to connect to RedisDB")
 	}
 	log.Println("Successfully connected to RedisDB")
-	
 	return client
 }

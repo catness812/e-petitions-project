@@ -1,4 +1,4 @@
-package repository
+package security_repository
 
 import (
 	"errors"
@@ -12,12 +12,11 @@ type UserRepository struct {
 	DBClient *gorm.DB
 }
 
-func NewUserRepository(dbClient *gorm.DB) *UserRepository{
+func NewUserRepository(dbClient *gorm.DB) *UserRepository {
 	return &UserRepository{
 		DBClient: dbClient,
 	}
 }
-
 
 func (repo *UserRepository) Register(user *models.UserModel) error {
 	err := repo.DBClient.Debug().Model(models.UserModel{}).Create(&user).Error
@@ -25,10 +24,10 @@ func (repo *UserRepository) Register(user *models.UserModel) error {
 		log.Printf("failed to insert user in database: %v\n", err)
 		return err
 	}
-	return nil 
+	return nil
 }
 
-func(repo *UserRepository)CheckIfEmailExists(mail string) bool{
+func (repo *UserRepository) CheckIfEmailExists(mail string) bool {
 	var user models.UserModel
 
 	err := repo.DBClient.Debug().Model(models.UserModel{}).Find(&user).Where("email= ?", mail).Error
@@ -36,7 +35,7 @@ func(repo *UserRepository)CheckIfEmailExists(mail string) bool{
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-func(repo *UserRepository)GetUserByEmail(email string) (models.UserModel, error){
+func (repo *UserRepository) GetUserByEmail(email string) (models.UserModel, error) {
 	var user models.UserModel
 
 	err := repo.DBClient.Debug().Model(models.UserModel{}).Where("email = ?", email).First(&user).Error
@@ -47,4 +46,3 @@ func(repo *UserRepository)GetUserByEmail(email string) (models.UserModel, error)
 	}
 	return user, nil
 }
-

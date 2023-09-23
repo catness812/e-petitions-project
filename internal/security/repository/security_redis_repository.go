@@ -1,8 +1,7 @@
-package repository
+package security_repository
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -15,8 +14,7 @@ type RedisRepository struct {
 func NewRedisRepository(redisClient *redis.Client) *RedisRepository {
 	return &RedisRepository{redisClient: redisClient}
 }
-func (redisRepo *RedisRepository) InsertUserToken(key string, value string, expires time.Duration) error {
-	log.Println(expires)
+func (redisRepo *RedisRepository) InsertUserToken(key string, value uint, expires time.Duration) error {
 	return redisRepo.redisClient.Set(context.Background(), key, value, expires).Err()
 }
 

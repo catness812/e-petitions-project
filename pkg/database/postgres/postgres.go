@@ -21,9 +21,7 @@ func Connect() {
 		dbConfig.Database.Password,
 		dbConfig.Database.Port,
 	)
-
 	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
-
 	if err != nil {
 		log.Panic(err)
 	} else {
