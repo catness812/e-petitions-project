@@ -32,10 +32,18 @@ func (repo *PetitionRepository) Save(petition *models.Petition) error {
 	return nil
 }
 
-// func Update(petition *models.Petition) error {
-// 	err := postgres.Database.Model(&models.Petition{}).Where("id = ?", petition.ID).Update("status", petition.Status).Error
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+func (repo *PetitionRepository)Update(id uint32, status string) error {
+	err := repo.db.Model(&models.Petition{}).Where("id = ?", id).Update("status", status).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *PetitionRepository)Delete(id uint32) error{
+	err := repo.db.Delete(&models.Petition{}, id).Error
+	if err != nil{
+		return err
+	}
+	return nil
+}

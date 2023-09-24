@@ -30,3 +30,20 @@ message GetPetitionsRequest {
 message GetPetitionsResponse {
     repeated Petition petitions = 1;
 }
+
+message UpdatePetitionRequest{
+    uint32 id = 1;
+    string status = 2;
+}
+
+message UpdatePetitionResponse{
+    string message = 1;
+}
+
+message DeletePetitionRequest{
+    uint32 id = 1;
+}
+
+message DeletePetitionResponse{
+    string message = 1;
+}

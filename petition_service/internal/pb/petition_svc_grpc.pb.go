@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	PetitionService_CreatePetition_FullMethodName = "/proto.PetitionService/CreatePetition"
 	PetitionService_GetPetitions_FullMethodName   = "/proto.PetitionService/GetPetitions"
+	PetitionService_UpdatePetition_FullMethodName = "/proto.PetitionService/UpdatePetition"
+	PetitionService_DeletePetition_FullMethodName = "/proto.PetitionService/DeletePetition"
 )
 
 // PetitionServiceClient is the client API for PetitionService service.
@@ -29,6 +31,8 @@ const (
 type PetitionServiceClient interface {
 	CreatePetition(ctx context.Context, in *CreatePetitionRequest, opts ...grpc.CallOption) (*CreatePetitionResponse, error)
 	GetPetitions(ctx context.Context, in *GetPetitionsRequest, opts ...grpc.CallOption) (*GetPetitionsResponse, error)
+	UpdatePetition(ctx context.Context, in *UpdatePetitionRequest, opts ...grpc.CallOption) (*UpdatePetitionResponse, error)
+	DeletePetition(ctx context.Context, in *DeletePetitionRequest, opts ...grpc.CallOption) (*DeletePetitionResponse, error)
 }
 
 type petitionServiceClient struct {
@@ -57,12 +61,32 @@ func (c *petitionServiceClient) GetPetitions(ctx context.Context, in *GetPetitio
 	return out, nil
 }
 
+func (c *petitionServiceClient) UpdatePetition(ctx context.Context, in *UpdatePetitionRequest, opts ...grpc.CallOption) (*UpdatePetitionResponse, error) {
+	out := new(UpdatePetitionResponse)
+	err := c.cc.Invoke(ctx, PetitionService_UpdatePetition_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *petitionServiceClient) DeletePetition(ctx context.Context, in *DeletePetitionRequest, opts ...grpc.CallOption) (*DeletePetitionResponse, error) {
+	out := new(DeletePetitionResponse)
+	err := c.cc.Invoke(ctx, PetitionService_DeletePetition_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PetitionServiceServer is the server API for PetitionService service.
 // All implementations should embed UnimplementedPetitionServiceServer
 // for forward compatibility
 type PetitionServiceServer interface {
 	CreatePetition(context.Context, *CreatePetitionRequest) (*CreatePetitionResponse, error)
 	GetPetitions(context.Context, *GetPetitionsRequest) (*GetPetitionsResponse, error)
+	UpdatePetition(context.Context, *UpdatePetitionRequest) (*UpdatePetitionResponse, error)
+	DeletePetition(context.Context, *DeletePetitionRequest) (*DeletePetitionResponse, error)
 }
 
 // UnimplementedPetitionServiceServer should be embedded to have forward compatible implementations.
@@ -74,6 +98,12 @@ func (UnimplementedPetitionServiceServer) CreatePetition(context.Context, *Creat
 }
 func (UnimplementedPetitionServiceServer) GetPetitions(context.Context, *GetPetitionsRequest) (*GetPetitionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPetitions not implemented")
+}
+func (UnimplementedPetitionServiceServer) UpdatePetition(context.Context, *UpdatePetitionRequest) (*UpdatePetitionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePetition not implemented")
+}
+func (UnimplementedPetitionServiceServer) DeletePetition(context.Context, *DeletePetitionRequest) (*DeletePetitionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePetition not implemented")
 }
 
 // UnsafePetitionServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -123,6 +153,42 @@ func _PetitionService_GetPetitions_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PetitionService_UpdatePetition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePetitionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PetitionServiceServer).UpdatePetition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PetitionService_UpdatePetition_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PetitionServiceServer).UpdatePetition(ctx, req.(*UpdatePetitionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PetitionService_DeletePetition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePetitionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PetitionServiceServer).DeletePetition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PetitionService_DeletePetition_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PetitionServiceServer).DeletePetition(ctx, req.(*DeletePetitionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PetitionService_ServiceDesc is the grpc.ServiceDesc for PetitionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -137,6 +203,14 @@ var PetitionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetPetitions",
 			Handler:    _PetitionService_GetPetitions_Handler,
+		},
+		{
+			MethodName: "UpdatePetition",
+			Handler:    _PetitionService_UpdatePetition_Handler,
+		},
+		{
+			MethodName: "DeletePetition",
+			Handler:    _PetitionService_DeletePetition_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

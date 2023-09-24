@@ -311,6 +311,202 @@ func (x *GetPetitionsResponse) GetPetitions() []*Petition {
 	return nil
 }
 
+type UpdatePetitionRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id     uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Status string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+}
+
+func (x *UpdatePetitionRequest) Reset() {
+	*x = UpdatePetitionRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_petition_msg_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdatePetitionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePetitionRequest) ProtoMessage() {}
+
+func (x *UpdatePetitionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_petition_msg_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePetitionRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePetitionRequest) Descriptor() ([]byte, []int) {
+	return file_petition_msg_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdatePetitionRequest) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdatePetitionRequest) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+type UpdatePetitionResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *UpdatePetitionResponse) Reset() {
+	*x = UpdatePetitionResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_petition_msg_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdatePetitionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePetitionResponse) ProtoMessage() {}
+
+func (x *UpdatePetitionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_petition_msg_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePetitionResponse.ProtoReflect.Descriptor instead.
+func (*UpdatePetitionResponse) Descriptor() ([]byte, []int) {
+	return file_petition_msg_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdatePetitionResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type DeletePetitionRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *DeletePetitionRequest) Reset() {
+	*x = DeletePetitionRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_petition_msg_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeletePetitionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePetitionRequest) ProtoMessage() {}
+
+func (x *DeletePetitionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_petition_msg_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePetitionRequest.ProtoReflect.Descriptor instead.
+func (*DeletePetitionRequest) Descriptor() ([]byte, []int) {
+	return file_petition_msg_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeletePetitionRequest) GetId() uint32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+type DeletePetitionResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Message string `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+}
+
+func (x *DeletePetitionResponse) Reset() {
+	*x = DeletePetitionResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_petition_msg_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeletePetitionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePetitionResponse) ProtoMessage() {}
+
+func (x *DeletePetitionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_petition_msg_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePetitionResponse.ProtoReflect.Descriptor instead.
+func (*DeletePetitionResponse) Descriptor() ([]byte, []int) {
+	return file_petition_msg_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *DeletePetitionResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_petition_msg_proto protoreflect.FileDescriptor
 
 var file_petition_msg_proto_rawDesc = []byte{
@@ -344,8 +540,21 @@ var file_petition_msg_proto_rawDesc = []byte{
 	0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2d,
 	0x0a, 0x09, 0x70, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
 	0x0b, 0x32, 0x0f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69,
-	0x6f, 0x6e, 0x52, 0x09, 0x70, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x42, 0x06, 0x5a,
-	0x04, 0x2e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6f, 0x6e, 0x52, 0x09, 0x70, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x3f, 0x0a,
+	0x15, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x02, 0x69, 0x64, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x32,
+	0x0a, 0x16, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61,
+	0x67, 0x65, 0x22, 0x27, 0x0a, 0x15, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x50, 0x65, 0x74, 0x69,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x02, 0x69, 0x64, 0x22, 0x32, 0x0a, 0x16, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x42,
+	0x06, 0x5a, 0x04, 0x2e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -360,13 +569,17 @@ func file_petition_msg_proto_rawDescGZIP() []byte {
 	return file_petition_msg_proto_rawDescData
 }
 
-var file_petition_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_petition_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_petition_msg_proto_goTypes = []interface{}{
 	(*Petition)(nil),               // 0: proto.Petition
 	(*CreatePetitionRequest)(nil),  // 1: proto.CreatePetitionRequest
 	(*CreatePetitionResponse)(nil), // 2: proto.CreatePetitionResponse
 	(*GetPetitionsRequest)(nil),    // 3: proto.GetPetitionsRequest
 	(*GetPetitionsResponse)(nil),   // 4: proto.GetPetitionsResponse
+	(*UpdatePetitionRequest)(nil),  // 5: proto.UpdatePetitionRequest
+	(*UpdatePetitionResponse)(nil), // 6: proto.UpdatePetitionResponse
+	(*DeletePetitionRequest)(nil),  // 7: proto.DeletePetitionRequest
+	(*DeletePetitionResponse)(nil), // 8: proto.DeletePetitionResponse
 }
 var file_petition_msg_proto_depIdxs = []int32{
 	0, // 0: proto.CreatePetitionRequest.petition:type_name -> proto.Petition
@@ -444,6 +657,54 @@ func file_petition_msg_proto_init() {
 				return nil
 			}
 		}
+		file_petition_msg_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdatePetitionRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_petition_msg_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdatePetitionResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_petition_msg_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeletePetitionRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_petition_msg_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeletePetitionResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -451,7 +712,7 @@ func file_petition_msg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_petition_msg_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

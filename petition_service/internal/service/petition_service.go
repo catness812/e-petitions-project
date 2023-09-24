@@ -5,12 +5,13 @@ import (
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
-	"gorm.io/gorm"
 )
 
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
+	Update(id uint32, status string) error
+	Delete(id uint32) error
 }
 
 type PetitonService struct {
@@ -35,31 +36,19 @@ func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition 
 	return svc.repo.GetAll(pagination)
 }
 
-func Update(db *gorm.DB, petition models.Petition) error {
-	var existingPetition models.Petition
-	if err := db.First(&existingPetition, petition.ID).Error; err != nil {
-		log.Fatalf("Failed to find petition: %d\n", err)
+func (svc *PetitonService)Update(id uint32, status string) error {
+	if err := svc.repo.Update(id, status); err != nil {
+		log.Fatalf("Failed to update petition: %d\n", err)
 		return err
 	}
-
-	existingPetition.Title = petition.Title
-	existingPetition.Category = petition.Category
-	existingPetition.Description = petition.Description
-	existingPetition.Image = petition.Image
-
-	if err := db.Save(&existingPetition).Error; err != nil {
-		log.Fatalf("Failed to save updated petition: %d\n", err)
-		return err
-	}
-
 	return nil
 }
 
-func Delete(db *gorm.DB, petition models.Petition) error {
-	err := db.Delete(petition.ID).Error
-	if err != nil {
-		log.Fatalf("Failed to delete petition: %d\n", err)
-		return err
-	}
-	return nil
+func (svc *PetitonService) Delete(id uint32) error {
+    err := svc.repo.Delete(id)
+    if err != nil {
+        log.Fatalf("Failed to delete petition: %v\n", err)
+        return err
+    }
+    return nil
 }

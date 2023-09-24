@@ -11,6 +11,8 @@ import (
 type IPetitionSvc interface {
 	CreateNew(petition models.Petition) (uint, error)
 	GetAll(pagination util.Pagination) []models.Petition
+	Update(id uint32, status string) error
+	Delete(id uint32) error
 }
 
 type Server struct {
@@ -65,4 +67,26 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 	return &pb.GetPetitionsResponse{
 		Petitions: getPetitionsResponse,
 	}, nil
+}
+
+func (controller *Server) Update(ctx context.Context, req *pb.UpdatePetitionRequest) (*pb.UpdatePetitionResponse, error) {
+	id := req.Id
+	status := req.Status
+
+	err := controller.Svc.Update(id, status)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.UpdatePetitionResponse{Message: "Petition status updated successfully"}
+	return response, nil
+}
+
+func (controller *Server) Delete(ctc context.Context, req *pb.DeletePetitionRequest) (*pb.DeletePetitionResponse, error) {
+	id := req.Id
+	err := controller.Svc.Delete(id)
+	if err != nil {
+		return nil, err
+	}
+	response := &pb.DeletePetitionResponse{Message: "Petition deleted successfully"}
+	return response, nil
 }
