@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	models "github.com/catness812/e-petitions-project/internal/model"
+	models "github.com/catness812/e-petitions-project/security_service/internal/model"
 	"github.com/golang-jwt/jwt"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"

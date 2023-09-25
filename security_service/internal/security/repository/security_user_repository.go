@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-	models "github.com/catness812/e-petitions-project/internal/model"
+	models "github.com/catness812/e-petitions-project/security_service/internal/model"
 	"gorm.io/gorm"
 )
 

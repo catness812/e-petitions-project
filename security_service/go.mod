@@ -1,4 +1,4 @@
-module github.com/catness812/e-petitions-project
+module github.com/catness812/e-petitions-project/security_service
 
 go 1.21.0
 
@@ -28,7 +28,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1
-	github.com/redis/go-redis/v9 v9.1.0
+	github.com/redis/go-redis/v9 v9.2.0
 	golang.org/x/crypto v0.13.0
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/grpc v1.58.1

@@ -3,7 +3,7 @@ package redis_repository
 import (
 	"log"
 
-	config "github.com/catness812/e-petitions-project/internal/security/config"
+	"github.com/catness812/e-petitions-project/security_service/internal/security/config"
 	"github.com/redis/go-redis/v9"
 )
 

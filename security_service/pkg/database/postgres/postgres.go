@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/catness812/e-petitions-project/internal/security/config"
+	"github.com/catness812/e-petitions-project/security_service/internal/security/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
