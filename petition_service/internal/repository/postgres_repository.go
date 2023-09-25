@@ -32,7 +32,7 @@ func (repo *PetitionRepository) Save(petition *models.Petition) error {
 	return nil
 }
 
-func (repo *PetitionRepository)Update(id uint32, status string) error {
+func (repo *PetitionRepository) Update(id uint32, status string) error {
 	err := repo.db.Model(&models.Petition{}).Where("id = ?", id).Update("status", status).Error
 	if err != nil {
 		return err
@@ -40,9 +40,9 @@ func (repo *PetitionRepository)Update(id uint32, status string) error {
 	return nil
 }
 
-func (repo *PetitionRepository)Delete(id uint32) error{
-	err := repo.db.Delete(&models.Petition{}, id).Error
-	if err != nil{
+func (repo *PetitionRepository) Delete(id uint32) error {
+	err := repo.db.Unscoped().Where("id = ?", id).Delete(&models.Petition{}).Error
+	if err != nil {
 		return err
 	}
 	return nil
