@@ -2,9 +2,9 @@ package security_controller
 
 import (
 	"context"
+	"github.com/catness812/e-petitions-project/security_service/internal/security_pb"
 
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
-	"github.com/catness812/e-petitions-project/security_service/internal/security/security_pb"
 	"github.com/catness812/e-petitions-project/security_service/pkg/jwtoken"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -1,14 +1,14 @@
 package main
 
 import (
+	"github.com/catness812/e-petitions-project/security_service/internal/controller"
+	security_repository2 "github.com/catness812/e-petitions-project/security_service/internal/repository"
+	"github.com/catness812/e-petitions-project/security_service/internal/security_pb"
+	"github.com/catness812/e-petitions-project/security_service/internal/service"
 	"log"
 	"net"
 
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
-	security_controller "github.com/catness812/e-petitions-project/security_service/internal/security/controller"
-	security_repository "github.com/catness812/e-petitions-project/security_service/internal/security/repository"
-	"github.com/catness812/e-petitions-project/security_service/internal/security/security_pb"
-	security_service "github.com/catness812/e-petitions-project/security_service/internal/security/service"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/postgres"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/redis_repository"
 	"github.com/redis/go-redis/v9"
@@ -48,8 +48,8 @@ func init() {
 	}
 	redisDB = redis_repository.NewRedisDBConnection()
 
-	userRepo := security_repository.NewUserRepository(postgres.Database)
-	redisRepo := security_repository.NewRedisRepository(redisDB)
+	userRepo := security_repository2.NewUserRepository(postgres.Database)
+	redisRepo := security_repository2.NewRedisRepository(redisDB)
 	sService = security_service.NewSecurityService(userRepo, redisRepo)
 	sRpcServer = security_controller.NewSecurityRpcServer(sService)
 }

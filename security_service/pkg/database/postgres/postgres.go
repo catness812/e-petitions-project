@@ -2,9 +2,9 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	"log"
 
-	"github.com/catness812/e-petitions-project/security_service/internal/security/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
