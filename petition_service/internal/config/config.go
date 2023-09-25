@@ -22,8 +22,8 @@ type Postgres struct {
 
 var Cfg Config
 
-func init() {
-	data, err := os.ReadFile("config/config.yml")
+func LoadConfig() {
+	data, err := os.ReadFile("petition_service/config.yml")
 	if err != nil {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}

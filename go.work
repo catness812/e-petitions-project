@@ -1,7 +1,7 @@
 go 1.21.0
 
 use gateway/
-use notification/
+use Notification/
 use petition_service/
 use security_service/
 use user_service/

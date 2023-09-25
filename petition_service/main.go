@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/catness812/e-petitions-project/petition_service/config"
+	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	rpctransport "github.com/catness812/e-petitions-project/petition_service/internal/controller/rpc-transport"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
@@ -13,6 +13,7 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/service"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
 	"google.golang.org/grpc"
+
 	"gorm.io/gorm"
 )
 
