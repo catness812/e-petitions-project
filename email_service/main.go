@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/catness812/e-petitions-project/Notification/internal/consumer"
-	"github.com/catness812/e-petitions-project/Notification/pkg/rabbitMQ"
+	"github.com/catness812/e-petitions-project/email_service/internal/controllers"
+	"github.com/catness812/e-petitions-project/email_service/pkg/rabbitMQ"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
@@ -19,7 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to declare queue: %v", err)
 	}
-	cons := consumer.NewConsumer(ch, q.Name)
+	cons := controllers.NewConsumer(ch, q.Name)
 	cons.ConsumeAndSend()
 }
 

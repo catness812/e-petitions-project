@@ -1,4 +1,4 @@
-module github.com/catness812/e-petitions-project/Notification
+module github.com/catness812/e-petitions-project/email_service
 
 go 1.21.0
 
