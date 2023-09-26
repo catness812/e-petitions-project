@@ -1,0 +1,14 @@
+syntax="proto3";
+
+option go_package="./security_pb";
+
+package proto;
+
+import "security_msg.proto";
+
+
+ service SecurityService{
+    rpc Register (UserInfo) returns (CreateUserRequest);
+    rpc Login (UserCredentials) returns (Tokens);
+    rpc RefreshSession (RefreshRequest) returns (RefreshResponse);
+}

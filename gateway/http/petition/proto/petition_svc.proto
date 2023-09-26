@@ -1,0 +1,11 @@
+syntax="proto3";
+
+option go_package="./pb";
+
+package proto;
+
+import "petition_msg.proto";
+
+service PetitionService {
+  rpc CreatePetition(CreatePetitionRequest) returns (CreatePetitionResponse) {}
+}
