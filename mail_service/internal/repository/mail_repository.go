@@ -36,7 +36,7 @@ func formatMessage(link string) []byte {
 
 func init() {
 	var err error
-	reg, err = raymond.ParseFile("./templates/user-register-link.html")
+	reg, err = raymond.ParseFile("./mail_service/templates/user-register-link.html")
 	if err != nil {
 		log.Fatalf("failed to parse template: %v", err)
 	}
