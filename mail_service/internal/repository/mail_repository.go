@@ -8,10 +8,10 @@ import (
 	"github.com/aymerick/raymond"
 )
 
-var tmp *raymond.Template
+var reg *raymond.Template
 
-func SendMail(to []string, code string) {
-	msg := formatMessage(code)
+func SendMail(to []string, link string) {
+	msg := formatMessage(link)
 	// auth := sm.SmtpAuth(os.Getenv("MAIL"), os.Getenv("PASS"))
 	addr := "localhost:1025"
 
@@ -28,19 +28,15 @@ func SendMail(to []string, code string) {
 }
 
 func formatMessage(link string) []byte {
-	subject := "Subject: Verification link\n"
-	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-
 	ctx := map[string]interface{}{
 		"link": link,
 	}
-
-	return []byte(subject + mime + tmp.MustExec(ctx))
+	return []byte(reg.MustExec(ctx))
 }
 
 func init() {
 	var err error
-	tmp, err = raymond.ParseFile("./templates/user-register-link.html")
+	reg, err = raymond.ParseFile("./templates/user-register-link.html")
 	if err != nil {
 		log.Fatalf("failed to parse template: %v", err)
 	}
