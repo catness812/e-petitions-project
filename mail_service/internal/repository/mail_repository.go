@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/aymerick/raymond"
-	"github.com/spf13/viper"
 )
 
 var tmp *raymond.Template
@@ -14,7 +13,7 @@ var tmp *raymond.Template
 func SendMail(to []string, code string) {
 	msg := formatMessage(code)
 	// auth := sm.SmtpAuth(os.Getenv("MAIL"), os.Getenv("PASS"))
-	addr := viper.GetString("smtpHost") + ":" + viper.GetString("smtpPort")
+	addr := "localhost:1025"
 
 	err := smtp.SendMail(addr, nil, os.Getenv("MAIL"), to, msg)
 	// err := smtp.SendMail(addr, auth, os.Getenv("MAIL"), to, msg)

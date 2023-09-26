@@ -3,7 +3,7 @@ package controllers
 import (
 	"log"
 
-	"github.com/catness812/e-petitions-project/email_service/internal/service"
+	"github.com/catness812/e-petitions-project/mail_service/internal/service"
 	"github.com/streadway/amqp"
 )
 
