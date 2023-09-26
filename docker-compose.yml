@@ -18,6 +18,24 @@ services:
     container_name: e-petitions-redis-db
     ports:
       - "6379:6379"
+
+  mailcatcher:
+    restart: on-failure
+    image: dockage/mailcatcher:0.9.0
+    container_name: e-petitions-project-mailcatcher
+    ports:
+    - "1080:1080"
+    - "1025:1025"
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: e-petitions-project-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 volumes:
   postgres-db:
     driver: local
