@@ -1,9 +1,9 @@
-package sender
+package service
 
 import (
 	"strings"
 
-	"github.com/catness812/e-petitions-project/Notification/internal/service"
+	"github.com/catness812/e-petitions-project/mail_service/internal/repository"
 )
 
 func SendMail(msg string) {
@@ -12,5 +12,5 @@ func SendMail(msg string) {
 	to = append(to, strings.Split(string(msg), " ")[0])
 	code := strings.Split(string(msg), " ")[1]
 
-	service.SendMail(to, code)
+	repository.SendMail(to, code)
 }

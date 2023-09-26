@@ -1,5 +1,0 @@
-smtpHost: "localhost"
-smtpPort: "1025"
-
-rabbitHost: "localhost"
-rabbitPort: "5672"

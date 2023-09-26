@@ -1,9 +1,9 @@
-package consumer
+package controllers
 
 import (
 	"log"
 
-	"github.com/catness812/e-petitions-project/Notification/internal/sender"
+	"github.com/catness812/e-petitions-project/mail_service/internal/service"
 	"github.com/streadway/amqp"
 )
 
@@ -38,7 +38,7 @@ func (c *Consumer) ConsumeAndSend() {
 	forever := make(chan bool)
 	go func() {
 		for msg := range msgs {
-			sender.SendMail(string(msg.Body))
+			service.SendMail(string(msg.Body))
 		}
 	}()
 
