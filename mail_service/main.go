@@ -23,7 +23,7 @@ func main() {
 }
 
 func init() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("mail_service/.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
