@@ -27,12 +27,12 @@ func SendMail(to []string, code string) {
 
 }
 
-func formatMessage(code string) []byte {
-	subject := "Subject: Verification code\n"
+func formatMessage(link string) []byte {
+	subject := "Subject: Verification link\n"
 	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 
 	ctx := map[string]interface{}{
-		"code": code,
+		"link": link,
 	}
 
 	return []byte(subject + mime + tmp.MustExec(ctx))
@@ -40,7 +40,7 @@ func formatMessage(code string) []byte {
 
 func init() {
 	var err error
-	tmp, err = raymond.ParseFile("./templates/user-register.html")
+	tmp, err = raymond.ParseFile("./templates/user-register-link.html")
 	if err != nil {
 		log.Fatalf("failed to parse template: %v", err)
 	}

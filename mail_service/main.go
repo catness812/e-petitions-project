@@ -28,5 +28,5 @@ func init() {
 		log.Fatalf("Error loading .env file")
 	}
 
-	ch = rabbitMQ.ConnectAMQPDataBase(os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS"), "admin", "admin")
+	ch = rabbitMQ.ConnectAMQPDataBase(os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS"), "localhost", "5672")
 }
