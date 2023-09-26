@@ -1,0 +1,28 @@
+syntax = "proto3";
+package rpctransport;
+option go_package = "/pb";
+
+
+message UserRequest{
+  string email = 1;
+  string password =2;
+}
+
+message DeleteUserRequest {
+  string email = 1;
+}
+
+message GetUserByEmailRequest {
+  string email = 1;
+}
+
+message GetUserByEmailResponse {
+  string id =1;
+  string email = 2;
+  string password = 3;
+  string role = 4;
+}
+
+message AddAdminRequest{
+  string email = 1;
+}

@@ -2,10 +2,11 @@ run-gateway:
 	go run main.go
 
 build-gateway:
-	protoc -I http/user/proto --go_out=gateway/http/user --go-grpc_out=http/user http/user/proto/*.proto
-	protoc -I http/petition/proto --go_out=gateway/http/petition --go-grpc_out=http/petition http/petition/proto/*.proto
+	protoc -I ./internal/user/proto --go_out=./internal/user --go-grpc_out=./internal/user ./internal/user/proto/*.proto
+	protoc -I ./internal/petition/proto --go_out=./internal/petition --go-grpc_out=./internal/petition ./internal/petition/proto/*.proto
+	protoc -I ./internal/security/proto --go_out=./internal/security --go-grpc_out=./internal/security ./internal/security/proto/*.proto
 
 
 clear-gateway:
-	rm http/petition/pb/*.go
-	rm http/user/pb/*.go
+	rm internal/petition/pb/*.go
+	rm internal/user/pb/*.go
