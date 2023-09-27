@@ -1,16 +1,11 @@
 package model
 
 type Petition struct {
-	Title       string `json:"title"`
-	Category    string `json:"category"`
-	Description string `json:"description"`
-	Image       string `json:"path_to_image"`
-}
-
-type PetitionID struct {
-	PID uint32 `json:"pid"`
-}
-
-type PetitionStatus struct {
-	Status string `json:"status"`
+	PetitionId  uint32 `gorm:"not null;" json:"petition_id"`
+	Title       string `gorm:"not null;" json:"title"`
+	Category    string `gorm:"not null;" json:"category"`
+	Description string `gorm:"not null;" json:"description"`
+	Image       string `gorm:"not null;" json:"image"`
+	Status      uint32 `gorm:"not null;" json:"status"`
+	UserID      uint   `gorm:"not null;" json:"user-id"`
 }
