@@ -1,23 +1,45 @@
-version: '3.5'
+version: '3.8'
 
 services:
   postgres:
     container_name: e-petitions-project-db
-    image: postgres:latest
+    image: postgres:16.0
     environment:
       POSTGRES_DB : e-petitions-project-db
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: pass
       PGDATA: /data/e-petitions-project-db
+      POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - postgres-db:/data/postgres
     ports:
       - "5435:5432"
   redis:
-    image: redis:latest
+    image: redis:7.0.13
     container_name: e-petitions-redis-db
+    volumes:
+      - redis-data:/data
     ports:
       - "6379:6379"
+
+  mailcatcher:
+    image: dockage/mailcatcher:0.9.0
+    container_name: e-petitions-project-mailcatcher
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+  rabbitmq:
+    image: rabbitmq:3.13-rc-management
+    container_name: e-petitions-project-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
 volumes:
   postgres-db:
+    driver: local
+  redis-data:
     driver: local

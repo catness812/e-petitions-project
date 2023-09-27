@@ -16,7 +16,7 @@ type Config struct {
 
 func LoadConfig() Config {
 	var cfg Config
-	data, err := os.ReadFile("config.yml")
+	data, err := os.ReadFile("gateway/config.yml")
 	if err != nil {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}

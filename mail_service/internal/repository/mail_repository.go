@@ -1,4 +1,4 @@
-package service
+package repository
 
 import (
 	"log"
@@ -6,15 +6,14 @@ import (
 	"os"
 
 	"github.com/aymerick/raymond"
-	"github.com/spf13/viper"
 )
 
-var tmp *raymond.Template
+var reg *raymond.Template
 
-func SendMail(to []string, code string) {
-	msg := formatMessage(code)
+func SendMail(to []string, link string) {
+	msg := formatMessage(link)
 	// auth := sm.SmtpAuth(os.Getenv("MAIL"), os.Getenv("PASS"))
-	addr := viper.GetString("smtpHost") + ":" + viper.GetString("smtpPort")
+	addr := "localhost:1025"
 
 	err := smtp.SendMail(addr, nil, os.Getenv("MAIL"), to, msg)
 	// err := smtp.SendMail(addr, auth, os.Getenv("MAIL"), to, msg)
@@ -28,20 +27,16 @@ func SendMail(to []string, code string) {
 
 }
 
-func formatMessage(code string) []byte {
-	subject := "Subject: Verification code\n"
-	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-
+func formatMessage(link string) []byte {
 	ctx := map[string]interface{}{
-		"code": code,
+		"link": link,
 	}
-
-	return []byte(subject + mime + tmp.MustExec(ctx))
+	return []byte(reg.MustExec(ctx))
 }
 
 func init() {
 	var err error
-	tmp, err = raymond.ParseFile("./templates/user-register.html")
+	reg, err = raymond.ParseFile("./mail_service/templates/user-register-link.html")
 	if err != nil {
 		log.Fatalf("failed to parse template: %v", err)
 	}
