@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/catness812/e-petitions-project/user_service/config"
+	"github.com/catness812/e-petitions-project/user_service/internal/config"
 	"github.com/catness812/e-petitions-project/user_service/internal/controller"
 	"github.com/catness812/e-petitions-project/user_service/internal/pb"
 	"github.com/catness812/e-petitions-project/user_service/internal/repository"
