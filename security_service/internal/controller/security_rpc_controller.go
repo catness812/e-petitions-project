@@ -12,7 +12,6 @@ import (
 
 type ISecurityService interface {
 	Login(user *models.UserCredentialsModel) (map[string]string, error)
-	Register(user *models.UserModel) error
 	RefreshUserToken(token string, id uint) (map[string]string, error)
 }
 
@@ -38,28 +37,6 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *security_pb.UserCred
 	return &security_pb.Tokens{
 		AccessToken:  token["access_token"],
 		RefreshToken: token["refresh_token"],
-	}, nil
-}
-
-func (s *SecurityRpcServer) Register(ctx context.Context, req *security_pb.UserInfo) (*security_pb.CreateUserRequest, error) {
-	user := models.UserModel{
-		ID:       uint(req.GetId()),
-		Email:    req.GetEmail(),
-		Password: req.GetPassword(),
-		Role:     "user",
-	}
-	err := s.securitySvc.Register(&user)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	userInfo := &security_pb.UserInfo{
-		Email:    req.GetEmail(),
-		Password: req.GetPassword(),
-		Role:     "user",
-	}
-	return &security_pb.CreateUserRequest{
-		User: userInfo,
 	}, nil
 }
 

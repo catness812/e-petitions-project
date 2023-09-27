@@ -13,7 +13,6 @@ import (
 )
 
 type IUserRepository interface {
-	Register(user *models.UserModel) error
 	CheckIfEmailExists(mail string) bool
 	GetUserByEmail(email string) (models.UserModel, error)
 }
@@ -33,20 +32,6 @@ func NewSecurityService(userRepo IUserRepository, redisRepo IRedisRepository) *S
 		userRepo:  userRepo,
 		redisRepo: redisRepo,
 	}
-}
-
-func (svc *SecurityService) Register(user *models.UserModel) error {
-	if svc.userRepo.CheckIfEmailExists(user.Email) {
-		return errors.New("user already exists")
-	}
-
-	hash, err := svc.generatePasswordHash(user.Password)
-	if err != nil {
-		return errors.New("err can't register user")
-	}
-	user.Password = hash
-
-	return svc.userRepo.Register(user)
 }
 
 func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, error) {
