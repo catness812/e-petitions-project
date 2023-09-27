@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"strconv"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
@@ -31,6 +32,10 @@ func NewUserController(userService IUserService) *UserController {
 }
 
 func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+	if req.Email == "" || req.Password == "" {
+		return nil, errors.New("Email and Password cannot be empty")
+	}
+
 	user := &models.User{
 		Email:    req.Email,
 		Password: req.Password,
@@ -48,6 +53,9 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 }
 
 func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+	if req.Email == "" || req.Password == "" {
+		return nil, errors.New("Email and Password cannot be empty")
+	}
 	user := &models.User{
 		Email:    req.Email,
 		Password: req.Password,
