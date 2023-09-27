@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	config.LoadConfig()
 	db := loadDatabase()
 	petitionRepo := repository.InitPetitionRepository(db)
 	petitionSvc := service.InitPetitionService(petitionRepo)

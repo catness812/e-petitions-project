@@ -20,11 +20,25 @@ type Postgres struct {
 	DBName   string `yaml:"db_name"`
 }
 
-var Cfg Config
+var (
+	Cfg         Config
+	errOccurred bool
+)
 
 func LoadConfig() {
-	data, err := os.ReadFile("petition_service/config.yml")
+	data, err := os.ReadFile("./petition_service/config.yml")
 	if err != nil {
+		errOccurred = true
+	}
+
+	if errOccurred {
+		data, err = os.ReadFile("../petition_service/config.yml")
+		if err == nil {
+			errOccurred = false
+		}
+	}
+
+	if errOccurred {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}
 
