@@ -22,9 +22,15 @@ func main() {
 	userRepo := repository.NewUserRepository(DBPostgres)
 	userService := service.NewUserService(userRepo)
 
+	if err := startGRPCServer(userService); err != nil {
+		slog.Error("Failed to start gRPC server: %v", err)
+	}
+}
+
+func startGRPCServer(userService *service.UserService) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
-		slog.Error("Failed to listen: %v", err)
+		return fmt.Errorf("Failed to listen: %v", err)
 	}
 
 	grpcServer := grpc.NewServer()
@@ -35,6 +41,8 @@ func main() {
 
 	slog.Info("gRPC server listening on port %d", config.Cfg.GrpcPort)
 	if err := grpcServer.Serve(lis); err != nil {
-		slog.Error("Failed to serve: %v", err)
+		return fmt.Errorf("Failed to serve: %v", err)
 	}
+
+	return nil
 }

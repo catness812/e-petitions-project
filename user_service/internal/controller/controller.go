@@ -85,6 +85,10 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 
 func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*wrapperspb.StringValue, error) {
 	userEmail := req.GetEmail()
+
+	if userEmail == "" {
+		return nil, status.Error(codes.InvalidArgument, "Email field cannot be empty")
+	}
 	err := ctrl.userservice.Delete(userEmail)
 	if err != nil {
 		slog.Error("Couldn't delete")

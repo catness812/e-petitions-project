@@ -28,10 +28,21 @@ func (repo *UserRepository) Create(user *models.User) error {
 }
 
 func (repo *UserRepository) Delete(userEmail string) error {
+
+	var user models.User
 	err := repo.dbClient.Debug().
 		Model(models.User{}).
 		Where("email = ?", userEmail).
-		Delete(&models.User{}).Error
+		First(&user).Error
+
+	if err != nil {
+		slog.Error("failed to query user from database: %v\n", err)
+		return err
+	}
+
+	err = repo.dbClient.Debug().
+		Delete(&user).Error
+
 	if err != nil {
 		slog.Error("failed to delete user from database: %v\n", err)
 		return err
@@ -74,7 +85,7 @@ func (repo *UserRepository) CheckUserExistence(userEmail string) bool {
 }
 
 func (repo *UserRepository) AddAdminRole(userEmail string) error {
-	// Fetch the user by email
+
 	user := &models.User{}
 	err := repo.dbClient.Debug().
 		Model(models.User{}).
@@ -88,7 +99,6 @@ func (repo *UserRepository) AddAdminRole(userEmail string) error {
 		return nil
 	}
 
-	// Update the role
 	err = repo.dbClient.Debug().
 		Model(models.User{}).
 		Where("email = ?", userEmail).
