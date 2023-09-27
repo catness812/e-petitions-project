@@ -14,9 +14,6 @@ message UserInfo {
     string role = 4;
 }
 
-message CreateUserRequest {
-    UserInfo user = 1;
-}
 
 message UserCredentials {
 	string email = 1;

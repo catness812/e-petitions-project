@@ -22,7 +22,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SecurityServiceClient interface {
-	Register(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*CreateUserRequest, error)
 	Login(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*Tokens, error)
 	RefreshSession(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
 }
@@ -33,15 +32,6 @@ type securityServiceClient struct {
 
 func NewSecurityServiceClient(cc grpc.ClientConnInterface) SecurityServiceClient {
 	return &securityServiceClient{cc}
-}
-
-func (c *securityServiceClient) Register(ctx context.Context, in *UserInfo, opts ...grpc.CallOption) (*CreateUserRequest, error) {
-	out := new(CreateUserRequest)
-	err := c.cc.Invoke(ctx, "/proto.SecurityService/Register", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *securityServiceClient) Login(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*Tokens, error) {
@@ -66,7 +56,6 @@ func (c *securityServiceClient) RefreshSession(ctx context.Context, in *RefreshR
 // All implementations should embed UnimplementedSecurityServiceServer
 // for forward compatibility
 type SecurityServiceServer interface {
-	Register(context.Context, *UserInfo) (*CreateUserRequest, error)
 	Login(context.Context, *UserCredentials) (*Tokens, error)
 	RefreshSession(context.Context, *RefreshRequest) (*RefreshResponse, error)
 }
@@ -75,9 +64,6 @@ type SecurityServiceServer interface {
 type UnimplementedSecurityServiceServer struct {
 }
 
-func (UnimplementedSecurityServiceServer) Register(context.Context, *UserInfo) (*CreateUserRequest, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Register not implemented")
-}
 func (UnimplementedSecurityServiceServer) Login(context.Context, *UserCredentials) (*Tokens, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
@@ -94,24 +80,6 @@ type UnsafeSecurityServiceServer interface {
 
 func RegisterSecurityServiceServer(s grpc.ServiceRegistrar, srv SecurityServiceServer) {
 	s.RegisterService(&SecurityService_ServiceDesc, srv)
-}
-
-func _SecurityService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserInfo)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityServiceServer).Register(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/proto.SecurityService/Register",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityServiceServer).Register(ctx, req.(*UserInfo))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _SecurityService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -157,10 +125,6 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "proto.SecurityService",
 	HandlerType: (*SecurityServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Register",
-			Handler:    _SecurityService_Register_Handler,
-		},
 		{
 			MethodName: "Login",
 			Handler:    _SecurityService_Login_Handler,
