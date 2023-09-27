@@ -4,5 +4,5 @@ postgres:
   user: admin
   password: pass
   host: localhost
-  port: 5435
+  port: 5432
   db_name: e-petitions-project-db
