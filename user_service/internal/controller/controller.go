@@ -39,7 +39,7 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	err := ctrl.userservice.Create(user)
 
 	if err != nil {
-		slog.Error("Error adding user", err.Error())
+		slog.Errorf("Error adding user:%v", err.Error())
 		return &wrapperspb.StringValue{Value: "Error adding user"}, err
 	}
 	slog.Info("User added successfully")
@@ -55,7 +55,7 @@ func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest)
 	err := ctrl.userservice.UpdatePasswordByEmail(user)
 
 	if err != nil {
-		slog.Error("Error updating user", err.Error())
+		slog.Errorf("Error updating user: %v", err.Error())
 		return &wrapperspb.StringValue{Value: "Error updating user"}, err
 	}
 
@@ -67,12 +67,11 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 	userEmail := req.GetEmail()
 	user, err := ctrl.userservice.GetUserByEmail(userEmail)
 	if err != nil {
-		slog.Error("User not found")
+		slog.Errorf("User not found:%v", err.Error())
 		return nil, status.Error(codes.NotFound, "User not found")
 	}
 
 	userResponse := &pb.GetUserByEmailResponse{
-
 		Email:    req.Email,
 		Id:       strconv.Itoa(user.Id),
 		Password: user.Password,
@@ -89,9 +88,10 @@ func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRe
 	if userEmail == "" {
 		return nil, status.Error(codes.InvalidArgument, "Email field cannot be empty")
 	}
+
 	err := ctrl.userservice.Delete(userEmail)
 	if err != nil {
-		slog.Error("Couldn't delete")
+		slog.Errorf("Couldn't delete: %v", err.Error())
 		return nil, status.Error(codes.NotFound, "Couldn't delete")
 	}
 
@@ -102,7 +102,7 @@ func (ctrl *UserController) AddAdmin(ctx context.Context, req *pb.AddAdminReques
 	userEmail := req.GetEmail()
 	err := ctrl.userservice.AddAdmin(userEmail)
 	if err != nil {
-		slog.Error("Couldn't update role")
+		slog.Errorf("Couldn't update role: %v", err.Error())
 		return nil, status.Error(codes.NotFound, "Couldn't update role")
 	}
 	return &wrapperspb.StringValue{Value: "User role updated successfully"}, nil
