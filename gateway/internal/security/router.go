@@ -1,9 +1,11 @@
 package security
 
 import (
-	"github.com/catness812/e-petitions-project/gateway/internal/config"
-	"github.com/gin-gonic/gin"
 	"log"
+
+	"github.com/catness812/e-petitions-project/gateway/internal/config"
+	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
+	"github.com/gin-gonic/gin"
 )
 
 func RegisterSecurityRoutes(r *gin.Engine, c *config.Config) {
@@ -16,7 +18,9 @@ func RegisterSecurityRoutes(r *gin.Engine, c *config.Config) {
 	}
 	userctrl := NewSecurityController(securitysvc)
 
+	authenticationMiddleware := middleware.NewAuthenticationMiddleware(svc)
 	r.POST("/login", userctrl.Login)
-	r.GET("/refresh", userctrl.Refresh)
+
+	r.GET("/refresh", authenticationMiddleware.Auth(svc), userctrl.Refresh)
 
 }
