@@ -12,6 +12,7 @@ message Petition {
     string image = 5;
     Status status = 6;
     uint32 user_id = 7;
+    uint32 vote_goal = 8;
 }
 
 message Status {
@@ -25,6 +26,7 @@ message CreatePetitionRequest {
     string image = 3;
     uint32 user_id = 4;
     string category = 5;
+    uint32 vote_goal = 8;
 }
 
 message PetitionId {

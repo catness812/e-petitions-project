@@ -32,6 +32,7 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 		Image:       req.Image,
 		UserID:      uint(req.UserId),
 		Category:    req.Category,
+		VoteGoal:    uint(req.VoteGoal),
 	}
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
