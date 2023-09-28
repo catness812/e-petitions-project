@@ -25,6 +25,29 @@ type Server struct {
 	PetitionService IPetitionService
 }
 
+func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Petition, error) {
+	petition, err := s.PetitionService.GetByID(uint(req.Id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "petition not found")
+		}
+		return nil, err
+	}
+	return &pb.Petition{
+		Id:          uint32(petition.ID),
+		Title:       petition.Title,
+		Category:    petition.Category,
+		Description: petition.Description,
+		Image:       petition.Image,
+		Status: &pb.Status{
+			Id:    uint32(petition.Status.ID),
+			Title: petition.Status.Title,
+		},
+		UserId:   uint32(petition.UserID),
+		VoteGoal: uint32(petition.VoteGoal),
+	}, nil
+}
+
 func (s *Server) ValidatePetitionId(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
 	_, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
@@ -78,7 +101,8 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 				Id:    uint32(p.Status.ID),
 				Title: p.Status.Title,
 			},
-			UserId: uint32(p.UserID),
+			UserId:   uint32(p.UserID),
+			VoteGoal: uint32(p.VoteGoal),
 		}
 	}
 	return &pb.GetPetitionsResponse{
