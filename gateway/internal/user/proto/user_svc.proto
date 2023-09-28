@@ -7,9 +7,9 @@ import "user_msg.proto";
 
 
 service UserController{
-  rpc CreateUser(UserRequest) returns (google.protobuf.StringValue);
-  rpc UpdateUser(UserRequest) returns (google.protobuf.StringValue);
-  rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.StringValue);
-  rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
-  rpc AddAdmin(AddAdminRequest) returns (google.protobuf.StringValue);
+    rpc CreateUser(UserRequest) returns (google.protobuf.StringValue);
+    rpc UpdateUser(UserRequest) returns (google.protobuf.StringValue);
+    rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.StringValue);
+    rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
+    rpc AddAdmin(AddAdminRequest) returns (google.protobuf.StringValue);
 }
