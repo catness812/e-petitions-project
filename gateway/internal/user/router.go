@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func RegisterUserRoutes(r *gin.Engine, c config.Config) {
+func RegisterUserRoutes(r *gin.Engine, c *config.Config) {
 	svc := InitUserServiceClient(c)
 	userrepo, err := NewUserRepository(c, svc)
 	if err != nil {

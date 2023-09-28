@@ -16,7 +16,7 @@ type IUserRepository interface {
 	AddAdmin(email string) (string, error)
 }
 
-func NewUserRepository(c config.Config, client pb.UserControllerClient) (IUserRepository, error) {
+func NewUserRepository(c *config.Config, client pb.UserControllerClient) (IUserRepository, error) {
 
 	us := &userRepository{
 		cfg:    c,
@@ -27,7 +27,7 @@ func NewUserRepository(c config.Config, client pb.UserControllerClient) (IUserRe
 }
 
 type userRepository struct {
-	cfg    config.Config
+	cfg    *config.Config
 	client pb.UserControllerClient
 }
 

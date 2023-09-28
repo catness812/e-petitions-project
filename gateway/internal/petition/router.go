@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterPetitionRoutes(r *gin.Engine, c config.Config) {
+func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	svc := InitPetitonServiceClient(c)
 	petitionrepo, err := NewPetitionRepository(c, svc)
 	petitionService, err := NewPetitionService(petitionrepo)

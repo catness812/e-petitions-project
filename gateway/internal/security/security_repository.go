@@ -12,7 +12,7 @@ type ISecurityRepository interface {
 	Refresh(token string) (model.Tokens, error)
 }
 
-func NewSecurityRepository(c config.Config, client pb.SecurityServiceClient) (ISecurityRepository, error) {
+func NewSecurityRepository(c *config.Config, client pb.SecurityServiceClient) (ISecurityRepository, error) {
 
 	us := &securityRepository{
 		cfg:    c,
@@ -23,7 +23,7 @@ func NewSecurityRepository(c config.Config, client pb.SecurityServiceClient) (IS
 }
 
 type securityRepository struct {
-	cfg    config.Config
+	cfg    *config.Config
 	client pb.SecurityServiceClient
 }
 

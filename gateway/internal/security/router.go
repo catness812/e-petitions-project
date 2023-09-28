@@ -6,7 +6,7 @@ import (
 	"log"
 )
 
-func RegisterSecurityRoutes(r *gin.Engine, c config.Config) {
+func RegisterSecurityRoutes(r *gin.Engine, c *config.Config) {
 	svc := InitAuthServiceClient(c)
 	securityrepo, err := NewSecurityRepository(c, svc)
 	securitysvc, err := NewSecurityService(securityrepo)

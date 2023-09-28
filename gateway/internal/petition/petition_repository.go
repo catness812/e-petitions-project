@@ -15,7 +15,7 @@ type IPetitionRepository interface {
 	DeletePetition(id uint32) (string, error)
 }
 
-func NewPetitionRepository(c config.Config, client pb.PetitionServiceClient) (IPetitionRepository, error) {
+func NewPetitionRepository(c *config.Config, client pb.PetitionServiceClient) (IPetitionRepository, error) {
 
 	us := &petitionRepository{
 		cfg:    c,
@@ -26,7 +26,7 @@ func NewPetitionRepository(c config.Config, client pb.PetitionServiceClient) (IP
 }
 
 type petitionRepository struct {
-	cfg    config.Config
+	cfg    *config.Config
 	client pb.PetitionServiceClient
 }
 
