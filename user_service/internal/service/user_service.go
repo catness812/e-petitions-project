@@ -60,6 +60,7 @@ func (svc *UserService) UpdatePasswordByEmail(user *models.User) error {
 		return errors.New("error generating password hash")
 	}
 	user.Password = hashedPassword
+	slog.Info("hashed pass ", user.Password)
 	err = svc.userRepo.UpdatePasswordByEmail(user)
 	if err != nil {
 		slog.Errorf("error updating password: %v\n", err.Error())

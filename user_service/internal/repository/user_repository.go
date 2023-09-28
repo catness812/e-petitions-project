@@ -62,7 +62,8 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 }
 
 func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
-	err := repo.dbClient.Where("email = ?", user.Email).First(&user).Error
+	existing_user := &models.User{}
+	err := repo.dbClient.Where("email = ?", user.Email).First(&existing_user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return fmt.Errorf("user with email %s not found", user.Email)
@@ -70,7 +71,8 @@ func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
 		slog.Errorf("failed to fetch user: %v\n", err.Error())
 		return err
 	}
-	err = repo.dbClient.Save(&user).Error
+	existing_user.Password = user.Password
+	err = repo.dbClient.Save(&existing_user).Error
 	if err != nil {
 		slog.Errorf("failed to update password: %v\n", err.Error())
 		return err
