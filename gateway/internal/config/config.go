@@ -2,11 +2,9 @@ package config
 
 import (
 	"github.com/gookit/slog"
-	"log"
+	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
@@ -16,11 +14,11 @@ type Config struct {
 	HttpPort     string `yaml:"http_port"`
 }
 
-func LoadConfig() Config {
-	var cfg Config
+func LoadConfig() *Config {
+	var cfg *Config
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Failed to get working directory: %v", err)
+		slog.Fatalf("Failed to get working directory: %v", err)
 	}
 	configPath := filepath.Join(wd, "config.yml")
 	data, err := os.ReadFile(configPath)
@@ -29,7 +27,7 @@ func LoadConfig() Config {
 	}
 
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		log.Fatalf("Failed to unmarshal YAML data to config: %v", err)
+		slog.Fatalf("Failed to unmarshal YAML data to config: %v", err)
 	}
 	return cfg
 }

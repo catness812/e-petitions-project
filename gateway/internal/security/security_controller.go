@@ -1,8 +1,10 @@
 package security
 
 import (
+	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type ISecurityController interface {
@@ -22,11 +24,46 @@ type securityController struct {
 }
 
 func (c *securityController) Login(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, "nice")
+	var user model.UserCredentials
+	err := ctx.BindJSON(&user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	tokens, err := c.service.Login(user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.Header("authorization", "Bearer "+tokens.AccessToken)
+	ctx.Header("refresh-Token", tokens.RefreshToken)
+
+	ctx.JSON(http.StatusOK, "nice login")
 
 }
 
 func (c *securityController) Refresh(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, "nice")
+	authorization := ctx.Request.Header.Get("authorization")
+	if authorization == "" {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
 
+	token := strings.Split(authorization, "Bearer ")
+	if len(token) < 2 {
+		ctx.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	tokens, err := c.service.Refresh(token[1])
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.Header("authorization", "Bearer "+tokens.AccessToken)
+	ctx.Header("refresh-Token", tokens.RefreshToken)
+
+	ctx.JSON(http.StatusOK, "nice refresh")
 }
