@@ -3,8 +3,6 @@ package controller
 import (
 	"context"
 	"errors"
-	"strconv"
-
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/catness812/e-petitions-project/user_service/internal/pb"
 	"github.com/gookit/slog"
@@ -75,13 +73,13 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 	userEmail := req.GetEmail()
 	user, err := ctrl.userservice.GetUserByEmail(userEmail)
 	if err != nil {
-		slog.Errorf("User not found:%v", err.Error())
+		slog.Errorf("User not found: %v", err)
 		return nil, status.Error(codes.NotFound, "User not found")
 	}
 
 	userResponse := &pb.GetUserByEmailResponse{
 		Email:    req.Email,
-		Id:       strconv.Itoa(int(user.Id)),
+		Id:       user.Id,
 		Password: user.Password,
 		Role:     user.Role,
 	}
