@@ -72,25 +72,27 @@ func NewAuthMiddleware(userClient pb.UserControllerClient) *AuthMiddleware {
 func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFunc {
 	cfg := loadConfigRBAC()
 	return func(c *gin.Context) {
-		mail, ok := c.Get("userMail")
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error":   "Unauthorized",
-				"message": "You do not have permission to perform this action.",
-			})
-			return
-		}
-		email, ok := mail.(string)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error":   "Unauthorized",
-				"message": "You do not have permission to perform this action.",
-			})
-			return
-		}
+		//mail, ok := c.Get("userMail")
+		//if !ok {
+		//	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		//		"error":   "Unauthorized",
+		//		"message": "You do not have permission to perform this action.",
+		//	})
+		//	return
+		//}
+		email := "example@email.com"
+		//email, ok := mail.(string)
+		//if !ok {
+		//	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+		//		"error":   "Unauthorized",
+		//		"message": "You do not have permission to perform this action.",
+		//	})
+		//	return
+		//}
 		user, err := auth.userClient.GetUserByEmail(context.Background(), &pb.GetUserByEmailRequest{
 			Email: email,
 		})
+		slog.Info(user)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
