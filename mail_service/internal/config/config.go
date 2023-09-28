@@ -2,10 +2,8 @@ package config
 
 import (
 	"os"
-	"path/filepath"
 
 	"github.com/gookit/slog"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -26,18 +24,17 @@ type smtp struct {
 
 func LoadConfig() *Config {
 	var cfg *Config
-	wd, err := os.Getwd()
+	data, err := os.ReadFile("./mail_service/config.yml")
 	if err != nil {
-		slog.Fatalf("Failed to get working directory: %v", err)
-	}
-	configPath := filepath.Join(wd, "config.yml")
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		slog.Fatalf("Failed to read configuration file: %v", err)
+		data, err = os.ReadFile("../mail_service/config.yml")
+		if err == nil {
+			slog.Fatalf("Failed to read configuration file: %v", err)
+		}
 	}
 
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		slog.Fatalf("Failed to unmarshal YAML data to config: %v", err)
+		slog.Fatalf("Failed to unmarshal YAML data: %v", err)
 	}
+
 	return cfg
 }

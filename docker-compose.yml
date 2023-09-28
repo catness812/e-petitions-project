@@ -32,8 +32,8 @@ services:
     image: rabbitmq:3.13-rc-management
     container_name: e-petitions-project-rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
     ports:
       - "5672:5672"
       - "15672:15672"

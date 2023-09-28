@@ -15,12 +15,9 @@ import (
 var ch *amqp.Channel
 
 func main() {
-	q, err := ch.QueueDeclare("verify", false, false, false, false, nil)
-	if err != nil {
-		slog.Fatalf("failed to declare queue: %v", err)
-	}
 	cons := controllers.NewConsumer(ch)
-	cons.ConfirmationMail(q.Name)
+	go cons.ConfirmationMail("verify")
+	cons.NotificationMail("notification")
 }
 
 func init() {
