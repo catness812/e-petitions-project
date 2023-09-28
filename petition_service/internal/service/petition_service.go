@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log"
-
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 )
@@ -10,8 +8,10 @@ import (
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
-	Update(id uint32, status string) error
-	Delete(id uint32) error
+	UpdateStatus(id uint, statusID uint) error
+	Delete(id uint) error
+	GetStatusByTitle(title string) (models.Status, error)
+	GetByID(id uint) (models.Petition, error)
 }
 
 type PetitonService struct {
@@ -25,6 +25,12 @@ func InitPetitionService(repo IPetitionRepository) *PetitonService {
 }
 
 func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
+	// save with draft status when created
+	status, err := svc.repo.GetStatusByTitle(models.DRAFT)
+	if err != nil {
+		return 0, err
+	}
+	petition.Status = status
 	if err := svc.repo.Save(&petition); err != nil {
 		return 0, err
 	} else {
@@ -36,19 +42,30 @@ func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition 
 	return svc.repo.GetAll(pagination)
 }
 
-func (svc *PetitonService)Update(id uint32, status string) error {
-	if err := svc.repo.Update(id, status); err != nil {
-		log.Fatalf("Failed to update petition: %d\n", err)
+func (svc *PetitonService) UpdateStatus(id uint, status string) error {
+	// check if status exists first
+	newStatus, err := svc.repo.GetStatusByTitle(status)
+	if err != nil {
+		return err
+	}
+	if err := svc.repo.UpdateStatus(id, newStatus.ID); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (svc *PetitonService) Delete(id uint32) error {
-    err := svc.repo.Delete(id)
-    if err != nil {
-        log.Fatalf("Failed to delete petition: %v\n", err)
-        return err
-    }
-    return nil
+func (svc *PetitonService) Delete(id uint) error {
+	err := svc.repo.Delete(id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
+	petition, err := svc.repo.GetByID(id)
+	if err != nil {
+		return petition, err
+	}
+	return petition, nil
 }
