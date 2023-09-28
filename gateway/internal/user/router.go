@@ -17,9 +17,9 @@ func RegisterUserRoutes(r *gin.Engine, c *config.Config) {
 	userctrl := NewUserController(usersvc)
 
 	route := r.Group("/user")
-	route.GET("/:email", userctrl.GetUser)
+	route.GET("/", userctrl.GetUser)
 	route.POST("/", userctrl.CreateUser)
 	route.POST("/update", userctrl.UpdateUser)
-	route.DELETE("/:email", userctrl.DeleteUser)
+	route.DELETE("/", userctrl.DeleteUser)
 	route.POST("/admin", userctrl.AddAdmin)
 }
