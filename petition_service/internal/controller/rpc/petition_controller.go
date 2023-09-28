@@ -2,43 +2,45 @@ package rpctransport
 
 import (
 	"context"
-
+	"errors"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"github.com/golang/protobuf/ptypes/empty"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 type IPetitionSvc interface {
 	CreateNew(petition models.Petition) (uint, error)
 	GetAll(pagination util.Pagination) []models.Petition
-	Update(id uint32, status string) error
+	UpdateStatus(id uint32, status string) error
 	Delete(id uint32) error
 }
 
 type Server struct {
 	pb.PetitionServiceServer
-	Svc IPetitionSvc
+	PetitionService IPetitionSvc
 }
 
-func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest) (*pb.CreatePetitionResponse, error) {
-	petition := req.GetPetition()
+func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest) (*pb.PetitionId, error) {
 
 	newPetition := models.Petition{
-		Title:       petition.Title,
-		Category:    petition.Category,
-		Description: petition.Description,
-		Image:       petition.Image,
-		Status:      uint(petition.Status),
-		UserID:      uint(petition.UserId),
+		Title:       req.Title,
+		Description: req.Description,
+		Image:       req.Image,
+		UserID:      uint(req.UserId),
+		Category:    req.Category,
 	}
 
-	savedPetitionID, err := s.Svc.CreateNew(newPetition)
+	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pb.CreatePetitionResponse{
-		PetitionId: uint32(savedPetitionID),
+	return &pb.PetitionId{
+		Id: uint32(savedPetitionID),
 	}, nil
 }
 
@@ -48,20 +50,23 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 		Limit: int(req.Limit),
 	}
 
-	petitions := s.Svc.GetAll(pag)
+	petitions := s.PetitionService.GetAll(pag)
 
 	getPetitionsResponse := make([]*pb.Petition, len(petitions))
 
 	for i := range getPetitionsResponse {
 		p := petitions[i]
 		getPetitionsResponse[i] = &pb.Petition{
-			PetitionId:  uint32(p.ID),
+			Id:          uint32(p.ID),
 			Title:       p.Title,
 			Category:    p.Category,
 			Description: p.Description,
 			Image:       p.Image,
-			Status:      uint32(p.Status),
-			UserId:      uint32(p.UserID),
+			Status: &pb.Status{
+				Id:    uint32(p.Status.ID),
+				Title: p.Status.Title,
+			},
+			UserId: uint32(p.UserID),
 		}
 	}
 	return &pb.GetPetitionsResponse{
@@ -69,24 +74,27 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 	}, nil
 }
 
-func (controller *Server) Update(ctx context.Context, req *pb.UpdatePetitionRequest) (*pb.UpdatePetitionResponse, error) {
+func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionStatusRequest) (*empty.Empty, error) {
 	id := req.Id
-	status := req.Status
+	statusTitle := req.Status
 
-	err := controller.Svc.Update(id, status)
+	err := s.PetitionService.UpdateStatus(id, statusTitle)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
 		return nil, err
 	}
-	response := &pb.UpdatePetitionResponse{Message: "Petition status updated successfully"}
+	response := &empty.Empty{}
 	return response, nil
 }
 
-func (controller *Server) Delete(ctc context.Context, req *pb.DeletePetitionRequest) (*pb.DeletePetitionResponse, error) {
+func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
 	id := req.Id
-	err := controller.Svc.Delete(id)
+	err := s.PetitionService.Delete(id)
 	if err != nil {
 		return nil, err
 	}
-	response := &pb.DeletePetitionResponse{Message: "Petition deleted successfully"}
+	response := &empty.Empty{}
 	return response, nil
 }

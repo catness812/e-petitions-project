@@ -1,14 +1,14 @@
 syntax="proto3";
 
 option go_package="./pb";
+import "petition_msg.proto";
+import "google/protobuf/empty.proto";
 
 package proto;
 
-import "petition_msg.proto";
-
 service PetitionService {
-    rpc CreatePetition(CreatePetitionRequest) returns (CreatePetitionResponse);
+    rpc CreatePetition(CreatePetitionRequest) returns (PetitionId);
     rpc GetPetitions(GetPetitionsRequest) returns (GetPetitionsResponse);
-    rpc UpdatePetition(UpdatePetitionRequest) returns (UpdatePetitionResponse);
-    rpc DeletePetition(DeletePetitionRequest) returns (DeletePetitionResponse);
+    rpc UpdatePetitionStatus(UpdatePetitionStatusRequest) returns (google.protobuf.Empty);
+    rpc DeletePetition(PetitionId) returns (google.protobuf.Empty);
 }
