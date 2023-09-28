@@ -8,7 +8,6 @@ import "security_msg.proto";
 
 
  service SecurityService{
-    rpc Register (UserInfo) returns (CreateUserRequest);
     rpc Login (UserCredentials) returns (Tokens);
     rpc RefreshSession (RefreshRequest) returns (RefreshResponse);
 }

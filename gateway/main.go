@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/catness812/e-petitions-project/gateway/config"
-	"github.com/catness812/e-petitions-project/gateway/http/petition"
-	"github.com/catness812/e-petitions-project/gateway/http/security"
-	"github.com/catness812/e-petitions-project/gateway/http/user"
+	"github.com/catness812/e-petitions-project/gateway/internal/config"
+	"github.com/catness812/e-petitions-project/gateway/internal/petition"
+	"github.com/catness812/e-petitions-project/gateway/internal/security"
+	"github.com/catness812/e-petitions-project/gateway/internal/user"
 	"github.com/gin-gonic/gin"
 )
 

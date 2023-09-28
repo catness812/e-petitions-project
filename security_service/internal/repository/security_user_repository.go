@@ -18,15 +18,6 @@ func NewUserRepository(dbClient *gorm.DB) *UserRepository {
 	}
 }
 
-func (repo *UserRepository) Register(user *models.UserModel) error {
-	err := repo.DBClient.Debug().Model(models.UserModel{}).Create(&user).Error
-	if err != nil {
-		log.Printf("failed to insert user in database: %v\n", err)
-		return err
-	}
-	return nil
-}
-
 func (repo *UserRepository) CheckIfEmailExists(mail string) bool {
 	var user models.UserModel
 

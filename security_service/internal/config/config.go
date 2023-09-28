@@ -1,8 +1,10 @@
 package config
 
 import (
+	"github.com/gookit/slog"
 	"log"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -30,13 +32,18 @@ type Redis struct {
 
 func LoadConfig() *Config {
 	var cfg *Config
-	data, err := os.ReadFile("internal/config/config.yml")
+	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Failed to read configuration file: %v", err)
+		log.Fatalf("Failed to get working directory: %v", err)
+	}
+	configPath := filepath.Join(wd, "config.yml")
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		slog.Fatalf("Failed to read configuration file: %v", err)
 	}
 
 	if err := yaml.Unmarshal(data, &cfg); err != nil {
-		log.Fatalf("Failed to unmarshal YAML data to config: %v", err)
+		slog.Fatalf("Failed to unmarshal YAML data to config: %v", err)
 	}
 	return cfg
 }

@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -20,25 +20,11 @@ type Postgres struct {
 	DBName   string `yaml:"db_name"`
 }
 
-var (
-	Cfg         Config
-	errOccurred bool
-)
+var Cfg Config
 
-func LoadConfig() {
-	data, err := os.ReadFile("./petition_service/config.yml")
+func init() {
+	data, err := os.ReadFile("user_service/config.yml")
 	if err != nil {
-		errOccurred = true
-	}
-
-	if errOccurred {
-		data, err = os.ReadFile("../petition_service/config.yml")
-		if err == nil {
-			errOccurred = false
-		}
-	}
-
-	if errOccurred {
 		log.Fatalf("Failed to read configuration file: %v", err)
 	}
 
