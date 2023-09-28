@@ -5,8 +5,9 @@ import "github.com/catness812/e-petitions-project/gateway/model"
 type IUserService interface {
 	Get(email string) (model.User, error)
 	Delete(email string) (string, error)
-	Create(createUser model.UserCredentials) error
-	Update(createUser model.UserCredentials) error
+	Create(createUser model.UserCredentials) (string, error)
+	Update(createUser model.UserCredentials) (string, error)
+	AddAdmin(email string) (string, error)
 }
 
 func NewUserService(repo IUserRepository) (IUserService, error) {
@@ -29,11 +30,15 @@ func (svc *userService) Delete(email string) (string, error) {
 
 }
 
-func (svc *userService) Create(createUser model.UserCredentials) error {
+func (svc *userService) Create(createUser model.UserCredentials) (string, error) {
 	return svc.repo.Create(createUser)
 
 }
 
-func (svc *userService) Update(createUser model.UserCredentials) error {
+func (svc *userService) Update(createUser model.UserCredentials) (string, error) {
 	return svc.repo.Update(createUser)
+}
+
+func (svc *userService) AddAdmin(email string) (string, error) {
+	return svc.repo.AddAdmin(email)
 }

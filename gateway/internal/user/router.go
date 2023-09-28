@@ -21,4 +21,5 @@ func RegisterUserRoutes(r *gin.Engine, c config.Config) {
 	route.POST("/", userctrl.CreateUser)
 	route.POST("/update", userctrl.UpdateUser)
 	route.DELETE("/:email", userctrl.DeleteUser)
+	route.POST("/admin", userctrl.AddAdmin)
 }

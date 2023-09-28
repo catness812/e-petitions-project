@@ -11,9 +11,9 @@ import (
 type IUserRepository interface {
 	Get(email string) (model.User, error)
 	Delete(email string) (string, error)
-	Create(createUser model.UserCredentials) error
-	Update(createUser model.UserCredentials) error
-	AddAdmin()
+	Create(createUser model.UserCredentials) (string, error)
+	Update(createUser model.UserCredentials) (string, error)
+	AddAdmin(email string) (string, error)
 }
 
 func NewUserRepository(c config.Config, client pb.UserControllerClient) (IUserRepository, error) {
@@ -62,34 +62,53 @@ func (repo *userRepository) Delete(email string) (string, error) {
 	return "", errors.New("DeleteUser response is empty")
 }
 
-func (repo *userRepository) Create(createUser model.UserCredentials) error {
+func (repo *userRepository) Create(createUser model.UserCredentials) (string, error) {
 
-	_, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
+	res, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
 		Email:    createUser.Email,
 		Password: createUser.Password,
 	})
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	if res != nil && res.Value != "" {
+		return res.Value, nil
+	}
+
+	return "", errors.New("CreateUser response is empty")
 
 }
 
-func (repo *userRepository) Update(createUser model.UserCredentials) error {
-	_, err := repo.client.UpdateUser(context.Background(), &pb.UserRequest{
+func (repo *userRepository) Update(createUser model.UserCredentials) (string, error) {
+	res, err := repo.client.UpdateUser(context.Background(), &pb.UserRequest{
 		Email:    createUser.Email,
 		Password: createUser.Password,
 	})
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	if res != nil && res.Value != "" {
+		return res.Value, nil
+	}
+
+	return "", errors.New("UpdateUser response is empty")
 }
 
-func (repo *userRepository) AddAdmin() {
+func (repo *userRepository) AddAdmin(email string) (string, error) {
+	res, err := repo.client.AddAdmin(context.Background(), &pb.AddAdminRequest{
+		Email: email,
+	})
+	if err != nil {
+		return "", err
+	}
 
+	if res != nil && res.Value != "" {
+		return res.Value, nil
+	}
+
+	return "", errors.New("AddAdmin response is empty")
 }
