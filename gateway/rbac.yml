@@ -1,0 +1,68 @@
+# RBAC Configuration
+
+# Define roles
+roles:
+  - role:
+      code: admin
+      name: Administrator
+      description: Full access to all resources
+
+  - role:
+      code: user
+      name: User
+      description: Can write and read petitions
+
+# Define resources
+resources:
+  - code: petitions
+    name: Petitions
+    description: Manage petitions
+  - code: users
+    name: Users
+    description: Manage users
+
+# Define permissions
+permissions:
+  - role: admin
+    resource: petitions
+    allow:
+      read: true
+      write: true
+      delete: true
+    deny:
+      read: false
+      write: false
+      delete: false
+
+  - role: user
+    resource: petitions
+    allow:
+      read: true
+      write: true
+      delete: false
+    deny:
+      read: false
+      write: false
+      delete: true
+
+  - role: admin
+    resource: users
+    allow:
+      read: true
+      write: true
+      delete: true
+    deny:
+      read: false
+      write: false
+      delete: false
+
+  - role: user
+    resource: users
+    allow:
+      read: false
+      write: false
+      delete: false
+    deny:
+      read: true
+      write: true
+      delete: true

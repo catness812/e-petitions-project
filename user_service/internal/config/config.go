@@ -1,8 +1,9 @@
 package config
 
 import (
-	"log"
+	"github.com/gookit/slog"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -23,12 +24,17 @@ type Postgres struct {
 var Cfg Config
 
 func init() {
-	data, err := os.ReadFile("user_service/config.yml")
+	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Failed to read configuration file: %v", err)
+		slog.Fatalf("Failed to get working directory: %v", err)
+	}
+	configPath := filepath.Join(wd, "config.yml")
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		slog.Fatalf("Failed to read configuration file: %v", err)
 	}
 
 	if err := yaml.Unmarshal(data, &Cfg); err != nil {
-		log.Fatalf("Failed to unmarshal YAML data: %v", err)
+		slog.Fatalf("Failed to unmarshal YAML data: %v", err)
 	}
 }
