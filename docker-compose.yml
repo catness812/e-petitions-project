@@ -42,4 +42,8 @@ volumes:
   postgres-db:
     driver: local
   redis-data:
+<<<<<<< HEAD
     driver: local
+=======
+    driver: local
+>>>>>>> dec27459594f4af9acde6d2084a75219c74621e4

@@ -1,0 +1,8 @@
+smtp:
+  host: "localhost"
+  port: "1025"
+
+  
+rabbit:
+  host: "localhost"
+  port: "5672"

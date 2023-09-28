@@ -18,7 +18,6 @@ func SendMail(to []string, link string) {
 	err := smtp.SendMail(addr, nil, os.Getenv("MAIL"), to, msg)
 	// err := smtp.SendMail(addr, auth, os.Getenv("MAIL"), to, msg)
 
-	// handling the errors
 	if err != nil {
 		log.Fatalf("failed to send message: \t%v", err)
 		return
@@ -38,6 +37,9 @@ func init() {
 	var err error
 	reg, err = raymond.ParseFile("./mail_service/templates/user-register-link.html")
 	if err != nil {
-		log.Fatalf("failed to parse template: %v", err)
+		reg, err = raymond.ParseFile("../mail_service/templates/user-register-link.html")
+		if err != nil {
+			log.Fatalf("failed to parse template: %v", err)
+		}
 	}
 }
