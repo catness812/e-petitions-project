@@ -2,9 +2,11 @@ package petition
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/slog"
 )
 
 type IPetitionController interface {
@@ -62,11 +64,17 @@ func (c *petitionController) UpdatePetition(ctx *gin.Context) {
 
 func (c *petitionController) GetPetitions(ctx *gin.Context) {
 	query := model.PaginationQuery{}
-	err := ctx.BindJSON(&query)
+	page, err := strconv.ParseUint(ctx.Query("page"), 10, 32)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		slog.Printf("Failed to get page value: ", err)
 	}
+	query.Page = uint32(page)
+
+	limit, err := strconv.ParseUint(ctx.Query("limit"), 10, 32)
+	if err != nil {
+		slog.Printf("Failed to get limit value: ", err)
+	}
+	query.Limit = uint32(limit)
 
 	petitions, err := c.service.GetPetitions(query)
 	if err != nil {
@@ -79,13 +87,13 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 }
 
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
-	var petition model.Petition
-	err := ctx.BindJSON(petition)
+	idParam, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+		slog.Printf("Failed to get the id: ", err)
 	}
-	msg, err := c.service.DeletePetition(petition.PetitionId)
+	id := uint32(idParam)
 
-	ctx.JSON(http.StatusOK, msg)
+	err = c.service.DeletePetition(id)
+
+	ctx.Status(http.StatusOK)
 }

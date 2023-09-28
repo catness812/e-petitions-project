@@ -12,7 +12,7 @@ type IPetitionRepository interface {
 	CreatePetition(model.Petition) (uint32, error)
 	GetPetitions(model.PaginationQuery) ([]model.Petition, error)
 	UpdatePetition(id uint32, status string) (string, error)
-	DeletePetition(id uint32) (string, error)
+	DeletePetition(id uint32) error
 }
 
 func NewPetitionRepository(c *config.Config, client pb.PetitionServiceClient) (IPetitionRepository, error) {
@@ -96,17 +96,10 @@ func (repo *petitionRepository) UpdatePetition(id uint32, status string) (string
 
 }
 
-func (repo *petitionRepository) DeletePetition(id uint32) (string, error) {
-	resp, err := repo.client.DeletePetition(context.Background(), &pb.DeletePetitionRequest{
+func (repo *petitionRepository) DeletePetition(id uint32) error {
+	_, err := repo.client.DeletePetition(context.Background(), &pb.DeletePetitionRequest{
 		Id: id,
 	})
 
-	var message string
-	if err != nil {
-		return message, err
-	}
-
-	message = resp.Message
-
-	return message, nil
+	return err
 }

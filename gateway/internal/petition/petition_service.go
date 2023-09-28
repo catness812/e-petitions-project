@@ -6,7 +6,7 @@ type IPetitionService interface {
 	CreatePetition(model.Petition) (uint32, error)
 	GetPetitions(model.PaginationQuery) ([]model.Petition, error)
 	UpdatePetition(id uint32, status string) (string, error)
-	DeletePetition(id uint32) (string, error)
+	DeletePetition(id uint32) error
 }
 
 func NewPetitionService(repo IPetitionRepository) (IPetitionService, error) {
@@ -31,6 +31,6 @@ func (svc *petitionService) UpdatePetition(id uint32, status string) (string, er
 	return svc.repo.UpdatePetition(id, status)
 }
 
-func (svc *petitionService) DeletePetition(id uint32) (string, error) {
+func (svc *petitionService) DeletePetition(id uint32) error {
 	return svc.repo.DeletePetition(id)
 }
