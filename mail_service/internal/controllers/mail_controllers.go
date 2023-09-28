@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"log"
-
 	"github.com/catness812/e-petitions-project/mail_service/internal/service"
+	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
 )
 
@@ -28,10 +27,10 @@ func (c *Consumer) ConfirmationMail(name string) {
 		nil,   //args
 	)
 	if err != nil {
-		panic(err)
+		slog.Panic(err)
 	}
 
-	log.Printf("Consumer %s started", name)
+	slog.Infof("Consumer %s started", name)
 	// print consumed messages from queue
 	forever := make(chan bool)
 	go func() {
@@ -54,10 +53,10 @@ func (c *Consumer) NotificationMail(name string) {
 		nil,   //args
 	)
 	if err != nil {
-		panic(err)
+		slog.Panic(err)
 	}
 
-	log.Printf("Consumer %s started", name)
+	slog.Infof("Consumer %s started", name)
 	// print consumed messages from queue
 	forever := make(chan bool)
 	go func() {

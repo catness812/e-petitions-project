@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"log"
 	"net/smtp"
 	"os"
 
 	"github.com/aymerick/raymond"
+	"github.com/gookit/slog"
 )
 
 var reg *raymond.Template
@@ -19,10 +19,10 @@ func SendMail(to []string, link string) {
 	// err := smtp.SendMail(addr, auth, os.Getenv("MAIL"), to, msg)
 
 	if err != nil {
-		log.Fatalf("failed to send message: \t%v", err)
+		slog.Fatalf("failed to send message: \t%v", err)
 		return
 	}
-	log.Printf("successfully sent message")
+	slog.Printf("successfully sent message")
 
 }
 
@@ -39,7 +39,7 @@ func init() {
 	if err != nil {
 		reg, err = raymond.ParseFile("../mail_service/templates/user-register-link.html")
 		if err != nil {
-			log.Fatalf("failed to parse template: %v", err)
+			slog.Fatalf("failed to parse template: %v", err)
 		}
 	}
 }
