@@ -1,9 +1,10 @@
 package petition
 
 import (
+	"log"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 func RegisterPetitionRoutes(r *gin.Engine, c config.Config) {
@@ -19,9 +20,8 @@ func RegisterPetitionRoutes(r *gin.Engine, c config.Config) {
 
 	route := r.Group("/petition")
 	route.POST("/", petitionController.CreatePetition)
-	route.GET("/", petitionController.GetPetition)
-	route.DELETE("/", petitionController.DeletePetition)
+	route.DELETE("/:id", petitionController.DeletePetition)
 	route.POST("/update", petitionController.UpdatePetition)
-	route.GET("/all", petitionController.GetAllPetitions)
+	route.GET("/all", petitionController.GetPetitions)
 
 }
