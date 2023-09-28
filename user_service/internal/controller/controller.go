@@ -2,8 +2,7 @@ package controller
 
 import (
 	"context"
-	"strconv"
-
+	"errors"
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/catness812/e-petitions-project/user_service/internal/pb"
 	"github.com/gookit/slog"
@@ -31,6 +30,10 @@ func NewUserController(userService IUserService) *UserController {
 }
 
 func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+	if req.Email == "" || req.Password == "" {
+		return nil, errors.New("Email and Password cannot be empty")
+	}
+
 	user := &models.User{
 		Email:    req.Email,
 		Password: req.Password,
@@ -39,7 +42,7 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	err := ctrl.userservice.Create(user)
 
 	if err != nil {
-		slog.Error("Error adding user", err.Error())
+		slog.Errorf("Error adding user:%v", err.Error())
 		return &wrapperspb.StringValue{Value: "Error adding user"}, err
 	}
 	slog.Info("User added successfully")
@@ -48,6 +51,9 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 }
 
 func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+	if req.Email == "" || req.Password == "" {
+		return nil, errors.New("Email and Password cannot be empty")
+	}
 	user := &models.User{
 		Email:    req.Email,
 		Password: req.Password,
@@ -55,7 +61,7 @@ func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest)
 	err := ctrl.userservice.UpdatePasswordByEmail(user)
 
 	if err != nil {
-		slog.Error("Error updating user", err.Error())
+		slog.Errorf("Error updating user: %v", err.Error())
 		return &wrapperspb.StringValue{Value: "Error updating user"}, err
 	}
 
@@ -67,14 +73,13 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 	userEmail := req.GetEmail()
 	user, err := ctrl.userservice.GetUserByEmail(userEmail)
 	if err != nil {
-		slog.Error("User not found")
+		slog.Errorf("User not found: %v", err)
 		return nil, status.Error(codes.NotFound, "User not found")
 	}
 
 	userResponse := &pb.GetUserByEmailResponse{
-
 		Email:    req.Email,
-		Id:       strconv.Itoa(user.Id),
+		Id:       user.Id,
 		Password: user.Password,
 		Role:     user.Role,
 	}
@@ -85,9 +90,14 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 
 func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*wrapperspb.StringValue, error) {
 	userEmail := req.GetEmail()
+
+	if userEmail == "" {
+		return nil, status.Error(codes.InvalidArgument, "Email field cannot be empty")
+	}
+
 	err := ctrl.userservice.Delete(userEmail)
 	if err != nil {
-		slog.Error("Couldn't delete")
+		slog.Errorf("Couldn't delete: %v", err.Error())
 		return nil, status.Error(codes.NotFound, "Couldn't delete")
 	}
 
@@ -98,7 +108,7 @@ func (ctrl *UserController) AddAdmin(ctx context.Context, req *pb.AddAdminReques
 	userEmail := req.GetEmail()
 	err := ctrl.userservice.AddAdmin(userEmail)
 	if err != nil {
-		slog.Error("Couldn't update role")
+		slog.Errorf("Couldn't update role: %v", err.Error())
 		return nil, status.Error(codes.NotFound, "Couldn't update role")
 	}
 	return &wrapperspb.StringValue{Value: "User role updated successfully"}, nil
