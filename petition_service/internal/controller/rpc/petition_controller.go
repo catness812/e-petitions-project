@@ -1,4 +1,4 @@
-package rpctransport
+package rpc
 
 import (
 	"context"
@@ -12,20 +12,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type IPetitionSvc interface {
+type IPetitionService interface {
 	CreateNew(petition models.Petition) (uint, error)
 	GetAll(pagination util.Pagination) []models.Petition
-	UpdateStatus(id uint32, status string) error
-	Delete(id uint32) error
+	UpdateStatus(id uint, status string) error
+	Delete(id uint) error
+	GetByID(id uint) (models.Petition, error)
 }
 
 type Server struct {
 	pb.PetitionServiceServer
-	PetitionService IPetitionSvc
+	PetitionService IPetitionService
+}
+
+func (s *Server) ValidatePetitionId(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
+	_, err := s.PetitionService.GetByID(uint(req.Id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "petition not found")
+		}
+		return nil, err
+	}
+	return &empty.Empty{}, nil
 }
 
 func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest) (*pb.PetitionId, error) {
-
 	newPetition := models.Petition{
 		Title:       req.Title,
 		Description: req.Description,
@@ -79,7 +90,7 @@ func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionS
 	id := req.Id
 	statusTitle := req.Status
 
-	err := s.PetitionService.UpdateStatus(id, statusTitle)
+	err := s.PetitionService.UpdateStatus(uint(id), statusTitle)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
@@ -92,7 +103,7 @@ func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionS
 
 func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
 	id := req.Id
-	err := s.PetitionService.Delete(id)
+	err := s.PetitionService.Delete(uint(id))
 	if err != nil {
 		return nil, err
 	}

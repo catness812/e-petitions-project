@@ -8,9 +8,10 @@ import (
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
-	UpdateStatus(id uint32, statusID uint) error
-	Delete(id uint32) error
+	UpdateStatus(id uint, statusID uint) error
+	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
+	GetByID(id uint) (models.Petition, error)
 }
 
 type PetitonService struct {
@@ -41,7 +42,7 @@ func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition 
 	return svc.repo.GetAll(pagination)
 }
 
-func (svc *PetitonService) UpdateStatus(id uint32, status string) error {
+func (svc *PetitonService) UpdateStatus(id uint, status string) error {
 	// check if status exists first
 	newStatus, err := svc.repo.GetStatusByTitle(status)
 	if err != nil {
@@ -53,10 +54,18 @@ func (svc *PetitonService) UpdateStatus(id uint32, status string) error {
 	return nil
 }
 
-func (svc *PetitonService) Delete(id uint32) error {
+func (svc *PetitonService) Delete(id uint) error {
 	err := svc.repo.Delete(id)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
+	petition, err := svc.repo.GetByID(id)
+	if err != nil {
+		return petition, err
+	}
+	return petition, nil
 }

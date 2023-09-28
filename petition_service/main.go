@@ -53,7 +53,7 @@ func seedStatuses(db *gorm.DB) {
 	}
 }
 
-func grpcStart(petitionSvc rpctransport.IPetitionSvc) {
+func grpcStart(petitionSvc rpctransport.IPetitionService) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
 		panic(err)
