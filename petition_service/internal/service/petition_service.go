@@ -13,6 +13,7 @@ type IPetitionRepository interface {
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(id uint) (models.Petition, error)
 	GetAllUserPetitions(userID uint) ([]models.Petition, error)
+	SaveVote(Vote *models.Vote) error
 }
 
 type PetitonService struct {
@@ -36,6 +37,15 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 		return 0, err
 	} else {
 		return petition.ID, nil
+	}
+}
+
+func (svc *PetitonService) CreateVote(vote models.Vote) error {
+	//max function
+	if err := svc.repo.SaveVote(&vote); err != nil {
+		return err
+	} else {
+		return nil
 	}
 }
 

@@ -2,8 +2,9 @@ package postgres
 
 import (
 	"fmt"
-	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"log"
+
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -21,9 +22,12 @@ func LoadDatabase() *gorm.DB {
 	if err != nil {
 		log.Fatal(err)
 	}
+	err = db.AutoMigrate(&models.Vote{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	seedStatuses(db)
-
 	return db
 }
 
