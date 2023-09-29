@@ -14,7 +14,7 @@ type AuthMiddleware struct {
 	cfg        *config.PermissionsConfig
 }
 
-func NewAuthMiddleware(userClient pb.UserControllerClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
+func NewAuthorizationMiddleware(userClient pb.UserControllerClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
 	return &AuthMiddleware{userClient: userClient, cfg: rbacCfg}
 }
 

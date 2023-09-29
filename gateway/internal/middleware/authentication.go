@@ -13,8 +13,8 @@ func NewAuthenticationMiddleware(securityClient pb.SecurityServiceClient) *Authe
 	return &AuthenticationMiddleware{securityClient: securityClient}
 }
 
-func (auth *AuthenticationMiddleware) Auth(securityClient pb.SecurityServiceClient) gin.HandlerFunc {
-	return func(c *gin.Context){
+func (auth *AuthenticationMiddleware) Auth() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
 		token := &pb.Token{Token: tokenString}
 
@@ -23,14 +23,14 @@ func (auth *AuthenticationMiddleware) Auth(securityClient pb.SecurityServiceClie
 			return
 		}
 
-		response, err := securityClient.ValidateToken(c, token)
+		response, err := auth.securityClient.ValidateToken(c, token)
 
 		if err != nil {
 			c.AbortWithStatusJSON(401, gin.H{"error": err.Error()})
-			return	
+			return
 		}
 
-		c.Set("userEmail", response.Email);
+		c.Set("userEmail", response.Email)
 		c.Next()
 	}
 }
