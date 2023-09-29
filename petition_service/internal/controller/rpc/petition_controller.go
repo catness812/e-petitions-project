@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -18,6 +19,7 @@ type IPetitionService interface {
 	UpdateStatus(id uint, status string) error
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
+	CreateVote(vote models.Vote) error
 }
 
 type Server struct {
@@ -77,6 +79,19 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 	return &pb.PetitionId{
 		Id: uint32(savedPetitionID),
 	}, nil
+}
+
+func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empty.Empty, error) {
+	newVote := models.Vote{
+		PetitionID: uint(req.PetitionId),
+		UserID:     uint(req.UserId),
+	}
+	err := s.PetitionService.CreateVote(newVote)
+	if err != nil {
+		return nil, err
+	}
+	response := &empty.Empty{}
+	return response, nil
 }
 
 func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*pb.GetPetitionsResponse, error) {

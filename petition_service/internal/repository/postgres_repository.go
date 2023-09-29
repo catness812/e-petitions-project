@@ -32,6 +32,14 @@ func (repo *PetitionRepository) Save(petition *models.Petition) error {
 	return nil
 }
 
+func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
+	err := repo.db.Create(Vote).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
 	var petition models.Petition
 	// first query to see if this petition exists
