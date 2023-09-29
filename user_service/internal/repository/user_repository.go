@@ -21,19 +21,30 @@ func NewUserRepository(dbClient *gorm.DB) *UserRepository {
 func (repo *UserRepository) Create(user *models.User) error {
 	err := repo.dbClient.Debug().Model(models.User{}).Create(user).Error
 	if err != nil {
-		slog.Error("user failed to insert in database: %v\n", err)
+		slog.Errorf("user failed to insert in database: %v\n", err.Error())
 		return err
 	}
 	return nil
 }
 
 func (repo *UserRepository) Delete(userEmail string) error {
+
+	var user models.User
 	err := repo.dbClient.Debug().
 		Model(models.User{}).
 		Where("email = ?", userEmail).
-		Delete(&models.User{}).Error
+		First(&user).Error
+
 	if err != nil {
-		slog.Error("failed to delete user from database: %v\n", err)
+		slog.Error("failed to query user from database: %v\n", err.Error())
+		return err
+	}
+
+	err = repo.dbClient.Debug().
+		Delete(&user).Error
+
+	if err != nil {
+		slog.Error("failed to delete user from database: %v\n", err.Error())
 		return err
 	}
 
@@ -44,24 +55,26 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 	user := &models.User{}
 	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
 	if err != nil {
-		slog.Error("failed to get user from database: %v\n", err)
+		slog.Errorf("failed to get user from database: %v\n", err.Error())
 		return nil, err
 	}
 	return user, nil
 }
 
 func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
-	err := repo.dbClient.Where("email = ?", user.Email).First(&user).Error
+	existing_user := &models.User{}
+	err := repo.dbClient.Where("email = ?", user.Email).First(&existing_user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return fmt.Errorf("user with email %s not found", user.Email)
 		}
-		slog.Error("failed to fetch user: %v\n", err)
+		slog.Errorf("failed to fetch user: %v\n", err.Error())
 		return err
 	}
-	err = repo.dbClient.Save(&user).Error
+	existing_user.Password = user.Password
+	err = repo.dbClient.Save(&existing_user).Error
 	if err != nil {
-		slog.Error("failed to update password: %v\n", err)
+		slog.Errorf("failed to update password: %v\n", err.Error())
 		return err
 	}
 	return nil
@@ -74,13 +87,14 @@ func (repo *UserRepository) CheckUserExistence(userEmail string) bool {
 }
 
 func (repo *UserRepository) AddAdminRole(userEmail string) error {
-	// Fetch the user by email
+
 	user := &models.User{}
 	err := repo.dbClient.Debug().
 		Model(models.User{}).
 		Where("email = ?", userEmail).
 		First(user).Error
 	if err != nil {
+		slog.Errorf("failed to fetch user: %v\n", err.Error())
 		return err
 	}
 
@@ -88,7 +102,6 @@ func (repo *UserRepository) AddAdminRole(userEmail string) error {
 		return nil
 	}
 
-	// Update the role
 	err = repo.dbClient.Debug().
 		Model(models.User{}).
 		Where("email = ?", userEmail).

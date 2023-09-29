@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"fmt"
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"log"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
@@ -10,7 +11,23 @@ import (
 	"gorm.io/gorm"
 )
 
-func Connect() *gorm.DB {
+func LoadDatabase() *gorm.DB {
+	db := connect()
+	err := db.AutoMigrate(&models.Petition{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.AutoMigrate(&models.Status{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	seedStatuses(db)
+
+	return db
+}
+
+func connect() *gorm.DB {
 	var err error
 
 	dsn := fmt.Sprintf(`host=%s
@@ -40,5 +57,16 @@ func Connect() *gorm.DB {
 func Paginate(pagination util.Pagination) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.Offset(pagination.GetOffset()).Limit(pagination.GetLimit())
+	}
+}
+
+// seeds Statuses in case there are none in the db
+func seedStatuses(db *gorm.DB) {
+	var count int64
+	db.Model(&models.Status{}).Count(&count)
+	if count == 0 {
+		for _, status := range models.StatusSeedData {
+			db.Create(&status)
+		}
 	}
 }

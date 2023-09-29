@@ -20,14 +20,12 @@ type Postgres struct {
 	DBName   string `yaml:"db_name"`
 }
 
-var (
-	Cfg         Config
-	errOccurred bool
-)
+var Cfg Config
 
 func LoadConfig() {
-	data, err := os.ReadFile("./petition_service/config.yml")
+	var errOccurred bool
 
+	data, err := os.ReadFile("./petition_service/config.yml")
 	if err != nil {
 		errOccurred = true
 	}
