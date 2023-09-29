@@ -4,6 +4,7 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
+	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 
@@ -76,4 +77,15 @@ func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
 		return petition, err
 	}
 	return petition, nil
+}
+
+func (repo *PetitionRepository) CheckIfExists(id uint) (bool, error) {
+	var petitions []models.Petition
+
+	if err := repo.db.Where("id = ?", id).Find(&petitions).Error; err != nil {
+		slog.Errorf("Couldn't find petition: %v", err.Error())
+		return false, err
+	}
+	slog.Infof("Found %d petitions", len(petitions))
+	return true, nil
 }
