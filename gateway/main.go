@@ -10,10 +10,11 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
+	rbacCfg := config.LoadConfigRBAC()
 
 	r := gin.Default()
 
-	user.RegisterUserRoutes(r, cfg)
+	user.RegisterUserRoutes(r, cfg, rbacCfg)
 	//petition.RegisterPetitionRoutes(r, cfg)
 	security.RegisterSecurityRoutes(r, cfg)
 

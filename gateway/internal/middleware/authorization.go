@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/gin-gonic/gin"
 	"github.com/gookit/slog"
@@ -10,14 +11,14 @@ import (
 
 type AuthMiddleware struct {
 	userClient pb.UserControllerClient
+	cfg        *config.PermissionsConfig
 }
 
-func NewAuthMiddleware(userClient pb.UserControllerClient) *AuthMiddleware {
-	return &AuthMiddleware{userClient: userClient}
+func NewAuthMiddleware(userClient pb.UserControllerClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
+	return &AuthMiddleware{userClient: userClient, cfg: rbacCfg}
 }
 
 func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFunc {
-	cfg := loadConfigRBAC()
 	return func(c *gin.Context) {
 		//mail, ok := c.Get("userMail")
 		//if !ok {
@@ -49,7 +50,7 @@ func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFu
 		}
 		authorized := false
 
-		for _, perm := range cfg.Permissions {
+		for _, perm := range auth.cfg.Permissions {
 			if perm.Resource == resourceCode && perm.Role == user.Role {
 				if (action == "read" && perm.Allow.Read) ||
 					(action == "write" && perm.Allow.Write) ||
