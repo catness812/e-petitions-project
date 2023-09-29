@@ -62,8 +62,8 @@ func (repo *PetitionRepository) GetStatusByTitle(title string) (models.Status, e
 	return status, nil
 }
 
-func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
-	var petition models.Petition
+func (repo *PetitionRepository) GetByID(id uint) ([]models.Petition, error) {
+	var petition []models.Petition
 	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
 	if err != nil {
 		return petition, err
@@ -80,4 +80,12 @@ func (repo *PetitionRepository) CheckIfExists(id uint) (bool, error) {
 	}
 	slog.Infof("Found %d petitions", len(petitions))
 	return true, nil
+}
+
+func (repo *PetitionRepository) GetAllUserPetitions(userID uint) ([]models.Petition, error) {
+	var petitions []models.Petition
+	if err := repo.db.Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+		return nil, err
+	}
+	return petitions, nil
 }

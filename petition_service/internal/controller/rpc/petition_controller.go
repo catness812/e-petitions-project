@@ -18,6 +18,7 @@ type IPetitionService interface {
 	UpdateStatus(id uint, status string) error
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
+	GetAllUserPetitions(userID uint) ([]models.Petition, error)
 }
 
 type Server struct {
@@ -134,3 +135,7 @@ func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.E
 	response := &empty.Empty{}
 	return response, nil
 }
+
+//func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetPetitionsResponse, error) {
+//
+//}
