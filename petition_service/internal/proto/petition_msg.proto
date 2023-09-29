@@ -20,6 +20,11 @@ message Status {
     string title = 2;
 }
 
+message CreateVoteRequest{
+    uint32 user_id = 1;
+    uint32 petition_id = 2;
+}
+
 message CreatePetitionRequest {
     string title = 1;
     string description = 2;
