@@ -8,9 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSecurityRoutes(r *gin.Engine, c *config.Config) {
-	svc := InitAuthServiceClient(c)
-	securityrepo, err := NewSecurityRepository(c, svc)
+func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
+	svc := InitAuthServiceClient(cfg)
+	securityrepo, err := NewSecurityRepository(cfg, svc)
 	securitysvc, err := NewSecurityService(securityrepo)
 
 	if err != nil {

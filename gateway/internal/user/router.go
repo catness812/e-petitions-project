@@ -7,9 +7,9 @@ import (
 	"log"
 )
 
-func RegisterUserRoutes(r *gin.Engine, c *config.Config) {
-	svc := InitUserServiceClient(c)
-	userrepo, err := NewUserRepository(c, svc)
+func RegisterUserRoutes(r *gin.Engine, cfg *config.Config) {
+	svc := InitUserServiceClient(cfg)
+	userrepo, err := NewUserRepository(cfg, svc)
 	if err != nil {
 		log.Fatalf("Failed to connect to user service grpc: %v", err)
 	}

@@ -9,13 +9,13 @@ import (
 )
 
 func main() {
-	c := config.LoadConfig()
+	cfg := config.LoadConfig()
 
 	r := gin.Default()
 
-	user.RegisterUserRoutes(r, c)
-	//petition.RegisterPetitionRoutes(r, c)
-	security.RegisterSecurityRoutes(r, c)
+	user.RegisterUserRoutes(r, cfg)
+	//petition.RegisterPetitionRoutes(r, cfg)
+	security.RegisterSecurityRoutes(r, cfg)
 
 	err := r.Run(":1337")
 	if err != nil {
