@@ -51,3 +51,13 @@ message UpdatePetitionStatusRequest{
     uint32 id = 1;
     string status = 2;
 }
+
+message GetUserPetitionsRequest {
+    uint32 user_id = 1;
+    uint32 page = 2;
+    uint32 limit = 3;
+}
+
+message GetUserPetitionsResponse {
+    repeated Petition petitions = 1;
+}

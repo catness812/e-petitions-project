@@ -20,7 +20,7 @@ type IPetitionService interface {
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
 	CreateVote(vote models.Vote) error
-	GetAllUserPetitions(userID uint) ([]models.Petition, error)
+	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 }
 
 type Server struct {
@@ -151,6 +151,28 @@ func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.E
 	return response, nil
 }
 
-//func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetPetitionsResponse, error) {
-//
-//}
+func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetUserPetitionsResponse, error) {
+	user_id := req.UserId
+	pag := util.Pagination{
+		Page:  int(req.Page),
+		Limit: int(req.Limit),
+	}
+
+	petitions, _ := s.PetitionService.GetAllUserPetitions(uint(user_id), pag)
+
+	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
+
+	for i := range getUserPetitionsResponse {
+		p := petitions[i]
+		getUserPetitionsResponse[i] = &pb.Petition{
+			Id:          uint32(p.ID),
+			Title:       p.Title,
+			Category:    p.Category,
+			Description: p.Description,
+			VoteGoal:    uint32(p.VoteGoal),
+		}
+	}
+	return &pb.GetUserPetitionsResponse{
+		Petitions: getUserPetitionsResponse,
+	}, nil
+}

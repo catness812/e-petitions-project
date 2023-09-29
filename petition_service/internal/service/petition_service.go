@@ -12,7 +12,7 @@ type IPetitionRepository interface {
 	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(id uint) (models.Petition, error)
-	GetAllUserPetitions(userID uint) ([]models.Petition, error)
+	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	SaveVote(Vote *models.Vote) error
 }
 
@@ -81,6 +81,6 @@ func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
 	return petition, nil
 }
 
-func (svc *PetitonService) GetAllUserPetitions(userID uint) ([]models.Petition, error) {
-	return svc.repo.GetAllUserPetitions(userID)
+func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	return svc.repo.GetAllUserPetitions(userID, pagination)
 }

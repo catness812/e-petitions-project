@@ -70,8 +70,8 @@ func (repo *PetitionRepository) GetStatusByTitle(title string) (models.Status, e
 	return status, nil
 }
 
-func (repo *PetitionRepository) GetByID(id uint) ([]models.Petition, error) {
-	var petition []models.Petition
+func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
+	var petition models.Petition
 	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
 	if err != nil {
 		return petition, err
@@ -90,9 +90,9 @@ func (repo *PetitionRepository) CheckIfExists(id uint) (bool, error) {
 	return true, nil
 }
 
-func (repo *PetitionRepository) GetAllUserPetitions(userID uint) ([]models.Petition, error) {
+func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
 		return nil, err
 	}
 	return petitions, nil
