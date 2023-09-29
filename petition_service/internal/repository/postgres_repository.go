@@ -89,3 +89,11 @@ func (repo *PetitionRepository) CheckIfExists(id uint) error {
 	slog.Infof("petition found")
 	return nil
 }
+
+func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	var petitions []models.Petition
+	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+		return nil, err
+	}
+	return petitions, nil
+}
