@@ -18,12 +18,23 @@ func SendVerificationMail(msg string) {
 }
 
 func SendNotificationMail(msg string) {
-	var to []string
+	var (
+		to      []string
+		message string
+	)
 
-	to = append(to, strings.Split(string(msg), " ")[0])
-	message := []byte(strings.Split(string(msg), " ")[1])
+	header := "Subject: Petitionon message\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
 
-	repository.SendMail(to, message)
+	for i, buf := range strings.Split(string(msg), " ") {
+		if i == 0 {
+			to = append(to, strings.Split(string(msg), " ")[0])
+			continue
+		}
+		message = message + buf + " "
+	}
+	message = header + message
+
+	repository.SendMail(to, []byte(message))
 }
 
 func formatMessage(link string) []byte {
