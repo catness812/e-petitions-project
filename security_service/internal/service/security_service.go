@@ -97,7 +97,7 @@ func generateTokenPair(userId uint) (map[string]string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["userID"] = userId
+	claims["email"] = userId
 	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 
 	t, err := token.SignedString([]byte(os.Getenv("T_KEY")))

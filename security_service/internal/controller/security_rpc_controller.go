@@ -60,3 +60,12 @@ func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *security_pb
 	}
 	return &security_pb.RefreshResponse{Tokens: tokenMap}, nil
 }
+
+//func (s *SecurityRpcServer) ValidateToken(ctx context.Context, req *security_pb.Token) (*security_pb.ValidateTokenResponse, error) {
+//	token := req.Token
+//	claims, err := jwtoken.IsTokenValid(token)
+//	if err != nil {
+//		return &security_pb.ValidateTokenResponse{Message: "Token is invalid"}, nil
+//	}
+//	//email := claims["email"]
+//}
