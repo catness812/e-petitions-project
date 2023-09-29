@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/gookit/slog"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -34,7 +33,7 @@ func LoadConfig() *Config {
 	var cfg *Config
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Failed to get working directory: %v", err)
+		slog.Fatalf("Failed to get working directory: %v", err)
 	}
 	configPath := filepath.Join(wd, "config.yml")
 	data, err := os.ReadFile(configPath)

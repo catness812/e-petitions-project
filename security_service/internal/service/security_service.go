@@ -2,8 +2,9 @@ package security_service
 
 import (
 	"errors"
-	"log"
+	"github.com/gookit/slog"
 	"os"
+	"path/filepath"
 	"time"
 
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
@@ -37,7 +38,7 @@ func NewSecurityService(userRepo IUserRepository, redisRepo IRedisRepository) *S
 func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, error) {
 	user, err := svc.userRepo.GetUserByEmail(userLogin.Email)
 	if err != nil {
-		log.Printf("invalid credentials: %v", err)
+		slog.Printf("invalid credentials: %v", err)
 		return nil, err
 	}
 	if err = svc.comparePasswordHash(user.Password, userLogin.Password); err != nil {
@@ -57,7 +58,7 @@ func (svc *SecurityService) generatePasswordHash(pass string) (string, error) {
 	const salt = 14
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), salt)
 	if err != nil {
-		log.Printf("ERR: %v\n", err)
+		slog.Printf("ERR: %v\n", err)
 		return "", err
 	}
 	return string(hash), nil
@@ -66,7 +67,7 @@ func (svc *SecurityService) generatePasswordHash(pass string) (string, error) {
 func (svc *SecurityService) comparePasswordHash(hash, pass string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
 	if err != nil {
-		log.Printf("ERR: %v\n", err)
+		slog.Printf("ERR: %v\n", err)
 		return err
 	}
 	return nil
@@ -84,9 +85,14 @@ func (svc *SecurityService) RefreshUserToken(token string, id uint) (map[string]
 }
 
 func generateTokenPair(userId uint) (map[string]string, error) {
-	err := godotenv.Load("internal/security/.env")
+	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatal("Error loading .env file", err)
+		slog.Fatalf("Failed to get working directory: %v", err)
+	}
+	envPath := filepath.Join(wd, "../.env")
+	err = godotenv.Load(envPath)
+	if err != nil {
+		slog.Fatal("Error loading .env file", err)
 	}
 	token := jwt.New(jwt.SigningMethodHS256)
 

@@ -22,7 +22,7 @@ func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.Permi
 	authenticateMiddleware := middleware.NewAuthenticationMiddleware(securityClient)
 	route := r.Group("/user")
 	route.POST("/", userctrl.CreateUser)
-	route.GET("/:email", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("read", "user"), userctrl.GetUser)
+	route.GET("/", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("read", "user"), userctrl.GetUser)
 	route.POST("/update", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("write", "user"), userctrl.UpdateUser)
 	route.DELETE("/", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("delete", "user"), authorizeMiddleware.Authorize("delete", "users"), userctrl.DeleteUser)
 	route.POST("/admin", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("write", "user"), userctrl.AddAdmin)
