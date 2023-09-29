@@ -14,4 +14,5 @@ service PetitionService {
     rpc DeletePetition(PetitionId) returns (google.protobuf.Empty);
     // returns empty if is valid, error if not valid
     rpc ValidatePetitionId(PetitionId) returns (google.protobuf.Empty);
+    rpc CreateVote(CreateVoteRequest) returns (google.protobuf.Empty);
 }
