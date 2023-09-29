@@ -79,13 +79,13 @@ func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
 	return petition, nil
 }
 
-func (repo *PetitionRepository) CheckIfExists(id uint) (bool, error) {
-	var petitions []models.Petition
-
-	if err := repo.db.Where("id = ?", id).Find(&petitions).Error; err != nil {
+func (repo *PetitionRepository) CheckIfExists(id uint) error {
+	var petitions models.Petition
+	if err := repo.db.Where("id = ?", id).First(&petitions).Error; err != nil {
 		slog.Errorf("Couldn't find petition: %v", err.Error())
-		return false, err
+		return err
 	}
-	slog.Infof("Found %d petitions", len(petitions))
-	return true, nil
+
+	slog.Infof("petition found")
+	return nil
 }

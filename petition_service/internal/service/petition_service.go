@@ -13,6 +13,7 @@ type IPetitionRepository interface {
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(id uint) (models.Petition, error)
 	SaveVote(Vote *models.Vote) error
+	CheckIfExists(id uint) error
 }
 
 type PetitonService struct {
@@ -40,7 +41,10 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 }
 
 func (svc *PetitonService) CreateVote(vote models.Vote) error {
-	//max function
+
+	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
+		return err
+	}
 	if err := svc.repo.SaveVote(&vote); err != nil {
 		return err
 	} else {
