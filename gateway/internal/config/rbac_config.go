@@ -27,11 +27,6 @@ type permissions struct {
 		Write  bool `yaml:"write"`
 		Delete bool `yaml:"delete"`
 	} `yaml:"allow"`
-	Deny struct {
-		Read   bool `yaml:"read"`
-		Write  bool `yaml:"write"`
-		Delete bool `yaml:"delete"`
-	} `yaml:"deny"`
 }
 
 type PermissionsConfig struct {

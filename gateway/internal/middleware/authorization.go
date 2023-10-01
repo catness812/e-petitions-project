@@ -5,7 +5,6 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/gin-gonic/gin"
-	"github.com/gookit/slog"
 	"net/http"
 )
 
@@ -28,7 +27,7 @@ func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFu
 		//	})
 		//	return
 		//}
-		email := "example@email.com"
+		email := "example@mail.com"
 		//email, ok := mail.(string)
 		//if !ok {
 		//	c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
@@ -40,7 +39,6 @@ func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFu
 		user, err := auth.userClient.GetUserByEmail(context.Background(), &pb.GetUserByEmailRequest{
 			Email: email,
 		})
-		slog.Info(user)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error":   "Unauthorized",
@@ -49,7 +47,6 @@ func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFu
 			return
 		}
 		authorized := false
-
 		for _, perm := range auth.cfg.Permissions {
 			if perm.Resource == resourceCode && perm.Role == user.Role {
 				if (action == "read" && perm.Allow.Read) ||

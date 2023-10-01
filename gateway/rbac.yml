@@ -2,67 +2,49 @@
 
 # Define roles
 roles:
-  - role:
-      code: admin
+    - code: admin
       name: Administrator
       description: Full access to all resources
 
-  - role:
-      code: user
+    - code: user
       name: User
       description: Can write and read petitions
 
 # Define resources
 resources:
-  - code: petitions
-    name: Petitions
+  - code: petition
+    name: Petition
     description: Manage petitions
-  - code: users
-    name: Users
+  - code: user
+    name: User
     description: Manage users
 
 # Define permissions
 permissions:
   - role: admin
-    resource: petitions
+    resource: petition
     allow:
       read: true
       write: true
       delete: true
-    deny:
-      read: false
-      write: false
-      delete: false
 
   - role: user
-    resource: petitions
+    resource: petition
     allow:
       read: true
       write: true
       delete: false
-    deny:
-      read: false
-      write: false
-      delete: true
 
   - role: admin
-    resource: users
+    resource: user
     allow:
       read: true
       write: true
       delete: true
-    deny:
-      read: false
-      write: false
-      delete: false
 
   - role: user
-    resource: users
+    resource: user
     allow:
       read: false
       write: false
       delete: false
-    deny:
-      read: true
-      write: true
-      delete: true

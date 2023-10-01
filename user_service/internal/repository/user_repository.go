@@ -44,7 +44,7 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 	user := &models.User{}
 	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
 	if err != nil {
-		slog.Error("failed to get user from database: %v\n", err)
+		slog.Errorf("failed to get user from database: %v\n", err)
 		return nil, err
 	}
 	return user, nil
