@@ -19,6 +19,14 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
+const (
+	UserController_CreateUser_FullMethodName     = "/rpctransport.UserController/CreateUser"
+	UserController_UpdateUser_FullMethodName     = "/rpctransport.UserController/UpdateUser"
+	UserController_DeleteUser_FullMethodName     = "/rpctransport.UserController/DeleteUser"
+	UserController_GetUserByEmail_FullMethodName = "/rpctransport.UserController/GetUserByEmail"
+	UserController_AddAdmin_FullMethodName       = "/rpctransport.UserController/AddAdmin"
+)
+
 // UserControllerClient is the client API for UserController service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
@@ -40,7 +48,7 @@ func NewUserControllerClient(cc grpc.ClientConnInterface) UserControllerClient {
 
 func (c *userControllerClient) CreateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, "/rpctransport.UserController/CreateUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, UserController_CreateUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +57,7 @@ func (c *userControllerClient) CreateUser(ctx context.Context, in *UserRequest, 
 
 func (c *userControllerClient) UpdateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, "/rpctransport.UserController/UpdateUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, UserController_UpdateUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +66,7 @@ func (c *userControllerClient) UpdateUser(ctx context.Context, in *UserRequest, 
 
 func (c *userControllerClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, "/rpctransport.UserController/DeleteUser", in, out, opts...)
+	err := c.cc.Invoke(ctx, UserController_DeleteUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +75,7 @@ func (c *userControllerClient) DeleteUser(ctx context.Context, in *DeleteUserReq
 
 func (c *userControllerClient) GetUserByEmail(ctx context.Context, in *GetUserByEmailRequest, opts ...grpc.CallOption) (*GetUserByEmailResponse, error) {
 	out := new(GetUserByEmailResponse)
-	err := c.cc.Invoke(ctx, "/rpctransport.UserController/GetUserByEmail", in, out, opts...)
+	err := c.cc.Invoke(ctx, UserController_GetUserByEmail_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +84,7 @@ func (c *userControllerClient) GetUserByEmail(ctx context.Context, in *GetUserBy
 
 func (c *userControllerClient) AddAdmin(ctx context.Context, in *AddAdminRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	out := new(wrapperspb.StringValue)
-	err := c.cc.Invoke(ctx, "/rpctransport.UserController/AddAdmin", in, out, opts...)
+	err := c.cc.Invoke(ctx, UserController_AddAdmin_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +100,7 @@ type UserControllerServer interface {
 	DeleteUser(context.Context, *DeleteUserRequest) (*wrapperspb.StringValue, error)
 	GetUserByEmail(context.Context, *GetUserByEmailRequest) (*GetUserByEmailResponse, error)
 	AddAdmin(context.Context, *AddAdminRequest) (*wrapperspb.StringValue, error)
-	mustEmbedUnimplementedUserControllerServer()
+	//mustEmbedUnimplementedUserControllerServer()
 }
 
 // UnimplementedUserControllerServer must be embedded to have forward compatible implementations.
@@ -137,7 +145,7 @@ func _UserController_CreateUser_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/rpctransport.UserController/CreateUser",
+		FullMethod: UserController_CreateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserControllerServer).CreateUser(ctx, req.(*UserRequest))
@@ -155,7 +163,7 @@ func _UserController_UpdateUser_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/rpctransport.UserController/UpdateUser",
+		FullMethod: UserController_UpdateUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserControllerServer).UpdateUser(ctx, req.(*UserRequest))
@@ -173,7 +181,7 @@ func _UserController_DeleteUser_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/rpctransport.UserController/DeleteUser",
+		FullMethod: UserController_DeleteUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserControllerServer).DeleteUser(ctx, req.(*DeleteUserRequest))
@@ -191,7 +199,7 @@ func _UserController_GetUserByEmail_Handler(srv interface{}, ctx context.Context
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/rpctransport.UserController/GetUserByEmail",
+		FullMethod: UserController_GetUserByEmail_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserControllerServer).GetUserByEmail(ctx, req.(*GetUserByEmailRequest))
@@ -209,7 +217,7 @@ func _UserController_AddAdmin_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/rpctransport.UserController/AddAdmin",
+		FullMethod: UserController_AddAdmin_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserControllerServer).AddAdmin(ctx, req.(*AddAdminRequest))

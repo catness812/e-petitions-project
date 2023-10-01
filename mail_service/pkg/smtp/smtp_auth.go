@@ -33,6 +33,5 @@ func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 
 func SmtpAuth(from string, pass string) smtp.Auth {
 	auth := auth(from, pass)
-
 	return auth
 }

@@ -6,32 +6,23 @@ import (
 	"net"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
-	rpctransport "github.com/catness812/e-petitions-project/petition_service/internal/controller/rpc-transport"
-	"github.com/catness812/e-petitions-project/petition_service/internal/models"
+	rpctransport "github.com/catness812/e-petitions-project/petition_service/internal/controller/rpc"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/repository"
 	"github.com/catness812/e-petitions-project/petition_service/internal/service"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
 	"google.golang.org/grpc"
-
-	"gorm.io/gorm"
 )
 
 func main() {
 	config.LoadConfig()
-	db := loadDatabase()
+	db := postgres.LoadDatabase()
 	petitionRepo := repository.InitPetitionRepository(db)
 	petitionSvc := service.InitPetitionService(petitionRepo)
 	grpcStart(petitionSvc)
 }
 
-func loadDatabase() *gorm.DB {
-	db := postgres.Connect()
-	db.AutoMigrate(&models.Petition{})
-	return db
-}
-
-func grpcStart(petitionSvc rpctransport.IPetitionSvc) {
+func grpcStart(petitionSvc rpctransport.IPetitionService) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
 		panic(err)
@@ -39,7 +30,7 @@ func grpcStart(petitionSvc rpctransport.IPetitionSvc) {
 
 	s := grpc.NewServer()
 	pb.RegisterPetitionServiceServer(s, &rpctransport.Server{
-		Svc: petitionSvc,
+		PetitionService: petitionSvc,
 	})
 
 	log.Printf("gRPC Server listening at %v\n", lis.Addr())

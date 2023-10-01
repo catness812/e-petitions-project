@@ -30,11 +30,13 @@ func NewUserService(userRepo IUserRepository) *UserService {
 func (svc *UserService) Create(user *models.User) error {
 	user.Role = "user"
 	if svc.userRepo.CheckUserExistence(user.Email) {
+		slog.Errorf("user exists: %v\n", user.Email)
 		return errors.New("user exists")
 	}
 
 	hashedPassword, err := svc.generatePasswordHash(user.Password)
 	if err != nil {
+		slog.Errorf("can't register: %v\n", err.Error())
 		return errors.New("can't register")
 	}
 	user.Password = hashedPassword
@@ -54,11 +56,14 @@ func (svc *UserService) generatePasswordHash(password string) (string, error) {
 func (svc *UserService) UpdatePasswordByEmail(user *models.User) error {
 	hashedPassword, err := svc.generatePasswordHash(user.Password)
 	if err != nil {
+		slog.Errorf("error generating password hash: %v\n", err.Error())
 		return errors.New("error generating password hash")
 	}
 	user.Password = hashedPassword
+	slog.Info("hashed pass ", user.Password)
 	err = svc.userRepo.UpdatePasswordByEmail(user)
 	if err != nil {
+		slog.Errorf("error updating password: %v\n", err.Error())
 		return errors.New("error updating password")
 	}
 	return nil
@@ -67,7 +72,7 @@ func (svc *UserService) UpdatePasswordByEmail(user *models.User) error {
 func (svc *UserService) Delete(userEmail string) error {
 	err := svc.userRepo.Delete(userEmail)
 	if err != nil {
-		slog.Error("failed to delete user from database: %v\n", err)
+		slog.Errorf("failed to delete user from database: %v", err.Error())
 		return err
 	}
 	return nil

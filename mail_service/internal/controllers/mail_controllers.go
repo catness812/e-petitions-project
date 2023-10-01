@@ -1,9 +1,8 @@
 package controllers
 
 import (
-	"log"
-
 	"github.com/catness812/e-petitions-project/mail_service/internal/service"
+	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
 )
 
@@ -18,25 +17,22 @@ func NewConsumer(channel *amqp.Channel) *Consumer {
 }
 
 func (c *Consumer) ConfirmationMail(name string) {
-	msgs, err := c.channel.Consume(
-		name,  // queue
-		"",    // consumer
-		true,  // auto ack
-		false, // exclusive
-		false, // no local
-		false, // no wait
-		nil,   //args
-	)
+	q, err := c.channel.QueueDeclare(name, false, false, false, false, nil)
 	if err != nil {
-		panic(err)
+		slog.Fatalf("failed to declare queue: %v", err)
 	}
 
-	log.Printf("Consumer %s started", name)
+	msgs, err := c.channel.Consume(q.Name, "", true, false, false, false, nil)
+	if err != nil {
+		slog.Panic(err)
+	}
+
+	slog.Infof("Consumer %s started", name)
 	// print consumed messages from queue
 	forever := make(chan bool)
 	go func() {
 		for msg := range msgs {
-			service.SendMail(string(msg.Body))
+			service.SendVerificationMail(string(msg.Body))
 		}
 	}()
 
@@ -44,25 +40,22 @@ func (c *Consumer) ConfirmationMail(name string) {
 }
 
 func (c *Consumer) NotificationMail(name string) {
-	msgs, err := c.channel.Consume(
-		name,  // queue
-		"",    // consumer
-		true,  // auto ack
-		false, // exclusive
-		false, // no local
-		false, // no wait
-		nil,   //args
-	)
+	q, err := c.channel.QueueDeclare(name, false, false, false, false, nil)
 	if err != nil {
-		panic(err)
+		slog.Fatalf("failed to declare queue: %v", err)
 	}
 
-	log.Printf("Consumer %s started", name)
+	msgs, err := c.channel.Consume(q.Name, "", true, false, false, false, nil)
+	if err != nil {
+		slog.Panic(err)
+	}
+
+	slog.Infof("Consumer %s started", name)
 	// print consumed messages from queue
 	forever := make(chan bool)
 	go func() {
 		for msg := range msgs {
-			service.SendMail(string(msg.Body))
+			service.SendNotificationMail(string(msg.Body))
 		}
 	}()
 
