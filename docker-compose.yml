@@ -31,9 +31,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-rc-management
     container_name: e-petitions-project-rabbitmq
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}
+    
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -42,8 +40,5 @@ volumes:
   postgres-db:
     driver: local
   redis-data:
-<<<<<<< HEAD
     driver: local
-=======
-    driver: local
->>>>>>> dec27459594f4af9acde6d2084a75219c74621e4
+

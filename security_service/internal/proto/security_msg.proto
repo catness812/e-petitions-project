@@ -40,5 +40,4 @@ message Token {
 message ValidateTokenResponse {
   string token = 1;
   string email = 2;
-  string message = 3;
 }

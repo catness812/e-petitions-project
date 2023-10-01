@@ -2,6 +2,7 @@ package security_controller
 
 import (
 	"context"
+
 	"github.com/catness812/e-petitions-project/security_service/internal/security_pb"
 
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
@@ -12,7 +13,7 @@ import (
 
 type ISecurityService interface {
 	Login(user *models.UserCredentialsModel) (map[string]string, error)
-	RefreshUserToken(token string, id uint) (map[string]string, error)
+	RefreshUserToken(token string, email string) (map[string]string, error)
 }
 
 type SecurityRpcServer struct {
@@ -42,16 +43,14 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *security_pb.UserCred
 
 func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *security_pb.RefreshRequest) (*security_pb.RefreshResponse, error) {
 	refToken := req.Token
-	claims, err := jwtoken.IsTokenValid(refToken)
+	userEmail, err := jwtoken.IsTokenValid(refToken)
 	if err != nil {
 		return &security_pb.RefreshResponse{
 			Tokens:  nil,
 			Message: err.Error(),
 		}, nil
 	}
-	uid := claims["userID"]
-	uid64 := uid.(float64)
-	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, uint(uid64))
+	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, userEmail)
 	if err != nil {
 		return &security_pb.RefreshResponse{
 			Tokens:  nil,
@@ -61,11 +60,12 @@ func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *security_pb
 	return &security_pb.RefreshResponse{Tokens: tokenMap}, nil
 }
 
-//func (s *SecurityRpcServer) ValidateToken(ctx context.Context, req *security_pb.Token) (*security_pb.ValidateTokenResponse, error) {
-//	token := req.Token
-//	claims, err := jwtoken.IsTokenValid(token)
-//	if err != nil {
-//		return &security_pb.ValidateTokenResponse{Message: "Token is invalid"}, nil
-//	}
-//	//email := claims["email"]
-//}
+func (s *SecurityRpcServer) ValidateToken(ctx context.Context, req *security_pb.Token) (*security_pb.ValidateTokenResponse, error) {
+	email, err := jwtoken.IsTokenValid(req.Token)
+		if err != nil {
+			return nil, status.Error(codes.NotFound, err.Error()) 
+		}
+	result :=  &security_pb.ValidateTokenResponse{Token:req.Token, Email:email}
+
+	return result, nil
+}

@@ -10,6 +10,5 @@ import "security_msg.proto";
  service SecurityService{
     rpc Login (UserCredentials) returns (Tokens);
     rpc RefreshSession (RefreshRequest) returns (RefreshResponse);
-   rpc ValidateToken (Token) returns (ValidateTokenResponse);
-
+    rpc ValidateToken (Token) returns (ValidateTokenResponse);
 }

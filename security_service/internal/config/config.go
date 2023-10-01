@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/gookit/slog"
 	"os"
 	"path/filepath"
+
+	"github.com/gookit/slog"
 
 	"gopkg.in/yaml.v2"
 )
@@ -12,6 +13,7 @@ type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
 	Database Postgres `yaml:"postgres"`
 	Redis    Redis    `yaml:"redis"`
+	Token 	Token `yaml:"token"`
 }
 
 type Postgres struct {
@@ -27,6 +29,11 @@ type Redis struct {
 	Port     string `yaml:"port"`
 	Password string `yaml:"password"`
 	RedisDB  int    `yaml:"db"`
+}
+
+type Token struct {
+	TKey  string `yaml:"T_KEY"`
+	RTKey string `yaml:"RT_KEY"`
 }
 
 func LoadConfig() *Config {
