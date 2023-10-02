@@ -15,6 +15,7 @@ type IPetitionRepository interface {
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	SaveVote(Vote *models.Vote) error
 	CheckIfExists(id uint) error
+	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 }
 
 type PetitonService struct {
@@ -87,4 +88,8 @@ func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
 
 func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	return svc.repo.GetAllUserPetitions(userID, pagination)
+}
+
+func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	return svc.repo.GetAllUserVotedPetitions(userID, pagination)
 }

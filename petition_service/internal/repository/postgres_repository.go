@@ -97,3 +97,19 @@ func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util
 	}
 	return petitions, nil
 }
+
+func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	var petitions []models.Petition
+	if err := repo.db.
+		Debug().
+		Table("petitions").
+		Select("petitions.*, votes.*").
+		Joins("JOIN votes ON petitions.id = votes.petition_id").
+		Where("votes.user_id = ?", userID).
+		Error; err != nil {
+		slog.Errorf("can't access tables %v", err.Error())
+		return nil, err
+	}
+
+	return petitions, nil
+}
