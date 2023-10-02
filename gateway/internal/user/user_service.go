@@ -32,7 +32,6 @@ func (svc *userService) Delete(email string) (string, error) {
 
 func (svc *userService) Create(createUser model.UserCredentials) (string, error) {
 	return svc.repo.Create(createUser)
-
 }
 
 func (svc *userService) Update(createUser model.UserCredentials) (string, error) {

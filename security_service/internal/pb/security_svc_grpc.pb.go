@@ -4,7 +4,7 @@
 // - protoc             v3.19.6
 // source: security_svc.proto
 
-package security_pb
+package pb
 
 import (
 	context "context"
@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type SecurityServiceClient interface {
 	Login(ctx context.Context, in *UserCredentials, opts ...grpc.CallOption) (*Tokens, error)
 	RefreshSession(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
+	ValidateToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 }
 
 type securityServiceClient struct {
@@ -52,12 +53,22 @@ func (c *securityServiceClient) RefreshSession(ctx context.Context, in *RefreshR
 	return out, nil
 }
 
+func (c *securityServiceClient) ValidateToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*ValidateTokenResponse, error) {
+	out := new(ValidateTokenResponse)
+	err := c.cc.Invoke(ctx, "/proto.SecurityService/ValidateToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SecurityServiceServer is the server API for SecurityService service.
 // All implementations should embed UnimplementedSecurityServiceServer
 // for forward compatibility
 type SecurityServiceServer interface {
 	Login(context.Context, *UserCredentials) (*Tokens, error)
 	RefreshSession(context.Context, *RefreshRequest) (*RefreshResponse, error)
+	ValidateToken(context.Context, *Token) (*ValidateTokenResponse, error)
 }
 
 // UnimplementedSecurityServiceServer should be embedded to have forward compatible implementations.
@@ -69,6 +80,9 @@ func (UnimplementedSecurityServiceServer) Login(context.Context, *UserCredential
 }
 func (UnimplementedSecurityServiceServer) RefreshSession(context.Context, *RefreshRequest) (*RefreshResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshSession not implemented")
+}
+func (UnimplementedSecurityServiceServer) ValidateToken(context.Context, *Token) (*ValidateTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 
 // UnsafeSecurityServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -118,6 +132,24 @@ func _SecurityService_RefreshSession_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Token)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ValidateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.SecurityService/ValidateToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ValidateToken(ctx, req.(*Token))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SecurityService_ServiceDesc is the grpc.ServiceDesc for SecurityService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,6 +164,10 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshSession",
 			Handler:    _SecurityService_RefreshSession_Handler,
+		},
+		{
+			MethodName: "ValidateToken",
+			Handler:    _SecurityService_ValidateToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
