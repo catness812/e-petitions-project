@@ -3,11 +3,11 @@ package rpc
 import (
 	"context"
 	"errors"
-
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/gookit/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -153,14 +153,17 @@ func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.E
 }
 
 func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetUserPetitionsResponse, error) {
-	user_id := req.UserId
+	userID := req.UserId
 	pag := util.Pagination{
 		Page:  int(req.Page),
 		Limit: int(req.Limit),
 	}
 
-	petitions, _ := s.PetitionService.GetAllUserPetitions(uint(user_id), pag)
-
+	petitions, err := s.PetitionService.GetAllUserPetitions(uint(userID), pag)
+	if err != nil {
+		slog.Errorf("Error retrieving petitions: %v", err)
+		return nil, err
+	}
 	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
 
 	for i := range getUserPetitionsResponse {
@@ -173,19 +176,24 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 			VoteGoal:    uint32(p.VoteGoal),
 		}
 	}
+
+	slog.Infof("GetUserVotedPetitions succeeded for UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
 	return &pb.GetUserPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
 }
 
 func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPetitionsRequest) (*pb.GetUserVotedPetitionsResponse, error) {
-	user_id := req.UserId
+	userID := req.UserId
 	pag := util.Pagination{
 		Page:  int(req.Page),
 		Limit: int(req.Limit),
 	}
-	petitions, _ := s.PetitionService.GetAllUserVotedPetitions(uint(user_id), pag)
-
+	petitions, err := s.PetitionService.GetAllUserVotedPetitions(uint(userID), pag)
+	if err != nil {
+		slog.Errorf("Error retrieving petitions: %v", err)
+		return nil, err
+	}
 	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
 
 	for i := range getUserPetitionsResponse {
@@ -198,7 +206,9 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 			VoteGoal:    uint32(p.VoteGoal),
 		}
 	}
+	slog.Infof("GetUserVotedPetitions succeeded for UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
 	return &pb.GetUserVotedPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
+
 }
