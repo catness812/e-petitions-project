@@ -20,6 +20,11 @@ message Status {
     string title = 2;
 }
 
+message CreateVoteRequest{
+    uint32 user_id = 1;
+    uint32 petition_id = 2;
+}
+
 message CreatePetitionRequest {
     string title = 1;
     string description = 2;
@@ -45,4 +50,25 @@ message GetPetitionsResponse {
 message UpdatePetitionStatusRequest{
     uint32 id = 1;
     string status = 2;
+}
+
+message GetUserPetitionsRequest {
+    uint32 user_id = 1;
+    uint32 page = 2;
+    uint32 limit = 3;
+}
+
+message GetUserPetitionsResponse {
+    repeated Petition petitions = 1;
+}
+
+
+message GetUserVotedPetitionsRequest {
+    uint32 user_id = 1;
+    uint32 page = 2;
+    uint32 limit = 3;
+}
+
+message GetUserVotedPetitionsResponse {
+    repeated Petition petitions = 1;
 }

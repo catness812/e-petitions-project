@@ -6,6 +6,9 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/gookit/slog"
 
+
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"gorm.io/driver/postgres"
@@ -22,9 +25,12 @@ func LoadDatabase() *gorm.DB {
 	if err != nil {
 		slog.Error(err)
 	}
+	err = db.AutoMigrate(&models.Vote{})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	seedStatuses(db)
-
 	return db
 }
 
