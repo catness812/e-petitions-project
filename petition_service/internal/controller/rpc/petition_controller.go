@@ -8,6 +8,7 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/gookit/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -33,10 +34,13 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 	petition, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
+
+	slog.Infof("Petition %v successfully retrieved", petition.ID)
 	return &pb.Petition{
 		Id:          uint32(petition.ID),
 		Title:       petition.Title,
@@ -56,10 +60,13 @@ func (s *Server) ValidatePetitionId(_ context.Context, req *pb.PetitionId) (*emp
 	_, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
+
+	slog.Info("Petition %v successfully found", req.Id)
 	return &empty.Empty{}, nil
 }
 
@@ -75,9 +82,11 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
 	if err != nil {
+		slog.Error("Error creating new petition")
 		return nil, err
 	}
 
+	slog.Info("Petition %v successfully created", savedPetitionID)
 	return &pb.PetitionId{
 		Id: uint32(savedPetitionID),
 	}, nil
@@ -122,34 +131,39 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 			VoteGoal: uint32(p.VoteGoal),
 		}
 	}
+
+	slog.Info("Petitions successfully retrieved")
 	return &pb.GetPetitionsResponse{
 		Petitions: getPetitionsResponse,
 	}, nil
 }
 
 func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionStatusRequest) (*empty.Empty, error) {
-	id := req.Id
-	statusTitle := req.Status
-
-	err := s.PetitionService.UpdateStatus(uint(id), statusTitle)
+	err := s.PetitionService.UpdateStatus(uint(req.Id), req.Status)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, err.Error())
+			slog.Errorf("Petition %v not found", req.Id)
+			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
-	response := &empty.Empty{}
-	return response, nil
+
+	slog.Infof("Petition %v status successfully updated", req.Id)
+	return &empty.Empty{}, nil
 }
 
 func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
-	id := req.Id
-	err := s.PetitionService.Delete(uint(id))
+	err := s.PetitionService.Delete(uint(req.Id))
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Errorf("Petition %v not found", req.Id)
+			return nil, status.Error(codes.NotFound, "petition not found")
+		}
 		return nil, err
 	}
-	response := &empty.Empty{}
-	return response, nil
+
+	slog.Infof("Petition %v status successfully deleted", req.Id)
+	return &empty.Empty{}, nil
 }
 
 func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetUserPetitionsResponse, error) {

@@ -14,7 +14,7 @@ func SendVerificationMail(msg string) {
 	to = append(to, strings.Split(string(msg), " ")[0])
 	link := strings.Split(string(msg), " ")[1]
 
-	repository.SendMail(to, formatMessage(link))
+	repository.SendMail(to, formatVerificationMessage(link))
 }
 
 func SendNotificationMail(msg string) {
@@ -23,8 +23,6 @@ func SendNotificationMail(msg string) {
 		message string
 	)
 
-	header := "Subject: Petitionon message\nMIME-version: 1.0;\nContent-Type: text/plain; charset=\"UTF-8\";\n"
-
 	for i, buf := range strings.Split(string(msg), " ") {
 		if i == 0 {
 			to = append(to, strings.Split(string(msg), " ")[0])
@@ -32,12 +30,11 @@ func SendNotificationMail(msg string) {
 		}
 		message = message + buf + " "
 	}
-	message = header + message
 
-	repository.SendMail(to, []byte(message))
+	repository.SendMail(to, formatNotificationMessage(message))
 }
 
-func formatMessage(link string) []byte {
+func formatVerificationMessage(link string) []byte {
 	reg, err := raymond.ParseFile("./mail_service/internal/templates/user-register-link.html")
 	if err != nil {
 		reg, err = raymond.ParseFile("../mail_service/internal/templates/user-register-link.html")
@@ -48,6 +45,21 @@ func formatMessage(link string) []byte {
 
 	ctx := map[string]interface{}{
 		"link": link,
+	}
+	return []byte(reg.MustExec(ctx))
+}
+
+func formatNotificationMessage(message string) []byte {
+	reg, err := raymond.ParseFile("./mail_service/internal/templates/notification.html")
+	if err != nil {
+		reg, err = raymond.ParseFile("../mail_service/internal/templates/notification.html")
+		if err != nil {
+			slog.Fatalf("failed to parse template: %v", err)
+		}
+	}
+
+	ctx := map[string]interface{}{
+		"message": message,
 	}
 	return []byte(reg.MustExec(ctx))
 }
