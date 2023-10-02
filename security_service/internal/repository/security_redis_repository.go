@@ -14,7 +14,7 @@ type RedisRepository struct {
 func NewRedisRepository(redisClient *redis.Client) *RedisRepository {
 	return &RedisRepository{redisClient: redisClient}
 }
-func (redisRepo *RedisRepository) InsertUserToken(key string, value uint, expires time.Duration) error {
+func (redisRepo *RedisRepository) InsertUserToken(key string, value uint32, expires time.Duration) error {
 	return redisRepo.redisClient.Set(context.Background(), key, value, expires).Err()
 }
 

@@ -18,7 +18,7 @@ type IUserRepository interface {
 
 type IRedisRepository interface {
 	ReplaceToken(currentToken, newToken string, expires time.Duration) error
-	InsertUserToken(key string, value uint, expires time.Duration) error
+	InsertUserToken(key string, value uint32, expires time.Duration) error
 }
 
 type SecurityService struct {

@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/catness812/e-petitions-project/security_service/internal/controller"
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
+	"github.com/catness812/e-petitions-project/security_service/internal/pb"
 	security_repository2 "github.com/catness812/e-petitions-project/security_service/internal/repository"
-	"github.com/catness812/e-petitions-project/security_service/internal/security_pb"
 	"github.com/catness812/e-petitions-project/security_service/internal/service"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/postgres"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/redis_repository"
@@ -43,7 +43,7 @@ func RunSecurityService() {
 		slog.Fatalf("Failed to listen to security service on GRPC port 9002: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	security_pb.RegisterSecurityServiceServer(grpcServer, sRpcServer)
+	pb.RegisterSecurityServiceServer(grpcServer, sRpcServer)
 
 	slog.Println("Listening security on 9002")
 	if err := grpcServer.Serve(lis); err != nil {

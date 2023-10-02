@@ -3,15 +3,12 @@ syntax="proto3";
 option go_package="./pb";
 
 package proto;
-
 message Empty {
 }
 
 message UserInfo {
-  uint64 id = 1;
   string email = 2;
-  string password = 3;
-  string role = 4;
+  string role = 3;
 }
 
 
