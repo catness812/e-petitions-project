@@ -4,7 +4,7 @@
 // - protoc             v4.24.2
 // source: security_svc.proto
 
-package security_pb
+package pb
 
 import (
 	context "context"
