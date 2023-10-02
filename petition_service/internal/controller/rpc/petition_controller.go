@@ -3,7 +3,6 @@ package rpc
 import (
 	"context"
 	"errors"
-
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -20,6 +19,9 @@ type IPetitionService interface {
 	UpdateStatus(id uint, status string) error
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
+	CreateVote(vote models.Vote) error
+	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 }
 
 type Server struct {
@@ -89,6 +91,19 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 	}, nil
 }
 
+func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empty.Empty, error) {
+	newVote := models.Vote{
+		PetitionID: uint(req.PetitionId),
+		UserID:     uint(req.UserId),
+	}
+	err := s.PetitionService.CreateVote(newVote)
+	if err != nil {
+		return nil, err
+	}
+	response := &empty.Empty{}
+	return response, nil
+}
+
 func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*pb.GetPetitionsResponse, error) {
 	pag := util.Pagination{
 		Page:  int(req.Page),
@@ -148,4 +163,65 @@ func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.E
 
 	slog.Infof("Petition %v status successfully deleted", req.Id)
 	return &empty.Empty{}, nil
+}
+
+func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetUserPetitionsResponse, error) {
+	userID := req.UserId
+	pag := util.Pagination{
+		Page:  int(req.Page),
+		Limit: int(req.Limit),
+	}
+
+	petitions, err := s.PetitionService.GetAllUserPetitions(uint(userID), pag)
+	if err != nil {
+		slog.Errorf("Error retrieving petitions: %v", err)
+		return nil, err
+	}
+	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
+
+	for i := range getUserPetitionsResponse {
+		p := petitions[i]
+		getUserPetitionsResponse[i] = &pb.Petition{
+			Id:          uint32(p.ID),
+			Title:       p.Title,
+			Category:    p.Category,
+			Description: p.Description,
+			VoteGoal:    uint32(p.VoteGoal),
+		}
+	}
+
+	slog.Infof("GetUserVotedPetitions succeeded for UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
+	return &pb.GetUserPetitionsResponse{
+		Petitions: getUserPetitionsResponse,
+	}, nil
+}
+
+func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPetitionsRequest) (*pb.GetUserVotedPetitionsResponse, error) {
+	userID := req.UserId
+	pag := util.Pagination{
+		Page:  int(req.Page),
+		Limit: int(req.Limit),
+	}
+	petitions, err := s.PetitionService.GetAllUserVotedPetitions(uint(userID), pag)
+	if err != nil {
+		slog.Errorf("Error retrieving petitions: %v", err)
+		return nil, err
+	}
+	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
+
+	for i := range getUserPetitionsResponse {
+		p := petitions[i]
+		getUserPetitionsResponse[i] = &pb.Petition{
+			Id:          uint32(p.ID),
+			Title:       p.Title,
+			Category:    p.Category,
+			Description: p.Description,
+			VoteGoal:    uint32(p.VoteGoal),
+		}
+	}
+	slog.Infof("GetUserVotedPetitions succeeded for UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
+	return &pb.GetUserVotedPetitionsResponse{
+		Petitions: getUserPetitionsResponse,
+	}, nil
+
 }

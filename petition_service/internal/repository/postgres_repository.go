@@ -4,6 +4,7 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
+	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 
@@ -26,6 +27,14 @@ func InitPetitionRepository(db *gorm.DB) *PetitionRepository {
 
 func (repo *PetitionRepository) Save(petition *models.Petition) error {
 	err := repo.db.Create(petition).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
+	err := repo.db.Create(Vote).Error
 	if err != nil {
 		return err
 	}
@@ -68,4 +77,39 @@ func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
 		return petition, err
 	}
 	return petition, nil
+}
+
+func (repo *PetitionRepository) CheckIfExists(id uint) error {
+	var petitions models.Petition
+	if err := repo.db.Where("id = ?", id).First(&petitions).Error; err != nil {
+		slog.Errorf("Couldn't find petition: %v", err.Error())
+		return err
+	}
+
+	slog.Infof("petition found")
+	return nil
+}
+
+func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	var petitions []models.Petition
+	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+		return nil, err
+	}
+	return petitions, nil
+}
+
+func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	var petitions []models.Petition
+	if err := repo.db.
+		Debug().Scopes(postgres.Paginate(pagination)).
+		Table("petitions").
+		Select("petitions.*, votes.*").
+		Joins("JOIN votes ON petitions.id = votes.petition_id").
+		Where("votes.user_id = ?", userID).Find(&petitions).
+		Error; err != nil {
+		slog.Errorf("can't access tables %v", err.Error())
+		return nil, err
+	}
+
+	return petitions, nil
 }
