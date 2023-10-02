@@ -1,9 +1,9 @@
 package config
 
 import (
-	"log"
 	"os"
 
+	"github.com/gookit/slog"
 	"gopkg.in/yaml.v3"
 )
 
@@ -38,10 +38,10 @@ func LoadConfig() {
 	}
 
 	if errOccurred {
-		log.Fatalf("Failed to read configuration file: %v", err)
+		slog.Error("Failed to read configuration file: %v", err)
 	}
 
 	if err := yaml.Unmarshal(data, &Cfg); err != nil {
-		log.Fatalf("Failed to unmarshal YAML data: %v", err)
+		slog.Error("Failed to unmarshal YAML data: %v", err)
 	}
 }
