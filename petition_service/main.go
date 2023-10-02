@@ -19,10 +19,12 @@ func main() {
 	db := postgres.LoadDatabase()
 	petitionRepo := repository.InitPetitionRepository(db)
 	petitionSvc := service.InitPetitionService(petitionRepo)
-	grpcStart(petitionSvc)
+	publisherRepo := repository.InitNotificationRepository()
+	publisherSvc := service.InitNotificationService(publisherRepo)
+	grpcStart(petitionSvc, publisherSvc)
 }
 
-func grpcStart(petitionSvc rpctransport.IPetitionService) {
+func grpcStart(petitionSvc rpctransport.IPetitionService, publisherSvc rpctransport.INotificationService) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
 		slog.Error(err)
