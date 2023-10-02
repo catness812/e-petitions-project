@@ -8,7 +8,6 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/gookit/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -179,23 +178,19 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 	}, nil
 }
 
-func (s *Server) GetAllUserVotedPetitions(_ context.Context, req *pb.GetUserPetitionsRequest) (*pb.GetUserPetitionsResponse, error) {
+func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPetitionsRequest) (*pb.GetUserVotedPetitionsResponse, error) {
 	user_id := req.UserId
 	pag := util.Pagination{
 		Page:  int(req.Page),
 		Limit: int(req.Limit),
 	}
+	petitions, _ := s.PetitionService.GetAllUserVotedPetitions(uint(user_id), pag)
 
-	votes, _ := s.PetitionService.GetAllUserVotedPetitions(uint(user_id), pag)
-	votes, err := s.PetitionService.GetAllUserPetitions(uint(user_id), pag)
-	if err != nil {
-		slog.Error("GetAllUserPetitions %v", err)
-	}
-	getUserVotedPetitions := make([]*pb.Petition, 1)
+	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
 
-	for i := range getUserVotedPetitions {
-		p := votes[i]
-		getUserVotedPetitions[i] = &pb.Petition{
+	for i := range getUserPetitionsResponse {
+		p := petitions[i]
+		getUserPetitionsResponse[i] = &pb.Petition{
 			Id:          uint32(p.ID),
 			Title:       p.Title,
 			Category:    p.Category,
@@ -203,8 +198,7 @@ func (s *Server) GetAllUserVotedPetitions(_ context.Context, req *pb.GetUserPeti
 			VoteGoal:    uint32(p.VoteGoal),
 		}
 	}
-	return &pb.GetUserPetitionsResponse{
-		Petitions: getUserVotedPetitions,
+	return &pb.GetUserVotedPetitionsResponse{
+		Petitions: getUserPetitionsResponse,
 	}, nil
-
 }

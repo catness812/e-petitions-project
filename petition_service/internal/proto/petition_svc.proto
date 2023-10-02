@@ -17,5 +17,5 @@ service PetitionService {
 
     rpc CreateVote(CreateVoteRequest) returns (google.protobuf.Empty);
     rpc GetUserPetitions(GetUserPetitionsRequest) returns (GetUserPetitionsResponse);
-    rpc GetUserVotedPetitions(GetUserPetitionsRequest) returns(GetUserPetitionsResponse);
+    rpc GetUserVotedPetitions(GetUserVotedPetitionsRequest) returns(GetUserVotedPetitionsResponse);
 }

@@ -61,3 +61,14 @@ message GetUserPetitionsRequest {
 message GetUserPetitionsResponse {
     repeated Petition petitions = 1;
 }
+
+
+message GetUserVotedPetitionsRequest {
+    uint32 user_id = 1;
+    uint32 page = 2;
+    uint32 limit = 3;
+}
+
+message GetUserVotedPetitionsResponse {
+    repeated Petition petitions = 1;
+}
