@@ -10,6 +10,7 @@ import (
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
 	Database Postgres `yaml:"postgres"`
+	Broker   RabbitMQ `yaml:"rabbit"`
 }
 
 type Postgres struct {
@@ -18,6 +19,13 @@ type Postgres struct {
 	Host     string `yaml:"host"`
 	Port     int    `yaml:"port"`
 	DBName   string `yaml:"db_name"`
+}
+
+type RabbitMQ struct {
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
 }
 
 var Cfg Config
