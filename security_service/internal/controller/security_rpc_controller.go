@@ -2,7 +2,7 @@ package security_controller
 
 import (
 	"context"
-	"github.com/catness812/e-petitions-project/security_service/internal/security_pb"
+	"github.com/catness812/e-petitions-project/security_service/internal/pb"
 
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
 	"github.com/catness812/e-petitions-project/security_service/pkg/jwtoken"
@@ -12,7 +12,7 @@ import (
 
 type ISecurityService interface {
 	Login(user *models.UserCredentialsModel) (map[string]string, error)
-	RefreshUserToken(token string, id uint) (map[string]string, error)
+	RefreshUserToken(token string, email string) (map[string]string, error)
 }
 
 type SecurityRpcServer struct {
@@ -23,7 +23,7 @@ func NewSecurityRpcServer(securitySvc ISecurityService) *SecurityRpcServer {
 	return &SecurityRpcServer{securitySvc: securitySvc}
 }
 
-func (s *SecurityRpcServer) Login(ctx context.Context, req *security_pb.UserCredentials) (*security_pb.Tokens, error) {
+func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) (*pb.Tokens, error) {
 	userLogin := models.UserCredentialsModel{
 		Email:    req.GetEmail(),
 		Password: req.GetPassword(),
@@ -34,29 +34,36 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *security_pb.UserCred
 		return nil, status.Error(codes.NotFound, err.Error())
 	}
 
-	return &security_pb.Tokens{
+	return &pb.Tokens{
 		AccessToken:  token["access_token"],
 		RefreshToken: token["refresh_token"],
 	}, nil
 }
 
-func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *security_pb.RefreshRequest) (*security_pb.RefreshResponse, error) {
+func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *pb.RefreshRequest) (*pb.RefreshResponse, error) {
 	refToken := req.Token
-	claims, err := jwtoken.IsTokenValid(refToken)
+	userEmail, err := jwtoken.IsTokenValid(refToken)
 	if err != nil {
-		return &security_pb.RefreshResponse{
+		return &pb.RefreshResponse{
 			Tokens:  nil,
 			Message: err.Error(),
 		}, nil
 	}
-	uid := claims["userID"]
-	uid64 := uid.(float64)
-	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, uint(uid64))
+	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, userEmail)
 	if err != nil {
-		return &security_pb.RefreshResponse{
+		return &pb.RefreshResponse{
 			Tokens:  nil,
 			Message: err.Error(),
 		}, nil
 	}
-	return &security_pb.RefreshResponse{Tokens: tokenMap}, nil
+	return &pb.RefreshResponse{Tokens: tokenMap}, nil
+}
+
+func (s *SecurityRpcServer) ValidateToken(ctx context.Context, req *pb.Token) (*pb.ValidateTokenResponse, error) {
+	email, err := jwtoken.IsTokenValid(req.Token)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, err.Error())
+	}
+	result := &pb.ValidateTokenResponse{Token: req.Token, Email: email}
+	return result, nil
 }

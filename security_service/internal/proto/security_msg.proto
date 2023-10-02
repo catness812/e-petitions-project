@@ -1,36 +1,41 @@
 syntax="proto3";
 
-option go_package="./security_pb";
+option go_package="./pb";
 
 package proto;
-
 message Empty {
 }
 
 message UserInfo {
-    uint64 id = 1;
-    string email = 2;
-    string password = 3;
-    string role = 4;
+  string email = 2;
+  string role = 3;
 }
 
 
 message UserCredentials {
-	string email = 1;
-	string password = 2;  
+  string email = 1;
+  string password = 2;
 }
 
 message Tokens {
-    string access_token = 1;
-    string refresh_token = 2;
+  string access_token = 1;
+  string refresh_token = 2;
 }
 
 message RefreshRequest {
-    string token = 1;
-  }
-  
-  message RefreshResponse{
-    map<string, string> tokens = 1;
-    string message = 2;
-  }
+  string token = 1;
+}
 
+message RefreshResponse{
+  map<string, string> tokens = 1;
+  string message = 2;
+}
+
+message Token {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  string token = 1;
+  string email = 2;
+}

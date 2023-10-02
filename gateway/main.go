@@ -9,13 +9,14 @@ import (
 )
 
 func main() {
-	c := config.LoadConfig()
+	cfg := config.LoadConfig()
+	rbacCfg := config.LoadConfigRBAC()
 
 	r := gin.Default()
 
-	user.RegisterUserRoutes(r, c)
-	//petition.RegisterPetitionRoutes(r, c)
-	security.RegisterSecurityRoutes(r, c)
+	user.RegisterUserRoutes(r, cfg, rbacCfg)
+	//petition.RegisterPetitionRoutes(r, cfg)
+	security.RegisterSecurityRoutes(r, cfg)
 
 	err := r.Run(":1337")
 	if err != nil {
