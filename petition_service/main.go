@@ -34,7 +34,7 @@ func grpcStart(petitionSvc rpctransport.IPetitionService) {
 		PetitionService: petitionSvc,
 	})
 
-	slog.Info("gRPC Server listening at %v\n", lis.Addr())
+	slog.Infof("gRPC Server listening at %v\n", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
 		slog.Error(err)
