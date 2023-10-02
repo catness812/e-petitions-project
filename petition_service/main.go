@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
@@ -11,6 +10,7 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/repository"
 	"github.com/catness812/e-petitions-project/petition_service/internal/service"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
+	"github.com/gookit/slog"
 	"google.golang.org/grpc"
 )
 
@@ -25,6 +25,7 @@ func main() {
 func grpcStart(petitionSvc rpctransport.IPetitionService) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
+		slog.Error(err)
 		panic(err)
 	}
 
@@ -33,9 +34,10 @@ func grpcStart(petitionSvc rpctransport.IPetitionService) {
 		PetitionService: petitionSvc,
 	})
 
-	log.Printf("gRPC Server listening at %v\n", lis.Addr())
+	slog.Info("gRPC Server listening at %v\n", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
-		log.Panic(err)
+		slog.Error(err)
+		panic(err)
 	}
 }
