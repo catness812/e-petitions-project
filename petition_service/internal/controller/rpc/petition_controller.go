@@ -88,12 +88,12 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
 	if err != nil {
-		slog.Error("Error creating new petition")
+		slog.Errorf("Error creating new petition: %v", err)
 		return nil, err
 	}
 
 	if err = s.NotificationService.SendNotification("notification", fmt.Sprintf("Petition \"%s\" was successfully created!", newPetition.Title)); err != nil {
-		slog.Error("Error publishing message to RabbitMQ")
+		slog.Errorf("Error publishing message to RabbitMQ: %v", err)
 	} else {
 		slog.Info("Petition creation notification successfully sent to RabbitMQ")
 	}
@@ -109,12 +109,15 @@ func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empt
 		PetitionID: uint(req.PetitionId),
 		UserID:     uint(req.UserId),
 	}
+
 	err := s.PetitionService.CreateVote(newVote)
 	if err != nil {
+		slog.Errorf("Error voting for petition %v by user %v: %v", newVote.PetitionID, newVote.UserID, err)
 		return nil, err
 	}
-	response := &empty.Empty{}
-	return response, nil
+
+	slog.Infof("User %v successfully voted for petition %v", newVote.UserID, newVote.PetitionID)
+	return &empty.Empty{}, nil
 }
 
 func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*pb.GetPetitionsResponse, error) {
@@ -174,7 +177,7 @@ func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.E
 		return nil, err
 	}
 
-	slog.Infof("Petition %v status successfully deleted", req.Id)
+	slog.Infof("Petition %v successfully deleted", req.Id)
 	return &empty.Empty{}, nil
 }
 
@@ -187,7 +190,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 
 	petitions, err := s.PetitionService.GetAllUserPetitions(uint(userID), pag)
 	if err != nil {
-		slog.Errorf("Error retrieving petitions: %v", err)
+		slog.Errorf("Error retrieving petitions for user %v: %v", userID, err)
 		return nil, err
 	}
 	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
@@ -203,7 +206,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 		}
 	}
 
-	slog.Infof("GetUserVotedPetitions succeeded for UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
+	slog.Infof("Successfully retrieved petitions of UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
 	return &pb.GetUserPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
@@ -217,7 +220,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	}
 	petitions, err := s.PetitionService.GetAllUserVotedPetitions(uint(userID), pag)
 	if err != nil {
-		slog.Errorf("Error retrieving petitions: %v", err)
+		slog.Errorf("Error retrieving voted petitions by user %v: %v", userID, err)
 		return nil, err
 	}
 	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
@@ -232,9 +235,9 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 			VoteGoal:    uint32(p.VoteGoal),
 		}
 	}
-	slog.Infof("GetUserVotedPetitions succeeded for UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
+
+	slog.Infof("Successfully retrieved voted petitions by UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
 	return &pb.GetUserVotedPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
-
 }
