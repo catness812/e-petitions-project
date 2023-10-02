@@ -1,12 +1,16 @@
 package rabbitMQ
 
 import (
+	"os"
+
+	"github.com/catness812/e-petitions-project/mail_service/internal/config"
 	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
 )
 
-func ConnectAMQPDataBase(user string, pass string, host string, port string) *amqp.Channel {
-	conn, err := amqp.Dial("amqp://" + user + ":" + pass + "@" + host + ":" + port + "/")
+func ConnectAMQPDataBase() *amqp.Channel {
+	rabbit := config.LoadConfig().Rabbit
+	conn, err := amqp.Dial("amqp://" + os.Getenv("RABBITMQ_USER") + ":" + os.Getenv("RABBITMQ_PASS") + "@" + rabbit.Host + ":" + rabbit.Port + "/")
 	if err != nil {
 		slog.Fatalf("cant start RabbitMQ: %v", err.Error())
 	}
