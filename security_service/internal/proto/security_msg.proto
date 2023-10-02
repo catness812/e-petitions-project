@@ -1,6 +1,6 @@
 syntax="proto3";
 
-option go_package="./security_pb";
+option go_package="./pb";
 
 package proto;
 message Empty {
