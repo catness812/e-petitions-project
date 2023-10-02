@@ -5,7 +5,7 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/gookit/slog"
 )
 
 func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.PermissionsConfig) {
@@ -13,7 +13,7 @@ func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.Permi
 	securityClient := security.InitAuthServiceClient(cfg)
 	userrepo, err := NewUserRepository(cfg, svc)
 	if err != nil {
-		log.Fatalf("Failed to connect to user service grpc: %v", err)
+		slog.Fatalf("Failed to connect to user service grpc: %v", err)
 	}
 	usersvc, err := NewUserService(userrepo)
 

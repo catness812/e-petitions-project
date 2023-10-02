@@ -1,11 +1,10 @@
 package security
 
 import (
-	"log"
-
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/slog"
 )
 
 func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
@@ -14,7 +13,7 @@ func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
 	securitysvc, err := NewSecurityService(securityrepo)
 
 	if err != nil {
-		log.Fatal("Failed to connect to security service grpc: ", err)
+		slog.Fatalf("Failed to connect to security service grpc: %v", err)
 	}
 	userctrl := NewSecurityController(securitysvc)
 

@@ -4,7 +4,7 @@ import "github.com/catness812/e-petitions-project/gateway/model"
 
 type ISecurityService interface {
 	Login(loginUser model.UserCredentials) (model.Tokens, error)
-	Refresh(token string) (model.Tokens, error)
+	Refresh(token string) (model.Tokens, string, error)
 }
 
 func NewSecurityService(repo ISecurityRepository) (ISecurityService, error) {
@@ -22,6 +22,6 @@ func (svc *securityService) Login(loginUser model.UserCredentials) (model.Tokens
 
 }
 
-func (svc *securityService) Refresh(token string) (model.Tokens, error) {
+func (svc *securityService) Refresh(token string) (model.Tokens, string, error) {
 	return svc.repo.Refresh(token)
 }

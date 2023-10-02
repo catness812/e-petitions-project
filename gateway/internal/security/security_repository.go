@@ -9,7 +9,7 @@ import (
 
 type ISecurityRepository interface {
 	Login(user model.UserCredentials) (model.Tokens, error)
-	Refresh(token string) (model.Tokens, error)
+	Refresh(token string) (model.Tokens, string, error)
 }
 
 func NewSecurityRepository(c *config.Config, client pb.SecurityServiceClient) (ISecurityRepository, error) {
@@ -42,16 +42,16 @@ func (repo *securityRepository) Login(loginUser model.UserCredentials) (model.To
 	return tokens, nil
 }
 
-func (repo *securityRepository) Refresh(token string) (model.Tokens, error) {
+func (repo *securityRepository) Refresh(token string) (model.Tokens, string, error) {
 	res, err := repo.client.RefreshSession(context.Background(), &pb.RefreshRequest{
 		Token: token,
 	})
 	if err != nil {
-		return model.Tokens{}, err
+		return model.Tokens{}, res.Message, err
 	}
 	tokens := model.Tokens{
 		AccessToken:  res.Tokens["access_token"],
 		RefreshToken: res.Tokens["refresh_token"],
 	}
-	return tokens, nil
+	return tokens, "", nil
 }

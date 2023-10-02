@@ -44,7 +44,7 @@ func (c *userController) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user info:": res})
+	ctx.JSON(http.StatusOK, gin.H{"message:": res})
 
 }
 
@@ -67,7 +67,7 @@ func (c *userController) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "nice delete user")
+	ctx.JSON(http.StatusOK, "User deleted successfully")
 
 }
 
@@ -83,7 +83,7 @@ func (c *userController) CreateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"response": res, "error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, "nice create user")
+	ctx.JSON(http.StatusOK, "User created successfully")
 }
 
 func (c *userController) UpdateUser(ctx *gin.Context) {
@@ -98,7 +98,7 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"response": res, "error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, "nice user update")
+	ctx.JSON(http.StatusOK, "User updated successfully")
 }
 
 func (c *userController) AddAdmin(ctx *gin.Context) {
@@ -120,5 +120,5 @@ func (c *userController) AddAdmin(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "nice add admin")
+	ctx.JSON(http.StatusOK, "Admin added successfully")
 }

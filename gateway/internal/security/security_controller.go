@@ -36,24 +36,24 @@ func (c *securityController) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Header("authorization", "Bearer "+tokens.AccessToken)
+	ctx.Header("authorization", tokens.AccessToken)
 	ctx.Header("refresh-Token", tokens.RefreshToken)
 
-	ctx.JSON(http.StatusOK, "nice login")
+	ctx.JSON(http.StatusOK, "User logged in successfully")
 
 }
 
 func (c *securityController) Refresh(ctx *gin.Context) {
 	authorization := ctx.Request.Header.Get("Authorization")
 
-	tokens, err := c.service.Refresh(authorization)
+	tokens, message, err := c.service.Refresh(authorization)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": message})
 		return
 	}
 	ctx.Header("authorization", tokens.AccessToken)
 	ctx.Header("refresh-Token", tokens.RefreshToken)
 
-	ctx.JSON(http.StatusOK, "nice refresh")
+	ctx.JSON(http.StatusOK, "Refresh Token refreshed successfully")
 }
