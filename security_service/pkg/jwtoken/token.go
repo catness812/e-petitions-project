@@ -2,16 +2,20 @@ package jwtoken
 
 import (
 	"fmt"
+
+	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	"github.com/dgrijalva/jwt-go"
-	"os"
+	"github.com/gookit/slog"
 )
 
 func verifyToken(t string) (*jwt.Token, error) {
+	keyConfig := config.LoadConfig();
+	
 	token, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(os.Getenv("RT_KEY")), nil
+		return []byte(keyConfig.Token.TKey), nil
 	})
 	if err != nil {
 		return nil, err
@@ -19,14 +23,24 @@ func verifyToken(t string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func IsTokenValid(t string) (jwt.MapClaims, error) {
+func IsTokenValid(t string) (string, error) {
 	token, err := verifyToken(t)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok && !token.Valid {
-		return nil, err
+		return "", err
 	}
-	return claims, err
+
+	emailField, found := claims["userEmail"]
+	if !found {
+		slog.Printf("Claim was not found in payload")
+		return "", err
+	}
+
+	email := fmt.Sprintf("%v", emailField)
+
+	return email, err
 }
+

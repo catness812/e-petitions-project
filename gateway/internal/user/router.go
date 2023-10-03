@@ -2,24 +2,28 @@ package user
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
+	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
+	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
-func RegisterUserRoutes(r *gin.Engine, c *config.Config) {
-	svc := InitUserServiceClient(c)
-	userrepo, err := NewUserRepository(c, svc)
+func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.PermissionsConfig) {
+	svc := InitUserServiceClient(cfg)
+	securityClient := security.InitAuthServiceClient(cfg)
+	userrepo, err := NewUserRepository(cfg, svc)
 	if err != nil {
-		log.Fatal("Failed to connect to user service grpc: ", err)
+		log.Fatalf("Failed to connect to user service grpc: %v", err)
 	}
 	usersvc, err := NewUserService(userrepo)
 
 	userctrl := NewUserController(usersvc)
-
+	authorizeMiddleware := middleware.NewAuthorizationMiddleware(svc, rbacCfg)
+	authenticateMiddleware := middleware.NewAuthenticationMiddleware(securityClient)
 	route := r.Group("/user")
-	route.GET("/", userctrl.GetUser)
 	route.POST("/", userctrl.CreateUser)
-	route.POST("/update", userctrl.UpdateUser)
-	route.DELETE("/", userctrl.DeleteUser)
-	route.POST("/admin", userctrl.AddAdmin)
+	route.GET("/", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("read", "user"), userctrl.GetUser)
+	route.POST("/update", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("write", "user"), userctrl.UpdateUser)
+	route.DELETE("/", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("delete", "user"), userctrl.DeleteUser)
+	route.POST("/admin", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("write", "user"), userctrl.AddAdmin)
 }

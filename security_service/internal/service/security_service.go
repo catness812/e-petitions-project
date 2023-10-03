@@ -3,12 +3,11 @@ package security_service
 import (
 	"errors"
 	"log"
-	"os"
 	"time"
 
+	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
 	"github.com/golang-jwt/jwt"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,7 +18,7 @@ type IUserRepository interface {
 
 type IRedisRepository interface {
 	ReplaceToken(currentToken, newToken string, expires time.Duration) error
-	InsertUserToken(key string, value uint, expires time.Duration) error
+	InsertUserToken(key string, value uint32, expires time.Duration) error
 }
 
 type SecurityService struct {
@@ -43,7 +42,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 	if err = svc.comparePasswordHash(user.Password, userLogin.Password); err != nil {
 		return nil, errors.New("invalid credentials")
 	}
-	token, err := generateTokenPair(user.ID)
+	token, err := generateTokenPair(user.Email)
 	if err != nil {
 		return nil, errors.New("can't generate token")
 	}
@@ -72,8 +71,8 @@ func (svc *SecurityService) comparePasswordHash(hash, pass string) error {
 	return nil
 }
 
-func (svc *SecurityService) RefreshUserToken(token string, id uint) (map[string]string, error) {
-	tokenMap, err := generateTokenPair(id)
+func (svc *SecurityService) RefreshUserToken(token string, email string) (map[string]string, error) {
+	tokenMap, err := generateTokenPair(email)
 	if err != nil {
 		return nil, err
 	}
@@ -83,18 +82,16 @@ func (svc *SecurityService) RefreshUserToken(token string, id uint) (map[string]
 	return tokenMap, nil
 }
 
-func generateTokenPair(userId uint) (map[string]string, error) {
-	err := godotenv.Load("internal/security/.env")
-	if err != nil {
-		log.Fatal("Error loading .env file", err)
-	}
+func generateTokenPair(email string) (map[string]string, error) {
+	keyConfig := config.LoadConfig()
+
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["userID"] = userId
+	claims["userEmail"] = email
 	claims["exp"] = time.Now().Add(time.Minute * 15).Unix()
 
-	t, err := token.SignedString([]byte(os.Getenv("T_KEY")))
+	t, err := token.SignedString([]byte(keyConfig.Token.TKey))
 	if err != nil {
 		return nil, err
 	}
@@ -105,10 +102,10 @@ func generateTokenPair(userId uint) (map[string]string, error) {
 	}
 
 	rtClaims := refreshToken.Claims.(jwt.MapClaims)
-	rtClaims["userID"] = userId
+	rtClaims["userEmail"] = email
 	rtClaims["exp"] = time.Now().Add(time.Hour * 6).Unix()
 
-	rt, err := refreshToken.SignedString([]byte(os.Getenv("RT_KEY")))
+	rt, err := refreshToken.SignedString([]byte(keyConfig.Token.RTKey))
 
 	if err != nil {
 		return nil, err
