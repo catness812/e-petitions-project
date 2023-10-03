@@ -2,18 +2,52 @@ package repository
 
 import (
 	"fmt"
+	"github.com/gookit/slog"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/streadway/amqp"
 )
 
-type NotificationRepository struct{}
+const (
+	queueName = "notification"
+)
 
-func InitNotificationRepository() *NotificationRepository {
-	return &NotificationRepository{}
+type PublisherRepository struct {
+	channel *amqp.Channel
 }
 
-func (repo *NotificationRepository) PublishMessage(queueName string, message string) error {
+func NewPublisherRepository() *PublisherRepository {
+	slog.Info("Creating new Publisher Repository...")
+	ch, err := connectToRabbit()
+	if err != nil {
+		slog.Errorf("Could not connect to RabbitMQ: %v", err)
+	}
+	return &PublisherRepository{
+		channel: ch,
+	}
+}
+
+func (repo *PublisherRepository) PublishMessage(email string, message string) error {
+	body := fmt.Sprintf("%s %s", email, message)
+	err := repo.channel.Publish(
+		"",
+		queueName,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(body),
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TODO move this to another layer
+func connectToRabbit() (*amqp.Channel, error) {
 	rabbitMQURL := fmt.Sprintf(
 		"amqp://%s:%s@%s:%d/",
 		config.Cfg.Broker.User,
@@ -23,29 +57,13 @@ func (repo *NotificationRepository) PublishMessage(queueName string, message str
 	)
 	conn, err := amqp.Dial(rabbitMQURL)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	defer conn.Close()
 
 	ch, err := conn.Channel()
 	if err != nil {
-		return err
-	}
-	defer ch.Close()
-
-	err = ch.Publish(
-		"",
-		queueName,
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(message),
-		},
-	)
-	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return ch, nil
 }
