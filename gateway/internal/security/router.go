@@ -20,7 +20,7 @@ func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
 
 	authenticationMiddleware := middleware.NewAuthenticationMiddleware(svc)
 	r.POST("/login", userctrl.Login)
-
 	r.GET("/refresh", authenticationMiddleware.Auth(), userctrl.Refresh)
+	//r.POST("/validate", userctrl.)
 
 }

@@ -13,7 +13,8 @@ type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
 	Database Postgres `yaml:"postgres"`
 	Redis    Redis    `yaml:"redis"`
-	Token 	Token `yaml:"token"`
+	Token    Token    `yaml:"token"`
+	Rabbit   Rabbit   `yaml:"rabbit"`
 }
 
 type Postgres struct {
@@ -34,6 +35,11 @@ type Redis struct {
 type Token struct {
 	TKey  string `yaml:"T_KEY"`
 	RTKey string `yaml:"RT_KEY"`
+}
+
+type Rabbit struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
 }
 
 func LoadConfig() *Config {
