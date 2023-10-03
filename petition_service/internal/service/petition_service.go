@@ -43,7 +43,6 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 }
 
 func (svc *PetitonService) CreateVote(vote models.Vote) error {
-
 	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
 		return err
 	}

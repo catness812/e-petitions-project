@@ -25,7 +25,7 @@ func LoadDatabase() *gorm.DB {
 	}
 	err = db.AutoMigrate(&models.Vote{})
 	if err != nil {
-		log.Fatal(err)
+		slog.Error(err)
 	}
 
 	seedStatuses(db)

@@ -12,3 +12,7 @@ redis:
   port: :6379
   password: redispass
   db: 0
+
+tokens:
+  T_KEY: eyJhbGciOiJIU
+  RT_KEY: tetetepolsvbJk
