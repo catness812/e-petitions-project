@@ -1,10 +1,10 @@
 package config
 
 import (
-	"github.com/gookit/slog"
-	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/gookit/slog"
 
 	"gopkg.in/yaml.v2"
 )
@@ -13,6 +13,7 @@ type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
 	Database Postgres `yaml:"postgres"`
 	Redis    Redis    `yaml:"redis"`
+	Token 	Token `yaml:"token"`
 }
 
 type Postgres struct {
@@ -30,11 +31,16 @@ type Redis struct {
 	RedisDB  int    `yaml:"db"`
 }
 
+type Token struct {
+	TKey  string `yaml:"T_KEY"`
+	RTKey string `yaml:"RT_KEY"`
+}
+
 func LoadConfig() *Config {
 	var cfg *Config
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Fatalf("Failed to get working directory: %v", err)
+		slog.Fatalf("Failed to get working directory: %v", err)
 	}
 	configPath := filepath.Join(wd, "config.yml")
 	data, err := os.ReadFile(configPath)
