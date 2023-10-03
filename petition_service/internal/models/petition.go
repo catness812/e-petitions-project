@@ -12,4 +12,5 @@ type Petition struct {
 	Status      Status `gorm:"foreignKey:StatusID" json:"status"`
 	UserID      uint   `gorm:"not null;" json:"user_id"`
 	VoteGoal    uint   `gorm:"not null;default:1000" json:"vote_goal"`
+	CurrVotes   uint   `gorm:"not null;default:0" json:"curr_votes"`
 }

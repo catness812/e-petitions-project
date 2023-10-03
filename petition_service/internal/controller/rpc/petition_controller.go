@@ -24,6 +24,7 @@ type IPetitionService interface {
 	CreateVote(vote models.Vote) error
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	UpdateCurrVotes(petitionID uint, newCurrVotes uint) error
 }
 
 type INotificationService interface {
@@ -116,8 +117,18 @@ func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empt
 		return nil, err
 	}
 
-	slog.Infof("User %v successfully voted for petition %v", newVote.UserID, newVote.PetitionID)
-	return &empty.Empty{}, nil
+	petition, err := s.PetitionService.GetByID(uint(req.PetitionId))
+	if err != nil {
+		return nil, err
+	}
+	currVotes := petition.CurrVotes
+	currVotes++
+	err = s.PetitionService.UpdateCurrVotes(uint(req.PetitionId), currVotes)
+	if err != nil {
+		return nil, err
+	}
+	response := &empty.Empty{}
+	return response, nil
 }
 
 func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*pb.GetPetitionsResponse, error) {

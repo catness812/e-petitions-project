@@ -90,6 +90,15 @@ func (repo *PetitionRepository) CheckIfExists(id uint) error {
 	return nil
 }
 
+func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) bool {
+	var vote models.Vote
+	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
+		slog.Errorf("Couldn't find vote: %v", err.Error())
+		return false
+	}
+	slog.Infof("Vote found")
+	return true
+}
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
 	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
@@ -112,4 +121,19 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination
 	}
 
 	return petitions, nil
+}
+
+func (r *PetitionRepository) UpdateCurrVotes(petitionID uint, newCurrVotes uint) error {
+	var petition models.Petition
+	if err := r.db.First(&petition, petitionID).Error; err != nil {
+		return err
+	}
+
+	petition.CurrVotes = newCurrVotes
+
+	if err := r.db.Save(&petition).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
