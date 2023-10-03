@@ -61,6 +61,16 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 	return user, nil
 }
 
+func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
+	var userEmail string
+	err := repo.dbClient.Debug().Model(&models.User{}).Where("id = ?", userID).Pluck("email", &userEmail).Error
+	if err != nil {
+		slog.Errorf("failde to get user email from database %v\n", err.Error())
+		return "", err
+	}
+	return userEmail, nil
+}
+
 func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
 	existing_user := &models.User{}
 	err := repo.dbClient.Where("email = ?", user.Email).First(&existing_user).Error
@@ -98,14 +108,14 @@ func (repo *UserRepository) AddAdminRole(userEmail string) error {
 		return err
 	}
 
-	if user.Role == "Admin" {
+	if user.Role == "admin" {
 		return nil
 	}
 
 	err = repo.dbClient.Debug().
 		Model(models.User{}).
 		Where("email = ?", userEmail).
-		Update("role", "Admin").Error
+		Update("role", "admin").Error
 
 	return err
 }

@@ -15,6 +15,7 @@ type IUserRepository interface {
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdminRole(userEmail string) error
+	GetUserEmailById(userID uint) (string, error)
 }
 
 type UserService struct {
@@ -94,4 +95,13 @@ func (svc *UserService) GetUserByEmail(userEmail string) (*models.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
+	userEmail, err := svc.userRepo.GetUserEmailById(userID)
+	if err != nil {
+		slog.Error("failed to get user email from database: %v\n", err)
+		return "", nil
+	}
+	return userEmail, nil
 }
