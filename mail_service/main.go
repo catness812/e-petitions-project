@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+
+	"github.com/catness812/e-petitions-project/mail_service/internal/config"
 	"github.com/catness812/e-petitions-project/mail_service/internal/controllers"
 	"github.com/catness812/e-petitions-project/mail_service/pkg/rabbitMQ"
 	"github.com/gookit/slog"
@@ -26,5 +29,7 @@ func init() {
 		}
 	}
 
-	ch = rabbitMQ.ConnectAMQPDataBase()
+	cfg := config.LoadConfig()
+
+	ch = rabbitMQ.ConnectAMQPDataBase(os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS"), cfg.Rabbit.Host, cfg.Rabbit.Port)
 }
