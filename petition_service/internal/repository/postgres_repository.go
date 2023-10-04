@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
@@ -90,14 +91,14 @@ func (repo *PetitionRepository) CheckIfExists(id uint) error {
 	return nil
 }
 
-func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) bool {
+func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
 	var vote models.Vote
 	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
-		slog.Errorf("Couldn't find vote: %v", err.Error())
-		return false
+		slog.Info("Couldn't find vote")
+		return nil
 	}
-	slog.Infof("Vote found")
-	return true
+	slog.Error("Vote found")
+	return errors.New("user has already voted")
 }
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition

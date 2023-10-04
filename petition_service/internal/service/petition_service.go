@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 )
@@ -18,7 +17,7 @@ type IPetitionRepository interface {
 	CheckIfExists(id uint) error
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	UpdateCurrVotes(petitionID uint, newCurrVotes uint) error
-	HasUserVoted(userID, petitionID uint) bool
+	HasUserVoted(userID, petitionID uint) error
 }
 
 type PetitonService struct {
@@ -46,17 +45,29 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 }
 
 func (svc *PetitonService) CreateVote(vote models.Vote) error {
-	if res := svc.repo.HasUserVoted(vote.UserID, vote.PetitionID); res {
-		return errors.New("user has already voted")
+	if err := svc.repo.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
+		return err
+	}
+	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
+		return err
+	}
+	petition, err := svc.repo.GetByID(uint(vote.PetitionID))
+	if err != nil {
+		return err
+	}
+	currVotes := petition.CurrVotes
+	currVotes++
+
+	err = svc.repo.UpdateCurrVotes(uint(vote.PetitionID), currVotes)
+	if err != nil {
+		return err
+	}
+
+	if err := svc.repo.SaveVote(&vote); err != nil {
+		return err
 	} else {
-		if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
-			return err
-		}
-		if err := svc.repo.SaveVote(&vote); err != nil {
-			return err
-		} else {
-			return nil
-		}
+		return nil
+
 	}
 }
 
