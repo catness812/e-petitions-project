@@ -12,4 +12,5 @@ service SecurityService{
   rpc RefreshSession (RefreshRequest) returns (RefreshResponse);
   rpc ValidateToken (Token) returns (ValidateTokenResponse);
   rpc SendOTP (OTPInfo) returns (OTPInfo);
+  rpc ValidateOTP (OTPInfo) returns (OTPInfo);
 }

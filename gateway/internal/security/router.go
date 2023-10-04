@@ -22,5 +22,5 @@ func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
 	r.POST("/login", userctrl.Login)
 	r.GET("/refresh", authenticationMiddleware.Auth(), userctrl.Refresh)
 	r.GET("/sendOTP", userctrl.SendOTP)
-
+	r.POST("/validateOTP", userctrl.ValidateOTP)
 }

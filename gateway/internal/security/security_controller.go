@@ -11,6 +11,7 @@ type ISecurityController interface {
 	Login(ctx *gin.Context)
 	Refresh(ctx *gin.Context)
 	SendOTP(ctx *gin.Context)
+	ValidateOTP(ctx *gin.Context)
 }
 
 func NewSecurityController(service ISecurityService) ISecurityController {
@@ -60,7 +61,7 @@ func (c *securityController) Refresh(ctx *gin.Context) {
 }
 
 func (c *securityController) SendOTP(ctx *gin.Context) {
-	var email model.OTPInfo
+	var email model.OTPEmail
 	err := ctx.BindJSON(&email)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -71,7 +72,25 @@ func (c *securityController) SendOTP(ctx *gin.Context) {
 
 	if message != "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": message})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, "OTP sent successfully")
+}
+
+func (c *securityController) ValidateOTP(ctx *gin.Context) {
+	var otpData model.ValidateOTP
+	err := ctx.BindJSON(&otpData)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	message := c.service.ValidateOTP(otpData)
+	if message != "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": message})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, "nice login")
+
 }

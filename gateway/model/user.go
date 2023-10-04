@@ -16,6 +16,11 @@ type Tokens struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-type OTPInfo struct {
+type OTPEmail struct {
 	Email string `json:"email"`
+}
+
+type ValidateOTP struct {
+	OTPEmail
+	OTP string `json:"otp"`
 }
