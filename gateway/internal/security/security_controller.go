@@ -10,6 +10,7 @@ import (
 type ISecurityController interface {
 	Login(ctx *gin.Context)
 	Refresh(ctx *gin.Context)
+	SendOTP(ctx *gin.Context)
 }
 
 func NewSecurityController(service ISecurityService) ISecurityController {
@@ -56,4 +57,21 @@ func (c *securityController) Refresh(ctx *gin.Context) {
 	ctx.Header("refresh-Token", tokens.RefreshToken)
 
 	ctx.JSON(http.StatusOK, "nice refresh")
+}
+
+func (c *securityController) SendOTP(ctx *gin.Context) {
+	var email model.OTPInfo
+	err := ctx.BindJSON(&email)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	message := c.service.SendOTP(email)
+
+	if message != "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": message})
+	}
+
+	ctx.JSON(http.StatusOK, "OTP sent successfully")
 }

@@ -10,6 +10,7 @@ import (
 type ISecurityRepository interface {
 	Login(user model.UserCredentials) (model.Tokens, error)
 	Refresh(token string) (model.Tokens, error)
+	SendOTP(email model.OTPInfo) (message string)
 }
 
 func NewSecurityRepository(c *config.Config, client pb.SecurityServiceClient) (ISecurityRepository, error) {
@@ -54,4 +55,12 @@ func (repo *securityRepository) Refresh(token string) (model.Tokens, error) {
 		RefreshToken: res.Tokens["refresh_token"],
 	}
 	return tokens, nil
+}
+
+func (repo *securityRepository) SendOTP(email model.OTPInfo) (message string) {
+	res, err := repo.client.SendOTP(context.Background(), &pb.OTPInfo{OTP: "", Message: "", Email: email.Email})
+	if err != nil {
+		return ""
+	}
+	return res.Message
 }
