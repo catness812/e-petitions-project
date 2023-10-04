@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"net/mail"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/gookit/slog"
@@ -30,6 +31,12 @@ func NewUserService(userRepo IUserRepository) *UserService {
 
 func (svc *UserService) Create(user *models.User) error {
 	user.Role = "user"
+	err := validMailAddress(user.Email)
+	if err != nil {
+		slog.Errorf("invalid email: %v\n", err.Error())
+		return errors.New("invalid email")
+	}
+
 	if svc.userRepo.CheckUserExistence(user.Email) {
 		slog.Errorf("user exists: %v\n", user.Email)
 		return errors.New("user exists")
@@ -104,4 +111,12 @@ func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
 		return "", nil
 	}
 	return userEmail, nil
+}
+
+func validMailAddress(address string) error {
+	_, err := mail.ParseAddress(address)
+	if err != nil {
+		return errors.New("invalid email address")
+	}
+	return nil
 }
