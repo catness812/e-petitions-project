@@ -20,3 +20,7 @@ tokens:
 rabbit:
   host: localhost
   port: 5672
+
+gateway:
+  host: localhost
+  port: :1337

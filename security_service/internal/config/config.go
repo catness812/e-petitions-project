@@ -11,13 +11,14 @@ import (
 
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
-	Database Postgres `yaml:"postgres"`
-	Redis    Redis    `yaml:"redis"`
-	Token    Token    `yaml:"token"`
-	Rabbit   Rabbit   `yaml:"rabbit"`
+	Database postgres `yaml:"postgres"`
+	Redis    redis    `yaml:"redis"`
+	Token    token    `yaml:"token"`
+	Rabbit   rabbit   `yaml:"rabbit"`
+	Gateway  gateway  `yaml:"gateway"`
 }
 
-type Postgres struct {
+type postgres struct {
 	User     string `yaml:"user"`
 	Password string `yaml:"password"`
 	Host     string `yaml:"host"`
@@ -25,19 +26,24 @@ type Postgres struct {
 	DBName   string `yaml:"db_name"`
 }
 
-type Redis struct {
+type redis struct {
 	Host     string `yaml:"host"`
 	Port     string `yaml:"port"`
 	Password string `yaml:"password"`
 	RedisDB  int    `yaml:"db"`
 }
 
-type Token struct {
+type token struct {
 	TKey  string `yaml:"T_KEY"`
 	RTKey string `yaml:"RT_KEY"`
 }
 
-type Rabbit struct {
+type rabbit struct {
+	Host string `yaml:"host"`
+	Port string `yaml:"port"`
+}
+
+type gateway struct {
 	Host string `yaml:"host"`
 	Port string `yaml:"port"`
 }

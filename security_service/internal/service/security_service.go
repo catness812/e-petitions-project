@@ -26,6 +26,7 @@ type IRedisRepository interface {
 	InsertUserToken(key string, value uint32, expires time.Duration) error
 	InsertOTP(otp string, mail string, expires time.Duration) error
 	GetOTP(mail string) (string, error)
+	DeleteOTP(mail string) error
 }
 
 type SecurityService struct {
@@ -71,9 +72,10 @@ func (svc *SecurityService) RefreshUserToken(token string, email string) (map[st
 	return tokenMap, nil
 }
 
-func (svc *SecurityService) SendOTP(mail string, ch *amqp.Channel) (string, error) {
+func (svc *SecurityService) SendOTP(mail string, ch *amqp.Channel, cfg *config.Config) (string, error) {
 	otp := svc.generateOTP()
-	message := fmt.Sprintf(mail + " " + otp)
+	verifyLink := fmt.Sprintf(cfg.Gateway.Host + cfg.Gateway.Port + "/validate-otp?otp=" + otp + "&email=" + mail)
+	message := fmt.Sprintf(mail + " " + verifyLink)
 	if err := svc.redisRepo.InsertOTP(otp, mail, time.Minute*5); err != nil {
 		return "", err
 	}
@@ -86,10 +88,13 @@ func (svc *SecurityService) SendOTP(mail string, ch *amqp.Channel) (string, erro
 func (svc *SecurityService) VerifyOTP(mail string, userOTP string) error {
 	otp, err := svc.redisRepo.GetOTP(mail)
 	if err != nil {
-		return err
+		return errors.New("failed to get otp from redis")
 	}
 	if subtle.ConstantTimeCompare([]byte(otp), []byte(userOTP)) != 1 {
 		return errors.New("OTP does not match")
+	}
+	if err := svc.redisRepo.DeleteOTP(mail); err != nil {
+		return errors.New("failed to delete otp from redis: otp not found")
 	}
 	return nil
 }

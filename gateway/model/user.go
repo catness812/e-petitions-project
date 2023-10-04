@@ -15,12 +15,3 @@ type Tokens struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
-
-type OTPEmail struct {
-	Email string `json:"email"`
-}
-
-type ValidateOTP struct {
-	OTPEmail
-	OTP string `json:"otp"`
-}

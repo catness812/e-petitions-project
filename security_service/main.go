@@ -39,7 +39,7 @@ func RunSecurityService() {
 	userRepo := security_repository2.NewUserRepository(postgres.Database)
 	redisRepo := security_repository2.NewRedisRepository(redisDB)
 	sService = security_service.NewSecurityService(userRepo, redisRepo)
-	sRpcServer = security_controller.NewSecurityRpcServer(sService, rabbitCh)
+	sRpcServer = security_controller.NewSecurityRpcServer(sService, rabbitCh, cfg)
 	lis, err := net.Listen("tcp", "localhost:9002")
 	if err != nil {
 		slog.Fatalf("Failed to listen to security service on GRPC port 9002: %v", err)

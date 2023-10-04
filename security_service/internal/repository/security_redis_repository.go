@@ -41,3 +41,7 @@ func (redisRepo *RedisRepository) GetOTP(mail string) (string, error) {
 	}
 	return otp, nil
 }
+
+func (redisRepo *RedisRepository) DeleteOTP(mail string) error {
+	return redisRepo.redisClient.Del(context.Background(), mail).Err()
+}

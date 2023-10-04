@@ -44,5 +44,4 @@ message ValidateTokenResponse {
 message OTPInfo{
   string OTP = 1;
   string email = 2;
-  string message = 3;
 }

@@ -2,36 +2,34 @@ package security
 
 import "github.com/catness812/e-petitions-project/gateway/model"
 
-type ISecurityService interface {
-	Login(loginUser model.UserCredentials) (model.Tokens, error)
+type ISecurityRepository interface {
+	Login(user model.UserCredentials) (model.Tokens, error)
 	Refresh(token string) (model.Tokens, error)
-	SendOTP(email model.OTPEmail) (message string)
-	ValidateOTP(otpData model.ValidateOTP) (message string)
+	SendOTP(email string) (string, error)
+	ValidateOTP(otp, email string) error
 }
 
-func NewSecurityService(repo ISecurityRepository) (ISecurityService, error) {
-	return &securityService{
-		repo: repo,
-	}, nil
-}
-
-type securityService struct {
+type SecurityService struct {
 	repo ISecurityRepository
 }
 
-func (svc *securityService) Login(loginUser model.UserCredentials) (model.Tokens, error) {
+func NewSecurityService(repo ISecurityRepository) *SecurityService {
+	return &SecurityService{repo: repo}
+}
+
+func (svc *SecurityService) Login(loginUser model.UserCredentials) (model.Tokens, error) {
 	return svc.repo.Login(loginUser)
 
 }
 
-func (svc *securityService) Refresh(token string) (model.Tokens, error) {
+func (svc *SecurityService) Refresh(token string) (model.Tokens, error) {
 	return svc.repo.Refresh(token)
 }
 
-func (svc *securityService) SendOTP(email model.OTPEmail) (message string) {
+func (svc *SecurityService) SendOTP(email string) (string, error) {
 	return svc.repo.SendOTP(email)
 }
 
-func (svc *securityService) ValidateOTP(otpData model.ValidateOTP) (message string) {
-	return svc.repo.ValidateOTP(otpData)
+func (svc *SecurityService) ValidateOTP(otp, mail string) error {
+	return svc.repo.ValidateOTP(otp, mail)
 }

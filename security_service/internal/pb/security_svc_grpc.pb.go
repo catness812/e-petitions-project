@@ -26,6 +26,7 @@ type SecurityServiceClient interface {
 	RefreshSession(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
 	ValidateToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 	SendOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*OTPInfo, error)
+	ValidateOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type securityServiceClient struct {
@@ -72,6 +73,15 @@ func (c *securityServiceClient) SendOTP(ctx context.Context, in *OTPInfo, opts .
 	return out, nil
 }
 
+func (c *securityServiceClient) ValidateOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/proto.SecurityService/ValidateOTP", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SecurityServiceServer is the server API for SecurityService service.
 // All implementations should embed UnimplementedSecurityServiceServer
 // for forward compatibility
@@ -80,6 +90,7 @@ type SecurityServiceServer interface {
 	RefreshSession(context.Context, *RefreshRequest) (*RefreshResponse, error)
 	ValidateToken(context.Context, *Token) (*ValidateTokenResponse, error)
 	SendOTP(context.Context, *OTPInfo) (*OTPInfo, error)
+	ValidateOTP(context.Context, *OTPInfo) (*Empty, error)
 }
 
 // UnimplementedSecurityServiceServer should be embedded to have forward compatible implementations.
@@ -97,6 +108,9 @@ func (UnimplementedSecurityServiceServer) ValidateToken(context.Context, *Token)
 }
 func (UnimplementedSecurityServiceServer) SendOTP(context.Context, *OTPInfo) (*OTPInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendOTP not implemented")
+}
+func (UnimplementedSecurityServiceServer) ValidateOTP(context.Context, *OTPInfo) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateOTP not implemented")
 }
 
 // UnsafeSecurityServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -182,6 +196,24 @@ func _SecurityService_SendOTP_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SecurityService_ValidateOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OTPInfo)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SecurityServiceServer).ValidateOTP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.SecurityService/ValidateOTP",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SecurityServiceServer).ValidateOTP(ctx, req.(*OTPInfo))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SecurityService_ServiceDesc is the grpc.ServiceDesc for SecurityService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -204,6 +236,10 @@ var SecurityService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendOTP",
 			Handler:    _SecurityService_SendOTP_Handler,
+		},
+		{
+			MethodName: "ValidateOTP",
+			Handler:    _SecurityService_ValidateOTP_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
