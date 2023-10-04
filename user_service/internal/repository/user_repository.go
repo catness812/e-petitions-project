@@ -65,15 +65,15 @@ func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
 	var userEmail string
 	err := repo.dbClient.Debug().Model(&models.User{}).Where("id = ?", userID).Pluck("email", &userEmail).Error
 	if err != nil {
-		slog.Errorf("failde to get user email from database %v\n", err.Error())
+		slog.Errorf("failed to get user email from database %v\n", err.Error())
 		return "", err
 	}
 	return userEmail, nil
 }
 
 func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
-	existing_user := &models.User{}
-	err := repo.dbClient.Where("email = ?", user.Email).First(&existing_user).Error
+	existingUser := &models.User{}
+	err := repo.dbClient.Where("email = ?", user.Email).First(&existingUser).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return fmt.Errorf("user with email %s not found", user.Email)
@@ -81,8 +81,8 @@ func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
 		slog.Errorf("failed to fetch user: %v\n", err.Error())
 		return err
 	}
-	existing_user.Password = user.Password
-	err = repo.dbClient.Save(&existing_user).Error
+	existingUser.Password = user.Password
+	err = repo.dbClient.Save(&existingUser).Error
 	if err != nil {
 		slog.Errorf("failed to update password: %v\n", err.Error())
 		return err
