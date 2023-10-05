@@ -127,7 +127,11 @@ func (svc *UserService) GetUserByEmail(userEmail string) (*models.User, error) {
 
 func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
 	userEmail, err := svc.userRepo.GetUserEmailById(userID)
-	if err != nil {
+	if err == gorm.ErrRecordNotFound {
+		slog.Infof("User with ID %d not found", userID)
+		return "", gorm.ErrRecordNotFound
+	} else if err != nil {
+		slog.Errorf("Failed to fetch user from database: %v", err.Error())
 		return "", err
 	}
 	return userEmail, nil

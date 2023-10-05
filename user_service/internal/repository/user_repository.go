@@ -80,14 +80,9 @@ func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
 	user := &models.User{}
 
 	err := repo.dbClient.Debug().Where("id = ?", userID).First(user).Error
-	if err == gorm.ErrRecordNotFound {
-		slog.Infof("User with ID %d not found", userID)
-		return "", gorm.ErrRecordNotFound
-	} else if err != nil {
-		slog.Errorf("Failed to fetch user from database: %v", err.Error())
+	if err != nil {
 		return "", err
 	}
-
 	userEmail = user.Email
 	return userEmail, nil
 }
