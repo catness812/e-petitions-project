@@ -11,9 +11,14 @@ import (
 
 type IPetitionController interface {
 	CreatePetition(ctx *gin.Context)
-	UpdatePetition(ctx *gin.Context)
+	GetPetitionByID(ctx *gin.Context)
 	GetPetitions(ctx *gin.Context)
+	UpdatePetitionStatus(ctx *gin.Context)
 	DeletePetition(ctx *gin.Context)
+	ValidatePetitionID(ctx *gin.Context)
+	CreateVote(ctx *gin.Context)
+	GetUserPetitions(ctx *gin.Context)
+	GetUserVotedPetitions(ctx *gin.Context)
 }
 
 type petitionController struct {
@@ -28,7 +33,7 @@ func NewPetitionController(service IPetitionService) IPetitionController {
 }
 
 func (c *petitionController) CreatePetition(ctx *gin.Context) {
-	var petition model.Petition
+	var petition model.CreatePetition
 	err := ctx.BindJSON(&petition)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

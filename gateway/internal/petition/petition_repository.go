@@ -10,9 +10,9 @@ import (
 
 type IPetitionRepository interface {
 	CreatePetition(model.CreatePetition) (uint32, error)
-	GetPetitionById(petitionID uint32) (model.Petition, error)
+	GetPetitionByID(petitionID uint32) (model.Petition, error)
 	GetPetitions(page uint32, limit uint32) ([]model.Petition, error)
-	UpdatePetitionStatus(id uint32, status string)
+	UpdatePetitionStatus(id uint32, status string) error
 	DeletePetition(petitionID uint32) error
 	ValidatePetitionID(petitionID uint32) error
 	CreateVote(userID uint32, petitionID uint32) error
@@ -79,7 +79,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 
 }
 
-func (repo *petitionRepository) GetPetitionById(petitionID uint32) (model.Petition, error) {
+func (repo *petitionRepository) GetPetitionByID(petitionID uint32) (model.Petition, error) {
 	var petition model.Petition
 	resp, err := repo.client.GetPetitionById(context.Background(), &pb.PetitionId{
 		Id: petitionID,
@@ -95,45 +95,57 @@ func (repo *petitionRepository) GetPetitionById(petitionID uint32) (model.Petiti
 
 }
 
-func (repo *petitionRepository) GetPetitionByID(query model.PaginationQuery) ([]model.Petition, error) {
-	resp, err := repo.client.GetPetitions(context.Background(), &pb.GetPetitionsRequest{
-		Page:  query.Page,
-		Limit: query.Limit,
-	})
-
+func (repo *petitionRepository) GetPetitions(page uint32, limit uint32) ([]model.Petition, error) {
 	var petitions []model.Petition
-
+	resp, err := repo.client.GetPetitions(context.Background(), &pb.GetPetitionsRequest{
+		Page:  page,
+		Limit: limit,
+	})
 	if err != nil {
 		return petitions, err
 	}
 
-	for _, pbpetition := range resp.Petitions {
-		petitions = append(petitions, mapPetition(pbpetition))
+	for _, pbPetiton := range resp.Petitions {
+		petitions = append(petitions, mapPetition(pbPetiton))
 	}
 
 	return petitions, nil
 }
 
-// func (repo *petitionRepository) UpdatePetition(id uint32, status string) (string, error) {
-// 	resp, err := repo.client.UpdatePetition(context.Background(), &pb.UpdatePetitionRequest{
-// 		Id:     id,
-// 		Status: status,
-// 	})
-// 	var message string
-// 	if err != nil {
-// 		return message, nil
-// 	}
+func (repo *petitionRepository) UpdatePetitionStatus(id uint32, status string) error {
+	_, err := repo.client.UpdatePetitionStatus(context.Background(), &pb.UpdatePetitionStatusRequest{
+		Id:     id,
+		Status: status,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
-// 	message = resp.Message
+func (repo *petitionRepository) DeletePetition(petitionID uint32) error {
+	_, err := repo.client.DeletePetition(context.Background(), &pb.PetitionId{
+		Id: petitionID,
+	})
+	if err != nil {
+		return err
+	}
 
-// 	return message, nil
+	return nil
+}
 
-// }
+func (repo *petitionRepository) ValidatePetitionID(petitionID uint32) error {
+	return nil
+}
 
-// func (repo *petitionRepository) DeletePetition(id uint32) error {
-// 	_, err := repo.client.DeletePetition(context.Background(), &pb.DeletePetitionRequest{
-// 		Id: id,
-// 	})
+func (repo *petitionRepository) CreateVote(userID uint32, petitionID uint32) error {
+	return nil
+}
 
-// 	return err
-// }
+func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+	return nil, nil
+}
+
+func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+	return nil, nil
+}
