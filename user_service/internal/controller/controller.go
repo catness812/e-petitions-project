@@ -37,9 +37,9 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	}
 
 	user := &models.User{
-		Email:    req.Email,
-		Password: req.Password,
-		Status:   req.Status,
+		Email:      req.Email,
+		Password:   req.Password,
+		HasAccount: req.HasAccount,
 	}
 
 	err := ctrl.userservice.Create(user)

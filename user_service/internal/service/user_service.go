@@ -17,6 +17,8 @@ type IUserRepository interface {
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdminRole(userEmail string) error
 	GetUserEmailById(userID uint) (string, error)
+	ValidateUserExistance(userEmail string) (*models.User, error)
+	UpdateUser(user *models.User) error
 }
 
 type UserService struct {
@@ -30,25 +32,47 @@ func NewUserService(userRepo IUserRepository) *UserService {
 }
 
 func (svc *UserService) Create(user *models.User) error {
-	user.Role = "user"
-	err := validMailAddress(user.Email)
+	existingUser, err := svc.userRepo.ValidateUserExistance(user.Email)
 	if err != nil {
-		slog.Errorf("invalid email: %v\n", err.Error())
-		return errors.New("invalid email")
+		// if user doesn't exists it creates it
+		user.HasAccount = true
+		user.Role = "user"
+		err = validMailAddress(user.Email)
+		if err != nil {
+			slog.Errorf("invalid email: %v\n", err.Error())
+			return errors.New("invalid email")
+		}
+		hashedPassword, err := svc.generatePasswordHash(user.Password)
+		if err != nil {
+			slog.Errorf("can't register: %v\n", err.Error())
+			return errors.New("can't register")
+		}
+		user.Password = hashedPassword
+		return svc.userRepo.Create(user)
+	}
+	if !existingUser.HasAccount {
+		// if user exists but was not previously registered
+		existingUser.Password = user.Password
+		existingUser.HasAccount = user.HasAccount
+		hashedPassword, err := svc.generatePasswordHash(existingUser.Password)
+		if err != nil {
+			slog.Errorf("error generating password hash: %v\n", err.Error())
+			return errors.New("error generating password hash")
+		}
+		existingUser.Password = hashedPassword
+		slog.Info("hashed pass ", hashedPassword)
+		err = svc.userRepo.UpdateUser(existingUser)
+		if err != nil {
+			slog.Errorf("error updating password: %v\n", err.Error())
+			return errors.New("error updating password")
+		}
+		return nil
+	} else {
+		// if user exists
+		slog.Info("user already exist %v\n", err)
+		return nil
 	}
 
-	if svc.userRepo.CheckUserExistence(user.Email) {
-		slog.Errorf("user exists: %v\n", user.Email)
-		return errors.New("user exists")
-	}
-
-	hashedPassword, err := svc.generatePasswordHash(user.Password)
-	if err != nil {
-		slog.Errorf("can't register: %v\n", err.Error())
-		return errors.New("can't register")
-	}
-	user.Password = hashedPassword
-	return svc.userRepo.Create(user)
 }
 
 func (svc *UserService) generatePasswordHash(password string) (string, error) {
