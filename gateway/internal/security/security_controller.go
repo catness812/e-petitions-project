@@ -83,7 +83,6 @@ func (ctrl *SecurityController) SendOTP(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	slog.Info(email)
 	_, err = ctrl.service.SendOTP(email.Email)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to send OTP"})

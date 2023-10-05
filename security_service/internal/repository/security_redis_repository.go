@@ -31,6 +31,7 @@ func (redisRepo *RedisRepository) deleteToken(token string) (string, error) {
 }
 
 func (redisRepo *RedisRepository) InsertOTP(otp string, mail string, expires time.Duration) error {
+	redisRepo.redisClient.Del(context.Background(), mail)
 	return redisRepo.redisClient.Set(context.Background(), mail, otp, expires).Err()
 }
 
