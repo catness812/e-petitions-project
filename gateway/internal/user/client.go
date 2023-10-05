@@ -2,6 +2,7 @@ package user
 
 import (
 	"fmt"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/gookit/slog"

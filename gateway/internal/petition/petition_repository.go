@@ -8,11 +8,27 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/model"
 )
 
+// type PetitionServiceServer interface {
+// 	GetPetitionById(context.Context, *PetitionId) (*Petition, error)
+// 	CreatePetition(context.Context, *CreatePetitionRequest) (*PetitionId, error)
+// 	GetPetitions(context.Context, *GetPetitionsRequest) (*GetPetitionsResponse, error)
+// 	UpdatePetitionStatus(context.Context, *UpdatePetitionStatusRequest) (*emptypb.Empty, error)
+// 	DeletePetition(context.Context, *PetitionId) (*emptypb.Empty, error)
+// 	// returns empty if is valid, error if not valid
+// 	ValidatePetitionId(context.Context, *PetitionId) (*emptypb.Empty, error)
+// 	CreateVote(context.Context, *CreateVoteRequest) (*emptypb.Empty, error)
+// 	GetUserPetitions(context.Context, *GetUserPetitionsRequest) (*GetUserPetitionsResponse, error)
+// 	GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error)
+// 	mustEmbedUnimplementedPetitionServiceServer()
+// }
+
 type IPetitionRepository interface {
 	CreatePetition(model.Petition) (uint32, error)
 	GetPetitions(model.PaginationQuery) ([]model.Petition, error)
 	UpdatePetition(id uint32, status string) (string, error)
 	DeletePetition(id uint32) error
+	GetPetitionById(id uint32) (model.Petition, error)
+	// CreatePetition()
 }
 
 func NewPetitionRepository(c *config.Config, client pb.PetitionServiceClient) (IPetitionRepository, error) {

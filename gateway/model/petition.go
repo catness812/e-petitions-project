@@ -9,3 +9,13 @@ type Petition struct {
 	Status      uint32 `gorm:"not null;" json:"status"`
 	UserID      uint   `gorm:"not null;" json:"user-id"`
 }
+
+type CreatePetition struct {
+	// string title = 1;
+	// string description = 2;
+	// string image = 3;
+	// uint32 user_id = 4;
+	// string category = 5;
+	// uint32 vote_goal = 8;
+	// Title string `json:"title"`
+}
