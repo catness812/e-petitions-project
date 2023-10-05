@@ -61,11 +61,15 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 	return user, nil
 }
 
-func (repo *UserRepository) ValidateUserExistance(userEmail string) (*models.User, error) {
+func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.User, error) {
 	user := &models.User{}
 	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
-	if err != nil {
-		slog.Info("user doesn't exist's: %v\n", err.Error())
+
+	if err == gorm.ErrRecordNotFound {
+		slog.Info("User doesn't exist: %v\n", err.Error())
+		return nil, err
+	} else if err != nil {
+		slog.Errorf("Error fetching user: %v\n", err.Error())
 		return nil, err
 	}
 	return user, nil
