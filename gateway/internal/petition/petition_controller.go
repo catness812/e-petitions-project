@@ -49,14 +49,16 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, resp)
 }
 func (c *petitionController) GetPetitionByID(ctx *gin.Context) {
-	var petition model.Petition
+	var pid struct {
+		PetitionID uint32 `json:"petition_id"`
+	}
 
-	if err := ctx.ShouldBindJSON(&petition.PetitionId); err != nil {
+	if err := ctx.ShouldBindJSON(&pid); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	petition, err := c.service.GetPetitionByID(petition.PetitionId)
+	petition, err := c.service.GetPetitionByID(pid.PetitionID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve petition"})
 		return
