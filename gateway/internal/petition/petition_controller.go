@@ -31,6 +31,8 @@ func NewPetitionController(service IPetitionService) IPetitionController {
 		service: service,
 	}
 }
+
+// TODO : add explicit error handling
 func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	var petition model.CreatePetition
 	err := ctx.BindJSON(&petition)
@@ -48,14 +50,16 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, resp)
 }
 func (c *petitionController) GetPetitionByID(ctx *gin.Context) {
-	var petition model.Petition
+	var petitio struct {
+		PetitionId uint32 `json:"petition_id"`
+	}
 
-	if err := ctx.ShouldBindJSON(&petition.PetitionId); err != nil {
+	if err := ctx.ShouldBindJSON(&petitio); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	petition, err := c.service.GetPetitionByID(petition.PetitionId)
+	petition, err := c.service.GetPetitionByID(petitio.PetitionId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve petition"})
 		return
@@ -86,9 +90,11 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, petitions)
 
 }
+
+// TODO: update request struct
 func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 	var petition model.Petition
-	err := ctx.BindJSON(petition)
+	err := ctx.BindJSON(&petition)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -96,6 +102,8 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 
 	err = c.service.UpdatePetitionStatus(petition.PetitionId, petition.Status.Title)
 }
+
+// TODO : add explicit error handling
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
 	idParam, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -144,9 +152,11 @@ func (c *petitionController) CreateVote(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, "Voted successfully")
 
 }
+
+// TODO : error happening, find
 func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 	var uid struct {
-		UserID uint32
+		UserID uint32 `json:"user_id"`
 	}
 	if err := ctx.BindJSON(&uid); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -175,7 +185,7 @@ func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 	res, err := c.service.GetUserPetitions(uid.UserID, pag, lim)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "message": "hetre"})
 	}
 
 	ctx.JSON(http.StatusOK, res)
@@ -183,7 +193,7 @@ func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 }
 func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
 	var uid struct {
-		UserID uint32
+		UserID uint32 `json:"user_id"`
 	}
 	if err := ctx.BindJSON(&uid); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

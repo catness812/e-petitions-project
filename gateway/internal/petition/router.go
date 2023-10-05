@@ -24,9 +24,9 @@ func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	route.POST("/status/", petitionController.UpdatePetitionStatus)
 	route.DELETE("/:id", petitionController.DeletePetition)
 	//route.GET("/", petitionController.ValidatePetitionID)
-	route.GET("/sign", petitionController.CreateVote)
+	route.POST("/sign", petitionController.CreateVote)
 
 	route = r.Group("/user")
-	route.GET("/petitions", petitionController.GetUserPetitions)
-	route.GET("/voted", petitionController.GetUserVotedPetitions)
+	route.GET("/petitions/:page/:limit", petitionController.GetUserPetitions)
+	route.GET("/voted/:page/:limit", petitionController.GetUserVotedPetitions)
 }

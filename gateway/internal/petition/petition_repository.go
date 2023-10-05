@@ -2,7 +2,6 @@ package petition
 
 import (
 	"context"
-
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
@@ -166,12 +165,12 @@ func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, lim
 	var petitions []model.Petition
 
 	if err != nil {
-		return nil, err
+		return petitions, err
+
 	}
 
-	for _, grpcPetition := range resp.Petitions {
-		petition := mapPetition(grpcPetition)
-		petitions = append(petitions, petition)
+	for _, pbPetiton := range resp.Petitions {
+		petitions = append(petitions, mapPetition(pbPetiton))
 	}
 
 	return petitions, nil
