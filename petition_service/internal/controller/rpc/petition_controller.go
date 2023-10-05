@@ -3,8 +3,6 @@ package rpc
 import (
 	"context"
 	"errors"
-	"fmt"
-
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -26,14 +24,9 @@ type IPetitionService interface {
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 }
 
-type INotificationService interface {
-	SendNotification(queueName string, message string) error
-}
-
 type Server struct {
 	pb.PetitionServiceServer
-	PetitionService     IPetitionService
-	NotificationService INotificationService
+	PetitionService IPetitionService
 }
 
 func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Petition, error) {
@@ -92,13 +85,7 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 		return nil, err
 	}
 
-	if err = s.NotificationService.SendNotification("notification", fmt.Sprintf("Petition \"%s\" was successfully created!", newPetition.Title)); err != nil {
-		slog.Errorf("Error publishing message to RabbitMQ: %v", err)
-	} else {
-		slog.Info("Petition creation notification successfully sent to RabbitMQ")
-	}
-
-	slog.Info("Petition %v successfully created", savedPetitionID)
+	slog.Infof("Petition %v successfully created", savedPetitionID)
 	return &pb.PetitionId{
 		Id: uint32(savedPetitionID),
 	}, nil

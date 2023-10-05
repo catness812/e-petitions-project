@@ -27,7 +27,7 @@ func LoadConfig() *Config {
 	data, err := os.ReadFile("./mail_service/config.yml")
 	if err != nil {
 		data, err = os.ReadFile("../mail_service/config.yml")
-		if err == nil {
+		if err != nil {
 			slog.Fatalf("Failed to read configuration file: %v", err)
 		}
 	}
