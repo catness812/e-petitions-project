@@ -2,12 +2,10 @@ package postgres
 
 import (
 	"fmt"
-	"log"
-
-	"github.com/gookit/slog"
-	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
+	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"github.com/gookit/slog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

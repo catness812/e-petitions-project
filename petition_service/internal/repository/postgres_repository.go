@@ -19,7 +19,7 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
-func InitPetitionRepository(db *gorm.DB) *PetitionRepository {
+func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
 	return &PetitionRepository{
 		db: db,
 	}

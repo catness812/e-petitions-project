@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
-	rpctransport "github.com/catness812/e-petitions-project/petition_service/internal/controller/rpc"
+	"github.com/catness812/e-petitions-project/petition_service/internal/controller/rpc"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/repository"
 	"github.com/catness812/e-petitions-project/petition_service/internal/service"
@@ -17,14 +17,15 @@ import (
 func main() {
 	config.LoadConfig()
 	db := postgres.LoadDatabase()
-	petitionRepo := repository.InitPetitionRepository(db)
-	petitionSvc := service.InitPetitionService(petitionRepo)
-	publisherRepo := repository.InitNotificationRepository()
-	publisherSvc := service.InitNotificationService(publisherRepo)
-	grpcStart(petitionSvc, publisherSvc)
+	petitionRepo := repository.NewPetitionRepository(db)
+	publisherRepo := repository.NewPublisherRepository()
+	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo)
+
+	//publisherSvc := service.InitNotificationService(publisherRepo)
+	grpcStart(petitionSvc)
 }
 
-func grpcStart(petitionSvc rpctransport.IPetitionService, publisherSvc rpctransport.INotificationService) {
+func grpcStart(petitionSvc rpc.IPetitionService) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
 	if err != nil {
 		slog.Error(err)
@@ -32,7 +33,7 @@ func grpcStart(petitionSvc rpctransport.IPetitionService, publisherSvc rpctransp
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterPetitionServiceServer(s, &rpctransport.Server{
+	pb.RegisterPetitionServiceServer(s, &rpc.Server{
 		PetitionService: petitionSvc,
 	})
 
