@@ -49,22 +49,21 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, resp)
 }
 
-func (c *petitionController) UpdatePetition(ctx *gin.Context) {
+func (c *petitionController) GetPetitionByID(ctx *gin.Context) {
 	var petition model.Petition
-	err := ctx.BindJSON(petition)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+	if err := ctx.ShouldBindJSON(&petition.PetitionId); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 		return
 	}
 
-	msg, err := c.service.UpdatePetition(petition.PetitionId, string(petition.Status))
+	petition, err := c.service.GetPetitionByID(petition.PetitionId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve petition"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, msg)
-
+	ctx.JSON(http.StatusOK, petition)
 }
 
 func (c *petitionController) GetPetitions(ctx *gin.Context) {
@@ -81,7 +80,7 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 	}
 	query.Limit = uint32(limit)
 
-	petitions, err := c.service.GetPetitions(query)
+	petitions, err := c.service.GetPetitions(uint32(page), uint32(limit))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -89,6 +88,17 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, petitions)
 
+}
+
+func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
+	var petition model.Petition
+	err := ctx.BindJSON(petition)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = c.service.UpdatePetitionStatus(petition.PetitionId, petition.Status.Title)
 }
 
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
