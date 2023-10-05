@@ -1,10 +1,11 @@
 package petition
 
 import (
-	"github.com/catness812/e-petitions-project/gateway/model"
-	"github.com/gookit/slog"
 	"net/http"
 	"strconv"
+
+	"github.com/catness812/e-petitions-project/gateway/model"
+	"github.com/gookit/slog"
 
 	"github.com/gin-gonic/gin"
 )
@@ -87,14 +88,17 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 
 }
 func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
-	var petition model.Petition
-	err := ctx.BindJSON(petition)
+	var status struct {
+		id    uint32 `json:"id"`
+		title string `json:"title"`
+	}
+	err := ctx.BindJSON(&status)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = c.service.UpdatePetitionStatus(petition.PetitionId, petition.Status.Title)
+	err = c.service.UpdatePetitionStatus(status.id, status.title)
 }
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
 	idParam, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
