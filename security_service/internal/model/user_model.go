@@ -7,11 +7,7 @@ type UserModel struct {
 	Role     string `json:"role"`
 }
 
-func (UserModel) TableName() string {
-	return "users"
-}
-
 type UserCredentialsModel struct {
 	Email    string `json:"email" binding:"required, email"`
-	Password string `json:"password" `
+	Password string `json:"password"`
 }

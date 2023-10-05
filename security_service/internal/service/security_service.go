@@ -53,7 +53,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 	token, err := generateTokenPair(user.Email)
 	if err != nil {
 		slog.Info("Could not generate token pair %v", err)
-		return nil, errors.New("can't generate token")
+		return nil, err
 	}
 	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.ID, time.Hour*5); err != nil {
 		return nil, err

@@ -13,6 +13,7 @@ import (
 	"github.com/gookit/slog"
 	"github.com/joho/godotenv"
 	"github.com/streadway/amqp"
+	"gorm.io/gorm"
 	"net"
 	"os"
 
@@ -21,25 +22,17 @@ import (
 	"google.golang.org/grpc"
 )
 
-var (
-	redisDB    *redis.Client
-	sService   *security_service.SecurityService
-	sRpcServer *security_controller.SecurityRpcServer
-	rabbitCh   *amqp.Channel
-	cfg        *config.Config
-)
-
 func main() {
 	RunSecurityService()
 }
 
 func RunSecurityService() {
-	cfg = config.LoadConfig()
-	dbConnection()
-	userRepo := security_repository2.NewUserRepository(postgres.Database)
+	cfg := config.LoadConfig()
+	redisDB, rabbitCh, postgresDB := dbConnection(cfg)
+	userRepo := security_repository2.NewUserRepository(postgresDB)
 	redisRepo := security_repository2.NewRedisRepository(redisDB)
-	sService = security_service.NewSecurityService(userRepo, redisRepo)
-	sRpcServer = security_controller.NewSecurityRpcServer(sService, rabbitCh, cfg)
+	sService := security_service.NewSecurityService(userRepo, redisRepo)
+	sRpcServer := security_controller.NewSecurityRpcServer(sService, rabbitCh, cfg)
 	lis, err := net.Listen("tcp", "localhost:9002")
 	if err != nil {
 		slog.Fatalf("Failed to listen to security service on GRPC port 9002: %v", err)
@@ -53,16 +46,20 @@ func RunSecurityService() {
 	}
 }
 
-func dbConnection() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		slog.Fatalf("Some error occured. Err: %s", err)
-	}
-	postgres.Connect()
-	err = postgres.Database.AutoMigrate(&models.UserModel{})
-	if err != nil {
+func dbConnection(cfg *config.Config) (*redis.Client, *amqp.Channel, *gorm.DB) {
+	postgresDB := postgres.Connect()
+	if err := postgresDB.AutoMigrate(&models.UserModel{}); err != nil {
 		slog.Fatalf("failed to automigrate: %v", err)
 	}
-	redisDB = redis_repository.NewRedisDBConnection()
-	rabbitCh = rabbitmq.ConnectAMQPDataBase(os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS"), cfg.Rabbit.Host, cfg.Rabbit.Port)
+	rabbitUser, rabbitPass := fetchEnvVariables()
+	redisDB := redis_repository.NewRedisDBConnection()
+	rabbitCh := rabbitmq.ConnectAMQPDataBase(rabbitUser, rabbitPass, cfg.Rabbit.Host, cfg.Rabbit.Port)
+	return redisDB, rabbitCh, postgresDB
+}
+
+func fetchEnvVariables() (string, string) {
+	if err := godotenv.Load(".env"); err != nil {
+		slog.Fatalf("Failed to read .env file: %v", err)
+	}
+	return os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS")
 }
