@@ -1,0 +1,13 @@
+syntax="proto3";
+package rpctransport;
+
+import "google/protobuf/wrappers.proto";
+option go_package="./pb";
+
+service UserController{
+    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (google.protobuf.StringValue);
+}
+
+message GetUserEmailByIdRequest{
+    uint32 id = 1;
+}

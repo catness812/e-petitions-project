@@ -19,9 +19,9 @@ func main() {
 	db := postgres.LoadDatabase()
 	petitionRepo := repository.NewPetitionRepository(db)
 	publisherRepo := repository.NewPublisherRepository()
-	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo)
+	userRepo := repository.NewUserRepository()
+	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo, userRepo)
 
-	//publisherSvc := service.InitNotificationService(publisherRepo)
 	grpcStart(petitionSvc)
 }
 

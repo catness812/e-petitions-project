@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 )
@@ -25,15 +26,25 @@ type IPublisherRepository interface {
 	PublishMessage(email string, message string) error
 }
 
+type IUserRepository interface {
+	GetEmailById(id uint) (string, error)
+}
+
 type PetitonService struct {
 	petitionRepository  IPetitionRepository
 	publisherRepository IPublisherRepository
+	userRepository      IUserRepository
 }
 
-func NewPetitionService(petRepo IPetitionRepository, pubRepo IPublisherRepository) *PetitonService {
+func NewPetitionService(
+	petRepo IPetitionRepository,
+	pubRepo IPublisherRepository,
+	userRepo IUserRepository,
+) *PetitonService {
 	return &PetitonService{
 		petitionRepository:  petRepo,
 		publisherRepository: pubRepo,
+		userRepository:      userRepo,
 	}
 }
 
@@ -48,8 +59,12 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 		return 0, err
 	}
 
-	// TODO change this after getting user's id
-	err = svc.publisherRepository.PublishMessage("test@email.com", "Your petition has been created")
+	// get user's email from User Service
+	email, err := svc.userRepository.GetEmailById(petition.UserID)
+	if err != nil {
+		return 0, err
+	}
+	err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has been successfully created!`, petition.Title))
 	if err != nil {
 		return 0, err
 	}
