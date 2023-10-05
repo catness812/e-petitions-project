@@ -45,30 +45,23 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 }
 
 func (svc *PetitonService) CreateVote(vote models.Vote) error {
-	if err := svc.repo.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
+	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
 		return err
 	}
-	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
+	if err := svc.repo.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
 		return err
 	}
 	petition, err := svc.repo.GetByID(uint(vote.PetitionID))
 	if err != nil {
 		return err
 	}
-	currVotes := petition.CurrVotes
-	currVotes++
-
-	err = svc.repo.UpdateCurrVotes(uint(vote.PetitionID), currVotes)
-	if err != nil {
+	if err := svc.repo.UpdateCurrVotes(uint(vote.PetitionID), petition.CurrVotes+1); err != nil {
 		return err
 	}
-
 	if err := svc.repo.SaveVote(&vote); err != nil {
 		return err
-	} else {
-		return nil
-
 	}
+	return nil
 }
 
 func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition {
