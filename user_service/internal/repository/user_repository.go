@@ -77,11 +77,18 @@ func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.Use
 
 func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
 	var userEmail string
-	err := repo.dbClient.Debug().Model(&models.User{}).Where("id = ?", userID).Pluck("email", &userEmail).Error
-	if err != nil {
-		slog.Errorf("failed to get user email from database %v\n", err.Error())
+	user := &models.User{}
+
+	err := repo.dbClient.Debug().Where("id = ?", userID).First(user).Error
+	if err == gorm.ErrRecordNotFound {
+		slog.Infof("User with ID %d not found", userID)
+		return "", gorm.ErrRecordNotFound
+	} else if err != nil {
+		slog.Errorf("Failed to fetch user from database: %v", err.Error())
 		return "", err
 	}
+
+	userEmail = user.Email
 	return userEmail, nil
 }
 
