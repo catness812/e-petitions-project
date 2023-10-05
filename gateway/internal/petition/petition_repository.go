@@ -135,17 +135,64 @@ func (repo *petitionRepository) DeletePetition(petitionID uint32) error {
 }
 
 func (repo *petitionRepository) ValidatePetitionID(petitionID uint32) error {
+	_, err := repo.client.ValidatePetitionId(context.Background(), &pb.PetitionId{
+		Id: petitionID,
+	})
+
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (repo *petitionRepository) CreateVote(userID uint32, petitionID uint32) error {
+	_, err := repo.client.CreateVote(context.Background(), &pb.CreateVoteRequest{
+		PetitionId: petitionID,
+		UserId:     userID,
+	})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
-	return nil, nil
+
+	resp, err := repo.client.GetUserPetitions(context.Background(), &pb.GetUserPetitionsRequest{
+		UserId: userID,
+		Page:   page,
+		Limit:  limit,
+	})
+	var petitions []model.Petition
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, grpcPetition := range resp.Petitions {
+		petition := mapPetition(grpcPetition)
+		petitions = append(petitions, petition)
+	}
+
+	return petitions, nil
 }
 
 func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
-	return nil, nil
+	resp, err := repo.client.GetUserVotedPetitions(context.Background(), &pb.GetUserVotedPetitionsRequest{
+		UserId: userID,
+		Page:   page,
+		Limit:  limit,
+	})
+	var petitions []model.Petition
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, grpcPetition := range resp.Petitions {
+		petition := mapPetition(grpcPetition)
+		petitions = append(petitions, petition)
+	}
+
+	return petitions, nil
 }
