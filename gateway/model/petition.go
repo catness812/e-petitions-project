@@ -6,16 +6,20 @@ type Petition struct {
 	Category    string `gorm:"not null;" json:"category"`
 	Description string `gorm:"not null;" json:"description"`
 	Image       string `gorm:"not null;" json:"image"`
-	Status      uint32 `gorm:"not null;" json:"status"`
-	UserID      uint   `gorm:"not null;" json:"user-id"`
+	Status      Status `gorm:"not null;" json:"status"`
+	UserID      uint32 `gorm:"not null;" json:"user-id"`
 }
 
 type CreatePetition struct {
-	// string title = 1;
-	// string description = 2;
-	// string image = 3;
-	// uint32 user_id = 4;
-	// string category = 5;
-	// uint32 vote_goal = 8;
-	// Title string `json:"title"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+	UserID      uint32 `json:"user_id"`
+	Category    string `json:"category"`
+	VoteGoal    uint32 `json:"vote_goal"`
+}
+
+type Status struct {
+	ID    uint32 `json:"id"`
+	Title string `json:"titile"`
 }
