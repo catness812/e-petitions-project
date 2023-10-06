@@ -82,7 +82,7 @@ func (svc *SecurityService) SendOTP(mail string, ch *amqp.Channel, cfg *config.C
 	if err := svc.publishMessage(ch, message); err != nil {
 		return "", err
 	}
-	return "", nil
+	return otp, nil
 }
 
 func (svc *SecurityService) VerifyOTP(mail string, userOTP string) error {

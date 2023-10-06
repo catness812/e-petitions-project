@@ -3,8 +3,6 @@ syntax="proto3";
 option go_package="./pb";
 
 package proto;
-message Empty {
-}
 
 message UserInfo {
   string email = 2;
@@ -43,4 +41,8 @@ message ValidateTokenResponse {
 message OTPInfo{
   string OTP = 1;
   string email = 2;
+}
+
+message IsOTPValidated{
+  bool validated = 1;
 }
