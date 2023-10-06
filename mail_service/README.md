@@ -1,6 +1,6 @@
 # Mail service
 
-## Overview 
+## Overview
 
 The Mail Service is a powerful and flexible email delivery and management solution designed to simplify your email-related tasks. Whether you're sending notifications, our service is here to streamline the process and ensure your emails reach their destination reliably.
 
@@ -24,7 +24,7 @@ The Mail Service is a powerful and flexible email delivery and management soluti
 
 ## Api
 
-This service use rabbitMQ queues 
-- ==**verify**== - this queue is used to send **OTP** to mail
+This service use rabbitMQ queues
+- **verify** - this queue is used to send **OTP** to mail
 
-- ==**notification**== - this queue is used to send notification mails
+- **notification** - this queue is used to send notification mails
