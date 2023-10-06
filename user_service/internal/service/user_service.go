@@ -2,10 +2,12 @@ package service
 
 import (
 	"errors"
+	"net/mail"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/gookit/slog"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type IUserRepository interface {
@@ -15,6 +17,9 @@ type IUserRepository interface {
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdminRole(userEmail string) error
+	GetUserEmailById(userID uint) (string, error)
+	ValidateUserExistence(userEmail string) (*models.User, error)
+	UpdateUser(user *models.User) error
 }
 
 type UserService struct {
@@ -28,19 +33,43 @@ func NewUserService(userRepo IUserRepository) *UserService {
 }
 
 func (svc *UserService) Create(user *models.User) error {
-	user.Role = "user"
-	if svc.userRepo.CheckUserExistence(user.Email) {
-		slog.Errorf("user exists: %v\n", user.Email)
-		return errors.New("user exists")
+	existingUser, err := svc.userRepo.ValidateUserExistence(user.Email)
+	if err == gorm.ErrRecordNotFound {
+		// if user doesn't exists it creates it
+		user.HasAccount = true
+		user.Role = "user"
+		err = validMailAddress(user.Email)
+		if err != nil {
+			return errors.New("invalid email")
+		}
+		hashedPassword, err := svc.generatePasswordHash(user.Password)
+		if err != nil {
+			return errors.New("can't register")
+		}
+		user.Password = hashedPassword
+		return svc.userRepo.Create(user)
+	} else if err != nil {
+		return err
 	}
-
-	hashedPassword, err := svc.generatePasswordHash(user.Password)
-	if err != nil {
-		slog.Errorf("can't register: %v\n", err.Error())
-		return errors.New("can't register")
+	if !existingUser.HasAccount {
+		// if user exists but was not previously registered
+		existingUser.Password = user.Password
+		existingUser.HasAccount = user.HasAccount
+		hashedPassword, err := svc.generatePasswordHash(existingUser.Password)
+		if err != nil {
+			return errors.New("error generating password hash")
+		}
+		existingUser.Password = hashedPassword
+		slog.Info("hashed pass ", hashedPassword)
+		err = svc.userRepo.UpdateUser(existingUser)
+		if err != nil {
+			return errors.New("error updating password")
+		}
+		return nil
+	} else {
+		// if user exists
+		return nil
 	}
-	user.Password = hashedPassword
-	return svc.userRepo.Create(user)
 }
 
 func (svc *UserService) generatePasswordHash(password string) (string, error) {
@@ -94,4 +123,24 @@ func (svc *UserService) GetUserByEmail(userEmail string) (*models.User, error) {
 		return nil, err
 	}
 	return user, nil
+}
+
+func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
+	userEmail, err := svc.userRepo.GetUserEmailById(userID)
+	if err == gorm.ErrRecordNotFound {
+		slog.Infof("User with ID %d not found", userID)
+		return "", gorm.ErrRecordNotFound
+	} else if err != nil {
+		slog.Errorf("Failed to fetch user from database: %v", err.Error())
+		return "", err
+	}
+	return userEmail, nil
+}
+
+func validMailAddress(address string) error {
+	_, err := mail.ParseAddress(address)
+	if err != nil {
+		return errors.New("invalid email address")
+	}
+	return nil
 }

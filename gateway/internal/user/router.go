@@ -10,7 +10,10 @@ import (
 
 func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.PermissionsConfig) {
 	svc := InitUserServiceClient(cfg)
-	securityClient := security.InitAuthServiceClient(cfg)
+	securityClient, err := security.InitAuthServiceClient(cfg)
+	if err != nil {
+		slog.Fatalf("Failed to connect to user service grpc: %v", err)
+	}
 	userrepo, err := NewUserRepository(cfg, svc)
 	if err != nil {
 		slog.Fatalf("Failed to connect to user service grpc: %v", err)

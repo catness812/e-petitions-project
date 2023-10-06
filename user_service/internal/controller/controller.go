@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"errors"
+
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/catness812/e-petitions-project/user_service/internal/pb"
 	"github.com/gookit/slog"
@@ -17,6 +18,7 @@ type IUserService interface {
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdmin(userEmail string) error
+	GetUserEmailById(userID uint) (string, error)
 }
 
 type UserController struct {
@@ -35,8 +37,9 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	}
 
 	user := &models.User{
-		Email:    req.Email,
-		Password: req.Password,
+		Email:      req.Email,
+		Password:   req.Password,
+		HasAccount: req.HasAccount,
 	}
 
 	err := ctrl.userservice.Create(user)
@@ -86,6 +89,15 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 
 	slog.Info("Get User successful")
 	return userResponse, nil
+}
+
+func (ctrl *UserController) GetUserEmailById(ctx context.Context, req *pb.GetUserEmailByIdRequest) (*wrapperspb.StringValue, error) {
+	userId := req.Id
+	userEmail, err := ctrl.userservice.GetUserEmailById(uint(userId))
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "User email not found")
+	}
+	return &wrapperspb.StringValue{Value: userEmail}, nil
 }
 
 func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*wrapperspb.StringValue, error) {

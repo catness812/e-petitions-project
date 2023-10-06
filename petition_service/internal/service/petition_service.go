@@ -12,34 +12,48 @@ type IPetitionRepository interface {
 	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(id uint) (models.Petition, error)
-	GetUserPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error)
+	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	SaveVote(Vote *models.Vote) error
 	CheckIfExists(id uint) error
-	GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error)
+	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	UpdateCurrVotes(petition models.Petition) error
+	HasUserVoted(userID, petitionID uint) error
+}
+
+type IPublisherRepository interface {
+	PublishMessage(email string, message string) error
 }
 
 type PetitonService struct {
-	repo IPetitionRepository
+	petitionRepository  IPetitionRepository
+	publisherRepository IPublisherRepository
 }
 
-func InitPetitionService(repo IPetitionRepository) *PetitonService {
+func NewPetitionService(petRepo IPetitionRepository, pubRepo IPublisherRepository) *PetitonService {
 	return &PetitonService{
-		repo: repo,
+		petitionRepository:  petRepo,
+		publisherRepository: pubRepo,
 	}
 }
 
 func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 	// save with draft status when created
-	status, err := svc.repo.GetStatusByTitle(models.DRAFT)
+	status, err := svc.petitionRepository.GetStatusByTitle(models.DRAFT)
 	if err != nil {
 		return 0, err
 	}
 	petition.Status = status
-	if err := svc.repo.Save(&petition); err != nil {
+	if err := svc.petitionRepository.Save(&petition); err != nil {
 		return 0, err
-	} else {
-		return petition.ID, nil
 	}
+
+	// TODO change this after getting user's id
+	err = svc.publisherRepository.PublishMessage("test@email.com", "Your petition has been created")
+	if err != nil {
+		return 0, err
+	}
+
+	return petition.ID, nil
 }
 
 func (svc *PetitonService) CreateVote(vote models.Vote) error {
@@ -47,31 +61,42 @@ func (svc *PetitonService) CreateVote(vote models.Vote) error {
 	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
 		return err
 	}
+	if err := svc.repo.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
+		return err
+	}
+	petition, err := svc.repo.GetByID(uint(vote.PetitionID))
+	if err != nil {
+		return err
+	}
+	petition.CurrVotes++
+	if err := svc.repo.UpdateCurrVotes(petition); err != nil {
+		return err
+
+	}
 	if err := svc.repo.SaveVote(&vote); err != nil {
 		return err
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition {
-	return svc.repo.GetAll(pagination)
+	return svc.petitionRepository.GetAll(pagination)
 }
 
 func (svc *PetitonService) UpdateStatus(id uint, status string) error {
 	// check if status exists first
-	newStatus, err := svc.repo.GetStatusByTitle(status)
+	newStatus, err := svc.petitionRepository.GetStatusByTitle(status)
 	if err != nil {
 		return err
 	}
-	if err := svc.repo.UpdateStatus(id, newStatus.ID); err != nil {
+	if err := svc.petitionRepository.UpdateStatus(id, newStatus.ID); err != nil {
 		return err
 	}
 	return nil
 }
 
 func (svc *PetitonService) Delete(id uint) error {
-	err := svc.repo.Delete(id)
+	err := svc.petitionRepository.Delete(id)
 	if err != nil {
 		return err
 	}
@@ -79,17 +104,17 @@ func (svc *PetitonService) Delete(id uint) error {
 }
 
 func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
-	petition, err := svc.repo.GetByID(id)
+	petition, err := svc.petitionRepository.GetByID(id)
 	if err != nil {
 		return petition, err
 	}
 	return petition, nil
 }
 
-func (svc *PetitonService) GetUserPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error) {
-	return svc.repo.GetUserPetitions(userID, page, limit)
+func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	return svc.petitionRepository.GetAllUserPetitions(userID, pagination)
 }
 
-func (svc *PetitonService) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error) {
-	return svc.repo.GetUserVotedPetitions(userID, page, limit)
+func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
 }

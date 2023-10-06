@@ -6,6 +6,7 @@ option go_package = "/pb";
 message UserRequest{
     string email = 1;
     string password = 2;
+    bool   HasAccount = 3;
 }
 
 message DeleteUserRequest {
@@ -17,12 +18,17 @@ message GetUserByEmailRequest {
 }
 
 message GetUserByEmailResponse {
-    uint32 id =1;
+    uint32 id = 1;
     string email = 2;
     string password = 3;
     string role = 4;
+    bool HasAccount = 5;
 }
 
 message AddAdminRequest{
     string email = 1;
+}
+
+message GetUserEmailByIdRequest{
+    uint32 id = 1;
 }

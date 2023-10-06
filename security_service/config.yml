@@ -16,3 +16,11 @@ redis:
 tokens:
   T_KEY: eyJhbGciOiJIU
   RT_KEY: tetetepolsvbJk
+
+rabbit:
+  host: localhost
+  port: 5672
+
+gateway:
+  host: localhost
+  port: :1337

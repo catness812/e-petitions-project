@@ -7,3 +7,8 @@ type User struct {
 	Role       string `json:"role"`
 	HasAccount bool   `json:"HasAccount"`
 }
+
+type UserCredentialsModel struct {
+	Email    string `json:"email" binding:"required, email"`
+	Password string `json:"password"`
+}

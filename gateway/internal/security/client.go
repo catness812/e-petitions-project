@@ -3,7 +3,6 @@ package security
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/security/pb"
-	"github.com/gookit/slog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -12,12 +11,10 @@ type SecurityClient struct {
 	Client pb.SecurityServiceClient
 }
 
-func InitAuthServiceClient(c *config.Config) pb.SecurityServiceClient {
+func InitAuthServiceClient(c *config.Config) (pb.SecurityServiceClient, error) {
 	cc, err := grpc.Dial(c.SecurityPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
 	if err != nil {
-		slog.Fatal("Could not connect: %v", err)
+		return nil, err
 	}
-
-	return pb.NewSecurityServiceClient(cc)
+	return pb.NewSecurityServiceClient(cc), nil
 }

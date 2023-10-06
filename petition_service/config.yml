@@ -6,3 +6,9 @@ postgres:
   host: localhost
   port: 5435
   db_name: e-petitions-project-db
+
+rabbit:
+  user: admin
+  password: admin
+  host: localhost
+  port: 5672

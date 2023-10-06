@@ -3,7 +3,6 @@ package security_repository
 import (
 	"errors"
 	models "github.com/catness812/e-petitions-project/security_service/internal/model"
-	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 
@@ -18,21 +17,20 @@ func NewUserRepository(dbClient *gorm.DB) *UserRepository {
 }
 
 func (repo *UserRepository) CheckIfEmailExists(mail string) bool {
-	var user models.UserModel
+	var user models.User
 
-	err := repo.DBClient.Debug().Model(models.UserModel{}).Find(&user).Where("email= ?", mail).Error
+	err := repo.DBClient.Debug().Model(models.User{}).Find(&user).Where("email= ?", mail).Error
 
 	return errors.Is(err, gorm.ErrRecordNotFound)
 }
 
-func (repo *UserRepository) GetUserByEmail(email string) (models.UserModel, error) {
-	var user models.UserModel
+func (repo *UserRepository) GetUserByEmail(email string) (models.User, error) {
+	var user models.User
 
-	err := repo.DBClient.Debug().Model(models.UserModel{}).Where("email = ?", email).First(&user).Error
+	err := repo.DBClient.Debug().Model(models.User{}).Where("email = ?", email).First(&user).Error
 
 	if err != nil {
-		slog.Printf("Invalid credentials: %v", err)
-		return models.UserModel{}, err
+		return models.User{}, err
 	}
 	return user, nil
 }
