@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	"github.com/catness812/e-petitions-project/security_service/internal/controller"
-	models "github.com/catness812/e-petitions-project/security_service/internal/model"
 	"github.com/catness812/e-petitions-project/security_service/internal/pb"
 	security_repository2 "github.com/catness812/e-petitions-project/security_service/internal/repository"
 	"github.com/catness812/e-petitions-project/security_service/internal/service"
@@ -48,9 +47,6 @@ func RunSecurityService() {
 
 func dbConnection(cfg *config.Config) (*redis.Client, *amqp.Channel, *gorm.DB) {
 	postgresDB := postgres.Connect()
-	if err := postgresDB.AutoMigrate(&models.UserModel{}); err != nil {
-		slog.Fatalf("failed to automigrate: %v", err)
-	}
 	rabbitUser, rabbitPass := fetchEnvVariables()
 	redisDB := redis_repository.NewRedisDBConnection()
 	rabbitCh := rabbitmq.ConnectAMQPDataBase(rabbitUser, rabbitPass, cfg.Rabbit.Host, cfg.Rabbit.Port)

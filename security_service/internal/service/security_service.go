@@ -18,7 +18,7 @@ import (
 
 type IUserRepository interface {
 	CheckIfEmailExists(mail string) bool
-	GetUserByEmail(email string) (models.UserModel, error)
+	GetUserByEmail(email string) (models.User, error)
 }
 
 type IRedisRepository interface {
@@ -55,7 +55,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 		slog.Info("Could not generate token pair %v", err)
 		return nil, err
 	}
-	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.ID, time.Hour*5); err != nil {
+	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Id, time.Hour*5); err != nil {
 		return nil, err
 	}
 	return token, nil
