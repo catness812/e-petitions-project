@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 )
@@ -17,8 +16,8 @@ type IPetitionRepository interface {
 	SaveVote(Vote *models.Vote) error
 	CheckIfExists(id uint) error
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
-	UpdateCurrVotes(petitionID uint, newCurrVotes uint) error
-	HasUserVoted(userID, petitionID uint) bool
+	UpdateCurrVotes(petition models.Petition) error
+	HasUserVoted(userID, petitionID uint) error
 }
 
 type IPublisherRepository interface {
@@ -58,18 +57,26 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 }
 
 func (svc *PetitonService) CreateVote(vote models.Vote) error {
-	if res := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionID); res {
-		return errors.New("user has already voted")
-	} else {
-		if err := svc.petitionRepository.CheckIfExists(vote.PetitionID); err != nil {
-			return err
-		}
-		if err := svc.petitionRepository.SaveVote(&vote); err != nil {
-			return err
-		} else {
-			return nil
-		}
+
+	if err := svc.repo.CheckIfExists(vote.PetitionID); err != nil {
+		return err
 	}
+	if err := svc.repo.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
+		return err
+	}
+	petition, err := svc.repo.GetByID(uint(vote.PetitionID))
+	if err != nil {
+		return err
+	}
+	petition.CurrVotes++
+	if err := svc.repo.UpdateCurrVotes(petition); err != nil {
+		return err
+
+	}
+	if err := svc.repo.SaveVote(&vote); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition {
@@ -110,8 +117,4 @@ func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagi
 
 func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
-}
-
-func (svc *PetitonService) UpdateCurrVotes(petitionID uint, newCurrVotes uint) error {
-	return svc.petitionRepository.UpdateCurrVotes(petitionID, newCurrVotes)
 }

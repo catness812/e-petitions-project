@@ -22,7 +22,6 @@ type IPetitionService interface {
 	CreateVote(vote models.Vote) error
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
-	UpdateCurrVotes(petitionID uint, newCurrVotes uint) error
 }
 
 type Server struct {
@@ -104,16 +103,6 @@ func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empt
 		return nil, err
 	}
 
-	petition, err := s.PetitionService.GetByID(uint(req.PetitionId))
-	if err != nil {
-		return nil, err
-	}
-	currVotes := petition.CurrVotes
-	currVotes++
-	err = s.PetitionService.UpdateCurrVotes(uint(req.PetitionId), currVotes)
-	if err != nil {
-		return nil, err
-	}
 	response := &empty.Empty{}
 	return response, nil
 }

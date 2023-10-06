@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
@@ -90,14 +92,14 @@ func (repo *PetitionRepository) CheckIfExists(id uint) error {
 	return nil
 }
 
-func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) bool {
+func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
 	var vote models.Vote
 	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
-		slog.Errorf("Couldn't find vote: %v", err.Error())
-		return false
+		slog.Info("Couldn't find vote")
+		return nil
 	}
-	slog.Infof("Vote found")
-	return true
+	slog.Error("Vote found")
+	return errors.New("user has already voted")
 }
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
@@ -123,17 +125,9 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination
 	return petitions, nil
 }
 
-func (r *PetitionRepository) UpdateCurrVotes(petitionID uint, newCurrVotes uint) error {
-	var petition models.Petition
-	if err := r.db.First(&petition, petitionID).Error; err != nil {
-		return err
-	}
-
-	petition.CurrVotes = newCurrVotes
-
+func (r *PetitionRepository) UpdateCurrVotes(petition models.Petition) error {
 	if err := r.db.Save(&petition).Error; err != nil {
 		return err
 	}
-
 	return nil
 }
