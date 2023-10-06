@@ -7,27 +7,16 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/model"
 )
 
-type ISecurityRepository interface {
-	Login(user model.UserCredentials) (model.Tokens, error)
-	Refresh(token string) (model.Tokens, error)
-}
-
-func NewSecurityRepository(c *config.Config, client pb.SecurityServiceClient) (ISecurityRepository, error) {
-
-	us := &securityRepository{
-		cfg:    c,
-		client: client,
-	}
-
-	return us, nil
-}
-
-type securityRepository struct {
+type SecurityRepository struct {
 	cfg    *config.Config
 	client pb.SecurityServiceClient
 }
 
-func (repo *securityRepository) Login(loginUser model.UserCredentials) (model.Tokens, error) {
+func NewSecurityRepository(cfg *config.Config, client pb.SecurityServiceClient) *SecurityRepository {
+	return &SecurityRepository{cfg: cfg, client: client}
+}
+
+func (repo *SecurityRepository) Login(loginUser model.UserCredentials) (model.Tokens, error) {
 
 	res, err := repo.client.Login(context.Background(), &pb.UserCredentials{
 		Email:    loginUser.Email,
@@ -42,7 +31,7 @@ func (repo *securityRepository) Login(loginUser model.UserCredentials) (model.To
 	return tokens, nil
 }
 
-func (repo *securityRepository) Refresh(token string) (model.Tokens, error) {
+func (repo *SecurityRepository) Refresh(token string) (model.Tokens, error) {
 	res, err := repo.client.RefreshSession(context.Background(), &pb.RefreshRequest{
 		Token: token,
 	})
@@ -54,4 +43,20 @@ func (repo *securityRepository) Refresh(token string) (model.Tokens, error) {
 		RefreshToken: res.Tokens["refresh_token"],
 	}
 	return tokens, nil
+}
+
+func (repo *SecurityRepository) SendOTP(email string) (string, error) {
+	res, err := repo.client.SendOTP(context.Background(), &pb.OTPInfo{Email: email})
+	if err != nil {
+		return "", err
+	}
+	return res.Email, nil
+}
+
+func (repo *SecurityRepository) ValidateOTP(otp, email string) error {
+	_, err := repo.client.ValidateOTP(context.Background(), &pb.OTPInfo{OTP: otp, Email: email})
+	if err != nil {
+		return err
+	}
+	return nil
 }
