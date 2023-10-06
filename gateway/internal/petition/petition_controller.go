@@ -152,7 +152,7 @@ func (c *petitionController) CreateVote(ctx *gin.Context) {
 }
 func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 	var uid struct {
-		UserID uint32
+		UserID uint32 `json:"user_id"`
 	}
 	if err := ctx.BindJSON(&uid); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -189,7 +189,7 @@ func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 }
 func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
 	var uid struct {
-		UserID uint32
+		UserID uint32 `json:"user_id"`
 	}
 	if err := ctx.BindJSON(&uid); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

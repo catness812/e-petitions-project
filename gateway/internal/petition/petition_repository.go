@@ -2,9 +2,12 @@ package petition
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
+	"github.com/gookit/slog"
 )
 
 type IPetitionRepository interface {
@@ -37,13 +40,19 @@ type petitionRepository struct {
 func mapPetition(pbPetition *pb.Petition) model.Petition {
 	var petition model.Petition
 
+	petition.PetitionId = pbPetition.Id
 	petition.Title = pbPetition.Title
 	petition.Category = pbPetition.Category
 	petition.Description = pbPetition.Description
 	petition.Image = pbPetition.Image
 	petition.UserID = pbPetition.UserId
-	petition.Status.ID = pbPetition.Status.Id
-	petition.Status.Title = pbPetition.Status.Title
+	if pbPetition.Status == nil {
+		slog.Printf("Failed to get status value ", pbPetition.Status)
+
+	} else {
+		petition.Status.ID = pbPetition.Status.Id
+		petition.Status.Title = pbPetition.Status.Title
+	}
 
 	return petition
 }
@@ -168,15 +177,23 @@ func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, lim
 		return petitions, err
 
 	}
+	if resp == nil {
+		return nil, errors.New("response not found")
+	}
 
 	for _, pbPetiton := range resp.Petitions {
-		petitions = append(petitions, mapPetition(pbPetiton))
+		if pbPetiton != nil {
+			petitions = append(petitions, mapPetition(pbPetiton))
+		} else {
+			return petitions, errors.New("petitions not found")
+		}
 	}
 
 	return petitions, nil
 }
 
 func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+	fmt.Println(userID, page, limit)
 	resp, err := repo.client.GetUserVotedPetitions(context.Background(), &pb.GetUserVotedPetitionsRequest{
 		UserId: userID,
 		Page:   page,

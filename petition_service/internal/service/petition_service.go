@@ -12,10 +12,10 @@ type IPetitionRepository interface {
 	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(id uint) (models.Petition, error)
-	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	GetUserPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error)
 	SaveVote(Vote *models.Vote) error
 	CheckIfExists(id uint) error
-	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error)
 }
 
 type PetitonService struct {
@@ -86,10 +86,10 @@ func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
 	return petition, nil
 }
 
-func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
-	return svc.repo.GetAllUserPetitions(userID, pagination)
+func (svc *PetitonService) GetUserPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error) {
+	return svc.repo.GetUserPetitions(userID, page, limit)
 }
 
-func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
-	return svc.repo.GetAllUserVotedPetitions(userID, pagination)
+func (svc *PetitonService) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]models.Petition, error) {
+	return svc.repo.GetUserVotedPetitions(userID, page, limit)
 }
