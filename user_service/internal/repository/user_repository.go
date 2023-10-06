@@ -61,13 +61,29 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 	return user, nil
 }
 
+func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.User, error) {
+	user := &models.User{}
+	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
+
+	if err == gorm.ErrRecordNotFound {
+		slog.Info("User doesn't exist: %v\n", err.Error())
+		return nil, err
+	} else if err != nil {
+		slog.Errorf("Error fetching user: %v\n", err.Error())
+		return nil, err
+	}
+	return user, nil
+}
+
 func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
 	var userEmail string
-	err := repo.dbClient.Debug().Model(&models.User{}).Where("id = ?", userID).Pluck("email", &userEmail).Error
+	user := &models.User{}
+
+	err := repo.dbClient.Debug().Where("id = ?", userID).First(user).Error
 	if err != nil {
-		slog.Errorf("failed to get user email from database %v\n", err.Error())
 		return "", err
 	}
+	userEmail = user.Email
 	return userEmail, nil
 }
 
@@ -87,6 +103,29 @@ func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
 		slog.Errorf("failed to update password: %v\n", err.Error())
 		return err
 	}
+	return nil
+}
+
+func (repo *UserRepository) UpdateUser(user *models.User) error {
+	existingUser := &models.User{}
+
+	err := repo.dbClient.Where("id = ?", user.Id).First(&existingUser).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return fmt.Errorf("user with ID %d not found", user.Id)
+		}
+		slog.Errorf("failed to fetch user: %v\n", err.Error())
+		return err
+	}
+	existingUser.Password = user.Password
+	existingUser.HasAccount = user.HasAccount
+
+	err = repo.dbClient.Save(&existingUser).Error
+	if err != nil {
+		slog.Errorf("failed to update user: %v\n", err.Error())
+		return err
+	}
+
 	return nil
 }
 

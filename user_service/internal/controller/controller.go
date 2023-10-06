@@ -37,9 +37,9 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	}
 
 	user := &models.User{
-		Email:    req.Email,
-		Password: req.Password,
-		Status:   req.Status,
+		Email:      req.Email,
+		Password:   req.Password,
+		HasAccount: req.HasAccount,
 	}
 
 	err := ctrl.userservice.Create(user)
@@ -95,7 +95,6 @@ func (ctrl *UserController) GetUserEmailById(ctx context.Context, req *pb.GetUse
 	userId := req.Id
 	userEmail, err := ctrl.userservice.GetUserEmailById(uint(userId))
 	if err != nil {
-		slog.Errorf("User email not found: %v", err)
 		return nil, status.Error(codes.NotFound, "User email not found")
 	}
 	return &wrapperspb.StringValue{Value: userEmail}, nil
