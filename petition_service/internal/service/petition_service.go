@@ -16,7 +16,7 @@ type IPetitionRepository interface {
 	SaveVote(Vote *models.Vote) error
 	CheckIfExists(id uint) error
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
-	UpdateCurrVotes(petitionID uint, newCurrVotes uint) error
+	UpdateCurrVotes(petition models.Petition) error
 	HasUserVoted(userID, petitionID uint) error
 }
 
@@ -68,7 +68,8 @@ func (svc *PetitonService) CreateVote(vote models.Vote) error {
 	if err != nil {
 		return err
 	}
-	if err := svc.repo.UpdateCurrVotes(uint(vote.PetitionID), petition.CurrVotes+1); err != nil {
+	petition.CurrVotes++
+	if err := svc.repo.UpdateCurrVotes(petition); err != nil {
 		return err
 
 	}
@@ -116,8 +117,4 @@ func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagi
 
 func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
-}
-
-func (svc *PetitonService) UpdateCurrVotes(petitionID uint, newCurrVotes uint) error {
-	return svc.petitionRepository.UpdateCurrVotes(petitionID, newCurrVotes)
 }

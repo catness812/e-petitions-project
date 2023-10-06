@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
@@ -124,17 +125,9 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination
 	return petitions, nil
 }
 
-func (r *PetitionRepository) UpdateCurrVotes(petitionID uint, newCurrVotes uint) error {
-	var petition models.Petition
-	if err := r.db.First(&petition, petitionID).Error; err != nil {
-		return err
-	}
-
-	petition.CurrVotes = newCurrVotes
-
+func (r *PetitionRepository) UpdateCurrVotes(petition models.Petition) error {
 	if err := r.db.Save(&petition).Error; err != nil {
 		return err
 	}
-
 	return nil
 }
