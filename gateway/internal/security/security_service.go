@@ -6,7 +6,7 @@ type ISecurityRepository interface {
 	Login(user model.UserCredentials) (model.Tokens, error)
 	Refresh(token string) (model.Tokens, error)
 	SendOTP(email string) (string, error)
-	ValidateOTP(otp, email string) error
+	ValidateOTP(otp, email string) (bool, error)
 }
 
 type SecurityService struct {
@@ -30,6 +30,10 @@ func (svc *SecurityService) SendOTP(email string) (string, error) {
 	return svc.repo.SendOTP(email)
 }
 
-func (svc *SecurityService) ValidateOTP(otp, mail string) error {
-	return svc.repo.ValidateOTP(otp, mail)
+func (svc *SecurityService) ValidateOTP(otp, mail string) (bool, error) {
+	validated, err := svc.repo.ValidateOTP(otp, mail)
+	if err != nil {
+		return false, err
+	}
+	return validated, err
 }

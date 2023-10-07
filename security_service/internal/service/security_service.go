@@ -23,7 +23,7 @@ type IUserRepository interface {
 
 type IRedisRepository interface {
 	ReplaceToken(currentToken, newToken string, expires time.Duration) error
-	InsertUserToken(key string, value uint32, expires time.Duration) error
+	InsertUserToken(key string, value string, expires time.Duration) error
 	InsertOTP(otp string, mail string, expires time.Duration) error
 	GetOTP(mail string) (string, error)
 	DeleteOTP(mail string) error
@@ -55,7 +55,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 		slog.Info("Could not generate token pair %v", err)
 		return nil, err
 	}
-	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Id, time.Hour*5); err != nil {
+	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Email, time.Hour*5); err != nil {
 		return nil, err
 	}
 	return token, nil
