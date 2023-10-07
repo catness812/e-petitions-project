@@ -26,7 +26,7 @@ type SecurityServiceClient interface {
 	RefreshSession(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*RefreshResponse, error)
 	ValidateToken(ctx context.Context, in *Token, opts ...grpc.CallOption) (*ValidateTokenResponse, error)
 	SendOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*OTPInfo, error)
-	ValidateOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*Empty, error)
+	ValidateOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*IsOTPValidated, error)
 }
 
 type securityServiceClient struct {
@@ -73,8 +73,8 @@ func (c *securityServiceClient) SendOTP(ctx context.Context, in *OTPInfo, opts .
 	return out, nil
 }
 
-func (c *securityServiceClient) ValidateOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *securityServiceClient) ValidateOTP(ctx context.Context, in *OTPInfo, opts ...grpc.CallOption) (*IsOTPValidated, error) {
+	out := new(IsOTPValidated)
 	err := c.cc.Invoke(ctx, "/proto.SecurityService/ValidateOTP", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ type SecurityServiceServer interface {
 	RefreshSession(context.Context, *RefreshRequest) (*RefreshResponse, error)
 	ValidateToken(context.Context, *Token) (*ValidateTokenResponse, error)
 	SendOTP(context.Context, *OTPInfo) (*OTPInfo, error)
-	ValidateOTP(context.Context, *OTPInfo) (*Empty, error)
+	ValidateOTP(context.Context, *OTPInfo) (*IsOTPValidated, error)
 	mustEmbedUnimplementedSecurityServiceServer()
 }
 
@@ -110,7 +110,7 @@ func (UnimplementedSecurityServiceServer) ValidateToken(context.Context, *Token)
 func (UnimplementedSecurityServiceServer) SendOTP(context.Context, *OTPInfo) (*OTPInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendOTP not implemented")
 }
-func (UnimplementedSecurityServiceServer) ValidateOTP(context.Context, *OTPInfo) (*Empty, error) {
+func (UnimplementedSecurityServiceServer) ValidateOTP(context.Context, *OTPInfo) (*IsOTPValidated, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidateOTP not implemented")
 }
 func (UnimplementedSecurityServiceServer) mustEmbedUnimplementedSecurityServiceServer() {}

@@ -53,10 +53,10 @@ func (repo *SecurityRepository) SendOTP(email string) (string, error) {
 	return res.Email, nil
 }
 
-func (repo *SecurityRepository) ValidateOTP(otp, email string) error {
-	_, err := repo.client.ValidateOTP(context.Background(), &pb.OTPInfo{OTP: otp, Email: email})
+func (repo *SecurityRepository) ValidateOTP(otp, email string) (bool, error) {
+	validated, err := repo.client.ValidateOTP(context.Background(), &pb.OTPInfo{OTP: otp, Email: email})
 	if err != nil {
-		return err
+		return false, err
 	}
-	return nil
+	return validated.Validated, nil
 }

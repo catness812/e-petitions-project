@@ -82,10 +82,10 @@ func (s *SecurityRpcServer) SendOTP(ctx context.Context, req *pb.OTPInfo) (*pb.O
 	return &pb.OTPInfo{OTP: otpCode, Email: req.Email}, nil
 }
 
-func (s *SecurityRpcServer) ValidateOTP(ctx context.Context, req *pb.OTPInfo) (*pb.Empty, error) {
+func (s *SecurityRpcServer) ValidateOTP(ctx context.Context, req *pb.OTPInfo) (*pb.IsOTPValidated, error) {
 	if err := s.securitySvc.VerifyOTP(req.Email, req.OTP); err != nil {
-		slog.Error("Failed to validate otp: %v", err)
+		slog.Errorf("Failed to validate otp: %v", err)
 		return nil, err
 	}
-	return &pb.Empty{}, nil
+	return &pb.IsOTPValidated{Validated: true}, nil
 }
