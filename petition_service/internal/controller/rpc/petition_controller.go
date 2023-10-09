@@ -254,11 +254,16 @@ func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*
 
 func ScheduleDailyCheck(s *Server) {
 	c := cron.New()
+	slog.Info("Scheduled Expiration Checker successfully started...")
 
 	petitions, err := s.PetitionService.GetAllActive()
 	if err != nil {
 		slog.Error(err)
 		return
+	}
+
+	if len(petitions) == 0 {
+		slog.Println("No active petitions found for now...")
 	}
 
 	_, err = c.AddFunc("0 0 * * *", func() {

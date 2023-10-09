@@ -38,6 +38,7 @@ func grpcStart(petitionSvc rpc.IPetitionService) {
 	}
 
 	pb.RegisterPetitionServiceServer(s, server)
+
 	rpc.ScheduleDailyCheck(server)
 
 	slog.Infof("gRPC Server listening at %v\n", lis.Addr())
