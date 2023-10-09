@@ -180,16 +180,19 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 		slog.Errorf("Error retrieving petitions for user %v: %v", userID, err)
 		return nil, err
 	}
-	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
+	getUserPetitionsResponse := make([]*pb.PetitionGetUser, len(petitions))
 
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
-		getUserPetitionsResponse[i] = &pb.Petition{
+		getUserPetitionsResponse[i] = &pb.PetitionGetUser{
 			Id:          uint32(p.ID),
 			Title:       p.Title,
 			Category:    p.Category,
 			Description: p.Description,
-			VoteGoal:    uint32(p.VoteGoal),
+			Status: &pb.Status{
+				Id:    uint32(p.Status.ID),
+				Title: p.Status.Title,
+			},
 		}
 	}
 
@@ -210,16 +213,15 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 		slog.Errorf("Error retrieving voted petitions by user %v: %v", userID, err)
 		return nil, err
 	}
-	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
+	getUserPetitionsResponse := make([]*pb.PetitionGetUserVoted, len(petitions))
 
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
-		getUserPetitionsResponse[i] = &pb.Petition{
+		getUserPetitionsResponse[i] = &pb.PetitionGetUserVoted{
 			Id:          uint32(p.ID),
 			Title:       p.Title,
 			Category:    p.Category,
 			Description: p.Description,
-			VoteGoal:    uint32(p.VoteGoal),
 		}
 	}
 

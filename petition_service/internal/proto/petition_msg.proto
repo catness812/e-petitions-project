@@ -15,6 +15,20 @@ message Petition {
     uint32 vote_goal = 8;
 }
 
+message PetitionGetUser{
+    uint32 id = 1;
+    string title = 2;
+    string category = 3;
+    string description = 4;
+    Status status = 6;
+}
+
+message PetitionGetUserVoted{
+    uint32 id = 1;
+    string title = 2;
+    string category = 3;
+    string description = 4;
+}
 message Status {
     uint32 id = 1;
     string title = 2;
@@ -59,7 +73,7 @@ message GetUserPetitionsRequest {
 }
 
 message GetUserPetitionsResponse {
-    repeated Petition petitions = 1;
+    repeated PetitionGetUser petitions = 1;
 }
 
 
@@ -70,5 +84,5 @@ message GetUserVotedPetitionsRequest {
 }
 
 message GetUserVotedPetitionsResponse {
-    repeated Petition petitions = 1;
+    repeated PetitionGetUserVoted petitions = 1;
 }
