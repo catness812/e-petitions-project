@@ -11,7 +11,7 @@ import (
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
-	GetAllActive() []models.Petition
+	GetAllActive(status models.Status) []models.Petition
 	UpdateStatus(id uint, statusID uint) error
 	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
@@ -117,8 +117,13 @@ func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition 
 	return svc.petitionRepository.GetAll(pagination)
 }
 
-func (svc *PetitonService) GetAllActive() []models.Petition {
-	return svc.petitionRepository.GetAllActive()
+func (svc *PetitonService) GetAllActive() ([]models.Petition, error) {
+	status, err := svc.petitionRepository.GetStatusByTitle("PUBLIC")
+	if err != nil {
+		return nil, err
+	}
+	petitions := svc.petitionRepository.GetAllActive(status)
+	return petitions, nil
 }
 
 func (svc *PetitonService) UpdateStatus(id uint, status string) error {

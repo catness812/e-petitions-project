@@ -21,9 +21,9 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
-func (repo *PetitionRepository) GetAllActive() []models.Petition {
+func (repo *PetitionRepository) GetAllActive(status models.Status) []models.Petition {
 	var petitions []models.Petition
-	repo.db.Preload("Status").Where("status = ?", "PUBLIC").Find(&petitions)
+	repo.db.Preload("Status").Where("status_id = ?", status.ID).Find(&petitions)
 	return petitions
 }
 

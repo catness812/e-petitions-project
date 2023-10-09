@@ -18,7 +18,7 @@ import (
 type IPetitionService interface {
 	CreateNew(petition models.Petition) (uint, error)
 	GetAll(pagination util.Pagination) []models.Petition
-	GetAllActive() []models.Petition
+	GetAllActive() ([]models.Petition, error)
 	UpdateStatus(id uint, status string) error
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
@@ -255,14 +255,18 @@ func (s *Server) CheckIfPetitionExpired(_ context.Context, req *pb.Petition) (*e
 func ScheduleDailyCheck(s *Server) {
 	c := cron.New()
 
-	petitions := s.PetitionService.GetAllActive()
+	petitions, err := s.PetitionService.GetAllActive()
+	if err != nil {
+		slog.Error(err)
+		return
+	}
 
 	if len(petitions) == 0 {
 		slog.Println("No active petitions found. Stopping the scheduler.")
 		return
 	}
 
-	_, err := c.AddFunc("0 0 * * *", func() {
+	_, err = c.AddFunc("0 0 * * *", func() {
 		resultChan := make(chan struct {
 			ID    uint
 			Error error
