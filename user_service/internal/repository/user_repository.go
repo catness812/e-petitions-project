@@ -60,9 +60,7 @@ func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.Use
 	user := &models.User{}
 	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
 
-	if err == gorm.ErrRecordNotFound {
-		return nil, err
-	} else if err != nil {
+	if err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -125,7 +123,6 @@ func (repo *UserRepository) CheckUserExistence(userEmail string) bool {
 }
 
 func (repo *UserRepository) AddAdminRole(userEmail string) error {
-
 	user := &models.User{}
 	err := repo.dbClient.Debug().
 		Model(models.User{}).
