@@ -21,6 +21,12 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
+func (repo *PetitionRepository) GetAllActive() []models.Petition {
+	var petitions []models.Petition
+	repo.db.Preload("Status").Where("status = ?", "PUBLIC").Find(&petitions)
+	return petitions
+}
+
 func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
 	return &PetitionRepository{
 		db: db,

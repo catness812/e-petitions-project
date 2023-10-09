@@ -2,6 +2,8 @@ package service
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 )
@@ -9,6 +11,7 @@ import (
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
+	GetAllActive() []models.Petition
 	UpdateStatus(id uint, statusID uint) error
 	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
@@ -114,6 +117,10 @@ func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition 
 	return svc.petitionRepository.GetAll(pagination)
 }
 
+func (svc *PetitonService) GetAllActive() []models.Petition {
+	return svc.petitionRepository.GetAllActive()
+}
+
 func (svc *PetitonService) UpdateStatus(id uint, status string) error {
 	// check if status exists first
 	newStatus, err := svc.petitionRepository.GetStatusByTitle(status)
@@ -148,4 +155,24 @@ func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagi
 
 func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
+}
+
+func (svc *PetitonService) CheckPetitionExpiration(petition models.Petition) (string, error) {
+	if time.Now().After(petition.ExpDate) {
+		email, err := svc.userRepository.GetEmailById(petition.UserID)
+		if err != nil {
+			return "", err
+		}
+
+		err = svc.UpdateStatus(petition.ID, "ARCHIVE")
+		if err != nil {
+			return "", err
+		}
+
+		err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has expired! It's been moved to your archived petitions.`, petition.Title))
+		if err != nil {
+			return "", err
+		}
+	}
+	return "", nil
 }

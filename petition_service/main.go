@@ -37,6 +37,8 @@ func grpcStart(petitionSvc rpc.IPetitionService) {
 		PetitionService: petitionSvc,
 	})
 
+	rpc.ScheduleDailyCheck(&rpc.Server{})
+
 	slog.Infof("gRPC Server listening at %v\n", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {

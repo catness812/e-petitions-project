@@ -3,11 +3,13 @@ package rpc
 import (
 	"context"
 	"errors"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/gookit/slog"
+	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -16,12 +18,14 @@ import (
 type IPetitionService interface {
 	CreateNew(petition models.Petition) (uint, error)
 	GetAll(pagination util.Pagination) []models.Petition
+	GetAllActive() []models.Petition
 	UpdateStatus(id uint, status string) error
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
 	CreateVote(vote models.Vote) error
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	CheckPetitionExpiration(petition models.Petition) (string, error)
 }
 
 type Server struct {
@@ -227,4 +231,70 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	return &pb.GetUserVotedPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
+}
+
+func (s *Server) CheckIfPetitionExpired(_ context.Context, req *pb.Petition) (*empty.Empty, error) {
+	petition, err := s.PetitionService.GetByID(uint(req.Id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Errorf("Petition %v not found", req.Id)
+			return nil, status.Error(codes.NotFound, "petition not found")
+		}
+		return nil, err
+	}
+	slog.Info("Petition %v successfully found", req.Id)
+
+	if _, err := s.PetitionService.CheckPetitionExpiration(petition); err != nil {
+		return nil, err
+	}
+
+	slog.Info("Petition %v expiration date successfully checked", req.Id)
+	return &empty.Empty{}, nil
+}
+
+func ScheduleDailyCheck(s *Server) {
+	c := cron.New()
+
+	petitions := s.PetitionService.GetAllActive()
+
+	if len(petitions) == 0 {
+		slog.Println("No active petitions found. Stopping the scheduler.")
+		return
+	}
+
+	_, err := c.AddFunc("0 0 * * *", func() {
+		resultChan := make(chan struct {
+			ID    uint
+			Error error
+		})
+
+		for _, petition := range petitions {
+			go func(petition models.Petition) {
+				req := &pb.Petition{Id: uint32(petition.ID)}
+				_, err := s.CheckIfPetitionExpired(context.Background(), req)
+				resultChan <- struct {
+					ID    uint
+					Error error
+				}{
+					ID:    petition.ID,
+					Error: err,
+				}
+			}(petition)
+		}
+
+		for range petitions {
+			result := <-resultChan
+			if result.Error != nil {
+				slog.Printf("Error checking expiration for petition %v: %v", result.ID, result.Error)
+			}
+		}
+	})
+
+	if err != nil {
+		slog.Fatalf("Failed to add cron job: %v", err)
+	}
+
+	c.Start()
+
+	select {}
 }
