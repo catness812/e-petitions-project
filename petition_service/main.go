@@ -33,11 +33,12 @@ func grpcStart(petitionSvc rpc.IPetitionService) {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterPetitionServiceServer(s, &rpc.Server{
+	server := &rpc.Server{
 		PetitionService: petitionSvc,
-	})
+	}
 
-	rpc.ScheduleDailyCheck(&rpc.Server{})
+	pb.RegisterPetitionServiceServer(s, server)
+	rpc.ScheduleDailyCheck(server)
 
 	slog.Infof("gRPC Server listening at %v\n", lis.Addr())
 
