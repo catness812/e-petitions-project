@@ -233,7 +233,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	}, nil
 }
 
-func (s *Server) CheckIfPetitionExpired(_ context.Context, req *pb.Petition) (*empty.Empty, error) {
+func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*empty.Empty, error) {
 	petition, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -261,11 +261,6 @@ func ScheduleDailyCheck(s *Server) {
 		return
 	}
 
-	if len(petitions) == 0 {
-		slog.Println("No active petitions found. Stopping the scheduler.")
-		return
-	}
-
 	_, err = c.AddFunc("0 0 * * *", func() {
 		resultChan := make(chan struct {
 			ID    uint
@@ -275,7 +270,7 @@ func ScheduleDailyCheck(s *Server) {
 		for _, petition := range petitions {
 			go func(petition models.Petition) {
 				req := &pb.Petition{Id: uint32(petition.ID)}
-				_, err := s.CheckIfPetitionExpired(context.Background(), req)
+				_, err := s.CheckIfPetitionsExpired(context.Background(), req)
 				resultChan <- struct {
 					ID    uint
 					Error error

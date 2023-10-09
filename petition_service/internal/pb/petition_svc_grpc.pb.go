@@ -20,16 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PetitionService_GetPetitionById_FullMethodName        = "/proto.PetitionService/GetPetitionById"
-	PetitionService_CreatePetition_FullMethodName         = "/proto.PetitionService/CreatePetition"
-	PetitionService_GetPetitions_FullMethodName           = "/proto.PetitionService/GetPetitions"
-	PetitionService_UpdatePetitionStatus_FullMethodName   = "/proto.PetitionService/UpdatePetitionStatus"
-	PetitionService_DeletePetition_FullMethodName         = "/proto.PetitionService/DeletePetition"
-	PetitionService_ValidatePetitionId_FullMethodName     = "/proto.PetitionService/ValidatePetitionId"
-	PetitionService_CreateVote_FullMethodName             = "/proto.PetitionService/CreateVote"
-	PetitionService_GetUserPetitions_FullMethodName       = "/proto.PetitionService/GetUserPetitions"
-	PetitionService_GetUserVotedPetitions_FullMethodName  = "/proto.PetitionService/GetUserVotedPetitions"
-	PetitionService_CheckIfPetitionExpired_FullMethodName = "/proto.PetitionService/CheckIfPetitionExpired"
+	PetitionService_GetPetitionById_FullMethodName         = "/proto.PetitionService/GetPetitionById"
+	PetitionService_CreatePetition_FullMethodName          = "/proto.PetitionService/CreatePetition"
+	PetitionService_GetPetitions_FullMethodName            = "/proto.PetitionService/GetPetitions"
+	PetitionService_UpdatePetitionStatus_FullMethodName    = "/proto.PetitionService/UpdatePetitionStatus"
+	PetitionService_DeletePetition_FullMethodName          = "/proto.PetitionService/DeletePetition"
+	PetitionService_ValidatePetitionId_FullMethodName      = "/proto.PetitionService/ValidatePetitionId"
+	PetitionService_CreateVote_FullMethodName              = "/proto.PetitionService/CreateVote"
+	PetitionService_GetUserPetitions_FullMethodName        = "/proto.PetitionService/GetUserPetitions"
+	PetitionService_GetUserVotedPetitions_FullMethodName   = "/proto.PetitionService/GetUserVotedPetitions"
+	PetitionService_CheckIfPetitionsExpired_FullMethodName = "/proto.PetitionService/CheckIfPetitionsExpired"
 )
 
 // PetitionServiceClient is the client API for PetitionService service.
@@ -46,7 +46,7 @@ type PetitionServiceClient interface {
 	CreateVote(ctx context.Context, in *CreateVoteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetUserPetitions(ctx context.Context, in *GetUserPetitionsRequest, opts ...grpc.CallOption) (*GetUserPetitionsResponse, error)
 	GetUserVotedPetitions(ctx context.Context, in *GetUserVotedPetitionsRequest, opts ...grpc.CallOption) (*GetUserVotedPetitionsResponse, error)
-	CheckIfPetitionExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CheckIfPetitionsExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type petitionServiceClient struct {
@@ -138,9 +138,9 @@ func (c *petitionServiceClient) GetUserVotedPetitions(ctx context.Context, in *G
 	return out, nil
 }
 
-func (c *petitionServiceClient) CheckIfPetitionExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *petitionServiceClient) CheckIfPetitionsExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, PetitionService_CheckIfPetitionExpired_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PetitionService_CheckIfPetitionsExpired_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ type PetitionServiceServer interface {
 	CreateVote(context.Context, *CreateVoteRequest) (*emptypb.Empty, error)
 	GetUserPetitions(context.Context, *GetUserPetitionsRequest) (*GetUserPetitionsResponse, error)
 	GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error)
-	CheckIfPetitionExpired(context.Context, *Petition) (*emptypb.Empty, error)
+	CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error)
 }
 
 // UnimplementedPetitionServiceServer should be embedded to have forward compatible implementations.
@@ -195,8 +195,8 @@ func (UnimplementedPetitionServiceServer) GetUserPetitions(context.Context, *Get
 func (UnimplementedPetitionServiceServer) GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserVotedPetitions not implemented")
 }
-func (UnimplementedPetitionServiceServer) CheckIfPetitionExpired(context.Context, *Petition) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckIfPetitionExpired not implemented")
+func (UnimplementedPetitionServiceServer) CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIfPetitionsExpired not implemented")
 }
 
 // UnsafePetitionServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -372,20 +372,20 @@ func _PetitionService_GetUserVotedPetitions_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PetitionService_CheckIfPetitionExpired_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PetitionService_CheckIfPetitionsExpired_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Petition)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PetitionServiceServer).CheckIfPetitionExpired(ctx, in)
+		return srv.(PetitionServiceServer).CheckIfPetitionsExpired(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PetitionService_CheckIfPetitionExpired_FullMethodName,
+		FullMethod: PetitionService_CheckIfPetitionsExpired_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PetitionServiceServer).CheckIfPetitionExpired(ctx, req.(*Petition))
+		return srv.(PetitionServiceServer).CheckIfPetitionsExpired(ctx, req.(*Petition))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -434,8 +434,8 @@ var PetitionService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _PetitionService_GetUserVotedPetitions_Handler,
 		},
 		{
-			MethodName: "CheckIfPetitionExpired",
-			Handler:    _PetitionService_CheckIfPetitionExpired_Handler,
+			MethodName: "CheckIfPetitionsExpired",
+			Handler:    _PetitionService_CheckIfPetitionsExpired_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

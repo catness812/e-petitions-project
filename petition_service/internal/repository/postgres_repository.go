@@ -21,10 +21,28 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
-func (repo *PetitionRepository) GetAllActive(status models.Status) []models.Petition {
+func (repo *PetitionRepository) GetAllActive(status models.Status) ([]models.Petition, error) {
 	var petitions []models.Petition
-	repo.db.Preload("Status").Where("status_id = ?", status.ID).Find(&petitions)
-	return petitions
+	var offset int
+
+	for {
+		var batch []models.Petition
+
+		err := repo.db.Preload("Status").Where("status_id = ?", status.ID).Offset(offset).Limit(50).Find(&batch).Error
+
+		if err != nil {
+			return nil, err
+		}
+
+		if len(batch) == 0 {
+			break
+		}
+
+		petitions = append(petitions, batch...)
+		offset += 50
+	}
+
+	return petitions, nil
 }
 
 func NewPetitionRepository(db *gorm.DB) *PetitionRepository {

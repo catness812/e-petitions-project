@@ -19,5 +19,5 @@ service PetitionService {
     rpc GetUserPetitions(GetUserPetitionsRequest) returns (GetUserPetitionsResponse);
     rpc GetUserVotedPetitions(GetUserVotedPetitionsRequest) returns(GetUserVotedPetitionsResponse);
 
-    rpc CheckIfPetitionExpired(Petition) returns (google.protobuf.Empty);
+    rpc CheckIfPetitionsExpired(Petition) returns (google.protobuf.Empty);
 }
