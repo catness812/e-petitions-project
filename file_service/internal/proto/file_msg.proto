@@ -1,0 +1,15 @@
+syntax="proto3";
+
+option go_package="./pb";
+
+package proto;
+message Empty {
+}
+
+message FileRequest{
+  bytes file_data = 1;
+}
+
+message FileResponse{
+  string message = 1;
+}

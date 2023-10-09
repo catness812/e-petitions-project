@@ -1,7 +1,13 @@
-go 1.21.0
+go 1.21.1
 
 use gateway/
+
 use mail_service/
+
 use petition_service/
+
 use ./security_service/
+
 use user_service/
+
+use file_service
