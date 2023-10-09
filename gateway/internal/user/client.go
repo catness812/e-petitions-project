@@ -2,11 +2,12 @@ package user
 
 import (
 	"fmt"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
+	"github.com/gookit/slog"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 )
 
 type UserClient struct {
@@ -18,7 +19,7 @@ func InitUserServiceClient(c *config.Config) pb.UserControllerClient {
 	cc, err := grpc.Dial(c.UserPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		log.Fatal("Could not connect:", err)
+		slog.Fatalf("Could not connect: %v", err)
 	}
 
 	return pb.NewUserControllerClient(cc)

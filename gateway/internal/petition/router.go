@@ -1,10 +1,9 @@
 package petition
 
 import (
-	"log"
-
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/slog"
 )
 
 func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
@@ -12,7 +11,7 @@ func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	petitionrepo, err := NewPetitionRepository(c, svc)
 	petitionService, err := NewPetitionService(petitionrepo)
 	if err != nil {
-		log.Fatal("Failed to connect to petition service grpc: ", err)
+		slog.Fatalf("Failed to connect to petition service grpc: %v", err)
 
 	}
 
@@ -20,8 +19,14 @@ func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 
 	route := r.Group("/petition")
 	route.POST("/", petitionController.CreatePetition)
+	route.GET("/", petitionController.GetPetitionByID)
+	route.GET("/all/:page/:limit/", petitionController.GetPetitions)
+	route.POST("/status/", petitionController.UpdatePetitionStatus)
 	route.DELETE("/:id", petitionController.DeletePetition)
-	route.POST("/update", petitionController.UpdatePetition)
-	route.GET("/all", petitionController.GetPetitions)
+	//route.GET("/", petitionController.ValidatePetitionID)
+	route.POST("/sign", petitionController.CreateVote)
 
+	route = r.Group("/user")
+	route.GET("/petitions/:page/:limit", petitionController.GetUserPetitions)
+	route.GET("/voted/:page/:limit", petitionController.GetUserVotedPetitions)
 }

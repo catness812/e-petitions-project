@@ -1,14 +1,22 @@
 syntax="proto3";
 
 option go_package="./pb";
+import "google/protobuf/empty.proto";
+import "petition_msg.proto";
+
 
 package proto;
 
-import "petition_msg.proto";
-
 service PetitionService {
-  rpc CreatePetition(CreatePetitionRequest) returns (CreatePetitionResponse);
-  rpc GetPetitions(GetPetitionsRequest) returns (GetPetitionsResponse);
-  rpc UpdatePetition(UpdatePetitionRequest) returns (UpdatePetitionResponse);
-  rpc DeletePetition(DeletePetitionRequest) returns (DeletePetitionResponse);
+    rpc GetPetitionById(PetitionId) returns (Petition);
+    rpc CreatePetition(CreatePetitionRequest) returns (PetitionId);
+    rpc GetPetitions(GetPetitionsRequest) returns (GetPetitionsResponse);
+    rpc UpdatePetitionStatus(UpdatePetitionStatusRequest) returns (google.protobuf.Empty);
+    rpc DeletePetition(PetitionId) returns (google.protobuf.Empty);
+    // returns empty if is valid, error if not valid
+    rpc ValidatePetitionId(PetitionId) returns (google.protobuf.Empty);
+
+    rpc CreateVote(CreateVoteRequest) returns (google.protobuf.Empty);
+    rpc GetUserPetitions(GetUserPetitionsRequest) returns (GetUserPetitionsResponse);
+    rpc GetUserVotedPetitions(GetUserVotedPetitionsRequest) returns(GetUserVotedPetitionsResponse);
 }
