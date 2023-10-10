@@ -44,7 +44,7 @@ func NewSecurityService(userRepo IUserRepository, redisRepo IRedisRepository) *S
 func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, error) {
 	user, err := svc.userRepo.GetUserByEmail(userLogin.Email)
 	if err != nil {
-		slog.Info("invalid credentials: %v", err)
+		slog.Errorf("invalid credentials: %v", err)
 		return nil, err
 	}
 	if err = svc.comparePasswordHash(user.Password, userLogin.Password); err != nil {
@@ -52,7 +52,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 	}
 	token, err := generateTokenPair(user.Email)
 	if err != nil {
-		slog.Info("Could not generate token pair %v", err)
+		slog.Errorf("Could not generate token pair %v", err)
 		return nil, err
 	}
 	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Email, time.Hour*5); err != nil {
@@ -125,7 +125,7 @@ func (svc *SecurityService) generatePasswordHash(pass string) (string, error) {
 	const salt = 14
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), salt)
 	if err != nil {
-		slog.Errorf("ERR: %v\n", err)
+		slog.Errorf("Failed to generate password hash: %v\n", err)
 		return "", err
 	}
 	return string(hash), nil
@@ -134,7 +134,7 @@ func (svc *SecurityService) generatePasswordHash(pass string) (string, error) {
 func (svc *SecurityService) comparePasswordHash(hash, pass string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
 	if err != nil {
-		slog.Errorf("ERR: %v\n", err)
+		slog.Errorf("Failed to compare password and hash: %v\n", err)
 		return err
 	}
 	return nil

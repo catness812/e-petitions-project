@@ -10,6 +10,11 @@ roles:
       name: User
       description: Can write and read petitions
 
+    - code: anon
+      name: Anon
+      description: Can read petitions
+
+
 # Define resources
 resources:
   - code: petition
@@ -33,6 +38,13 @@ permissions:
     allow:
       read: true
       write: true
+      delete: false
+
+  - role: anon
+    resource: petition
+    allow:
+      read: true
+      write: false
       delete: false
 
   - role: admin
