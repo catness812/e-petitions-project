@@ -1,9 +1,20 @@
 version: '3.8'
 
 services:
+  mail-service:
+    container_name: e-petitions-mail
+    image: mail-service
+    networks:
+      - e-petitions-network
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+  
   postgres:
     container_name: e-petitions-project-db
     image: postgres:16.0
+    networks:
+      - e-petitions-network
     environment:
       POSTGRES_DB : e-petitions-project-db
       POSTGRES_USER: admin
@@ -14,22 +25,33 @@ services:
       - postgres-db:/data/postgres
     ports:
       - "5435:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 60s
   redis:
     image: redis:7.0.13
+    networks:
+      - e-petitions-network
     container_name: e-petitions-redis-db
     volumes:
       - redis-data:/data
     ports:
       - "6379:6379"
-
   mailcatcher:
     image: dockage/mailcatcher:0.9.0
+    networks:
+      - e-petitions-network
     container_name: e-petitions-project-mailcatcher
     ports:
       - "1080:1080"
       - "1025:1025"
   rabbitmq:
     image: rabbitmq:3.13-rc-management
+    networks:
+      - e-petitions-network
     container_name: e-petitions-project-rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=admin
@@ -37,9 +59,18 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
 volumes:
   postgres-db:
     driver: local
   redis-data:
     driver: local
+
+networks:
+  e-petitions-network:
+    driver: bridge
