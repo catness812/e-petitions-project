@@ -89,11 +89,9 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, petitions)
+	ctx.JSON(http.StatusOK, gin.H{"petitions": petitions})
 
 }
-
-// TODO check binding
 func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 	var status model.Status
 	err := ctx.BindJSON(&status)
@@ -115,7 +113,7 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
 	idParam, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		slog.Printf("Failed to get the id: ", err)
+		slog.Errorf("Failed to get the id: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Failed to get the id", "error": err})
 
 	}
@@ -192,7 +190,7 @@ func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusOK, gin.H{"user_petitions": res})
 
 }
 func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
@@ -229,6 +227,6 @@ func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
-	ctx.JSON(http.StatusOK, res)
+	ctx.JSON(http.StatusOK, gin.H{"user_voted_petitions": res})
 
 }

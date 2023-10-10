@@ -1,15 +1,13 @@
 package main
 
 import (
-	"github.com/gin-contrib/cors"
-	"log"
-	"time"
-
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition"
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func main() {
@@ -24,7 +22,6 @@ func main() {
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length", "*"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
 	}))
 
 	user.RegisterUserRoutes(r, &config.Cfg, rbacCfg)
