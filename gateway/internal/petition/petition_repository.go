@@ -51,21 +51,8 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 
 	} else {
 		petition.Status.ID = pbPetition.Status.Id
-		petition.Status.Title = pbPetition.Status.Title
+		petition.Status.Status = pbPetition.Status.Title
 	}
-
-	return petition
-}
-
-func mapCreatePetition(pbPetition *pb.Petition) model.CreatePetition {
-	var petition model.CreatePetition
-
-	petition.Title = pbPetition.Title
-	petition.Description = pbPetition.Description
-	petition.Image = pbPetition.Image
-	petition.Category = pbPetition.Category
-	petition.UserID = pbPetition.UserId
-	petition.VoteGoal = pbPetition.VoteGoal
 
 	return petition
 }

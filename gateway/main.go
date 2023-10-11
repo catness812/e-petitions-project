@@ -16,13 +16,13 @@ func main() {
 
 	r := gin.Default()
 
-	co := cors.DefaultConfig()
-	co.AllowOrigins = []string{"http://localhost:5173"}
-	co.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
-	co.AllowHeaders = []string{"Content-Type", "*"}
-	co.AllowHeaders = []string{"Allow-Control-Allow-Origin", "*"}
-
-	r.Use(cors.New(co))
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowMethods:     []string{"PUT", "GET", "POST", "DELETE"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length", "*"},
+		AllowCredentials: true,
+	}))
 
 	user.RegisterUserRoutes(r, &config.Cfg, rbacCfg)
 	petition.RegisterPetitionRoutes(r, &config.Cfg)

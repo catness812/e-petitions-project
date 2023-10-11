@@ -20,6 +20,6 @@ type CreatePetition struct {
 }
 
 type Status struct {
-	ID    uint32 `json:"id"`
-	Title string `json:"titile"`
+	ID     uint32 `json:"id"`
+	Status string `json:"status"`
 }
