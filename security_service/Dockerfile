@@ -1,16 +1,23 @@
-# syntax=docker/dockerfile:1
-FROM golang:1.21
-LABEL authors="ktruedat"
+FROM golang:1.21 as builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY internal/ ./internal/
+COPY pkg/ ./pkg/
+COPY .env ./
+COPY config.yml ./
+COPY go.mod ./
+COPY go.sum ./
+COPY main.go ./
 
-RUN go mod download
+RUN go mod download && \
+    go build -o main
 
-COPY . .
+FROM alpine:3.14
 
-RUN go build -o main
+WORKDIR /app
+
+COPY --from=builder /app/main ./
 
 EXPOSE 9002
 
