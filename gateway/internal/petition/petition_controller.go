@@ -89,7 +89,7 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"petitions": petitions})
+	ctx.JSON(http.StatusOK, petitions)
 
 }
 func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
