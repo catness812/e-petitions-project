@@ -13,7 +13,7 @@ FROM alpine:3.17
 
 WORKDIR /app
 
-COPY --from=builder /app/main ./
+COPY --from=builder /app/main /app/config.yml /app/rbac.yml ./
 
 EXPOSE 1337
 
