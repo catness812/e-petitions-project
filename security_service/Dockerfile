@@ -1,23 +1,19 @@
-FROM golang:1.21 as builder
+FROM golang:1.21-alpine3.17 as builder
 
 WORKDIR /app
 
 COPY internal/ ./internal/
 COPY pkg/ ./pkg/
-COPY .env ./
-COPY config.yml ./
-COPY go.mod ./
-COPY go.sum ./
-COPY main.go ./
+COPY .env config.yml go.mod go.sum main.go ./
 
 RUN go mod download && \
     go build -o main
 
-FROM alpine:3.14
+FROM alpine:3.17
 
 WORKDIR /app
 
-COPY --from=builder /app/main ./
+COPY --from=builder /app/main /app/config.yml /app/.env ./
 
 EXPOSE 9002
 
