@@ -12,13 +12,17 @@ func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.Permi
 	svc := InitUserServiceClient(cfg)
 	securityClient, err := security.InitAuthServiceClient(cfg)
 	if err != nil {
-		slog.Fatalf("Failed to connect to user service grpc: %v", err)
+		slog.Fatalf("Failed to connect to security service : %v", err)
 	}
 	userrepo, err := NewUserRepository(cfg, svc)
 	if err != nil {
-		slog.Fatalf("Failed to connect to user service grpc: %v", err)
+		slog.Fatalf("Failed to connect to user repository : %v", err)
 	}
 	usersvc, err := NewUserService(userrepo)
+
+	if err != nil {
+		slog.Fatalf("Failed to connect to user service : %v", err)
+	}
 
 	userctrl := NewUserController(usersvc)
 	authorizeMiddleware := middleware.NewAuthorizationMiddleware(svc, rbacCfg)

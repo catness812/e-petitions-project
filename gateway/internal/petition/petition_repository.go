@@ -2,7 +2,6 @@ package petition
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
@@ -68,6 +67,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 	})
 
 	if err != nil {
+		slog.Errorf("Failed to create petition: ", err)
 		return 0, nil
 	}
 	return resp.Id, nil
@@ -81,6 +81,7 @@ func (repo *petitionRepository) GetPetitionByID(petitionID uint32) (model.Petiti
 	})
 
 	if err != nil {
+		slog.Infof("Failed to get petition: ", err)
 		return petition, err
 	}
 
@@ -97,6 +98,7 @@ func (repo *petitionRepository) GetPetitions(page uint32, limit uint32) ([]model
 		Limit: limit,
 	})
 	if err != nil {
+		slog.Errorf("Failed to get all petitions: ", err)
 		return petitions, err
 	}
 
@@ -113,6 +115,7 @@ func (repo *petitionRepository) UpdatePetitionStatus(id uint32, status string) e
 		Status: status,
 	})
 	if err != nil {
+		slog.Errorf("Failed to update petition status: ", err)
 		return err
 	}
 	return nil
@@ -123,6 +126,7 @@ func (repo *petitionRepository) DeletePetition(petitionID uint32) error {
 		Id: petitionID,
 	})
 	if err != nil {
+		slog.Errorf("Failed to delete petition: ", err)
 		return err
 	}
 
@@ -135,6 +139,7 @@ func (repo *petitionRepository) ValidatePetitionID(petitionID uint32) error {
 	})
 
 	if err != nil {
+		slog.Errorf("Failed to validate petition id: ", err)
 		return err
 	}
 	return nil
@@ -146,6 +151,7 @@ func (repo *petitionRepository) CreateVote(userID uint32, petitionID uint32) err
 		UserId:     userID,
 	})
 	if err != nil {
+		slog.Errorf("Failed to sign a petition: ", err)
 		return err
 	}
 	return nil
@@ -161,19 +167,14 @@ func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, lim
 	var petitions []model.Petition
 
 	if err != nil {
+		slog.Errorf("Failed to get user created petitions: ", err)
 		return petitions, err
 
 	}
-	if resp == nil {
-		return nil, errors.New("response not found")
-	}
 
 	for _, pbPetiton := range resp.Petitions {
-		if pbPetiton != nil {
-			petitions = append(petitions, mapPetition(pbPetiton))
-		} else {
-			return petitions, errors.New("petitions not found")
-		}
+		petitions = append(petitions, mapPetition(pbPetiton))
+
 	}
 
 	return petitions, nil
@@ -189,6 +190,7 @@ func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32
 	var petitions []model.Petition
 
 	if err != nil {
+		slog.Errorf("Failed to get user voted petitions: ", err)
 		return nil, err
 	}
 

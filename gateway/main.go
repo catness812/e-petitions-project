@@ -6,7 +6,7 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/gookit/slog"
 	"net/http"
 )
 
@@ -22,7 +22,7 @@ func main() {
 
 	err := r.Run(":1337")
 	if err != nil {
-		log.Fatal("Failed to start server: ", err)
+		slog.Fatalf("Failed to start server: %v", err)
 	}
 }
 

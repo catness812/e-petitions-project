@@ -9,10 +9,12 @@ import (
 func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	svc := InitPetitonServiceClient(c)
 	petitionrepo, err := NewPetitionRepository(c, svc)
+	if err != nil {
+		slog.Fatalf("Failed to connect to petition repository: %v", err)
+	}
 	petitionService, err := NewPetitionService(petitionrepo)
 	if err != nil {
-		slog.Fatalf("Failed to connect to petition service grpc: %v", err)
-
+		slog.Fatalf("Failed to connect to petition service: %v", err)
 	}
 
 	petitionController := NewPetitionController(petitionService)

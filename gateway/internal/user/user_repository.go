@@ -38,6 +38,7 @@ func (repo *userRepository) GetByEmail(email string) (model.User, error) {
 		Email: email,
 	})
 	if err != nil {
+		slog.Errorf("Error getting user by email: %v", err)
 		return model.User{}, err
 	}
 	var user model.User
@@ -54,12 +55,12 @@ func (repo *userRepository) GetByID(id uint32) (string, error) {
 		Id: id,
 	})
 	if err != nil {
-		slog.Errorf("Error getting user by id: ", err)
+		slog.Errorf("Error getting user by id: %v", err)
 		return res.Value, err
 	}
 	if res == nil && res.Value == "" {
-		slog.Errorf("Response is empty", err)
-		return res.Value, error(errors.New("Response is empty"))
+		slog.Error("Response is empty")
+		return res.Value, errors.New("Response is empty ")
 	}
 
 	return res.Value, nil
@@ -70,14 +71,16 @@ func (repo *userRepository) Delete(email string) (string, error) {
 		Email: email,
 	})
 	if err != nil {
+		slog.Errorf("Error deleting user: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
-		return res.Value, nil
+	if res == nil && res.Value == "" {
+		slog.Error("DeleteUser response is empty")
+		return res.Value, errors.New("DeleteUser response is empty")
 	}
 
-	return "", errors.New("DeleteUser response is empty")
+	return res.Value, nil
 }
 
 func (repo *userRepository) Create(createUser model.UserCredentials) (string, error) {
@@ -88,14 +91,16 @@ func (repo *userRepository) Create(createUser model.UserCredentials) (string, er
 	})
 
 	if err != nil {
+		slog.Errorf("Error creating user: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
-		return res.Value, nil
+	if res == nil && res.Value == "" {
+		slog.Error("CreateUser response is empty")
+		return res.Value, errors.New("CreateUser response is empty")
 	}
 
-	return "", errors.New("CreateUser response is empty")
+	return res.Value, nil
 
 }
 
@@ -106,14 +111,16 @@ func (repo *userRepository) Update(createUser model.UserCredentials) (string, er
 	})
 
 	if err != nil {
+		slog.Errorf("Error updating user: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
+	if res == nil && res.Value == "" {
+		slog.Errorf("UpdateUser response is empty")
 		return res.Value, nil
 	}
 
-	return "", errors.New("UpdateUser response is empty")
+	return res.Value, nil
 }
 
 func (repo *userRepository) AddAdmin(email string) (string, error) {
@@ -121,12 +128,14 @@ func (repo *userRepository) AddAdmin(email string) (string, error) {
 		Email: email,
 	})
 	if err != nil {
+		slog.Errorf("Error adding admin: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
-		return res.Value, nil
+	if res == nil && res.Value == "" {
+		slog.Errorf("AddAdmin response is empty")
+		return res.Value, errors.New("AddAdmin response is empty")
 	}
 
-	return "", errors.New("AddAdmin response is empty")
+	return res.Value, nil
 }
