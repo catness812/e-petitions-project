@@ -30,11 +30,8 @@ func (svc *userService) GetByID(id uint32) (string, error) {
 }
 
 func (svc *userService) Delete(email string) (string, error) {
-
 	return svc.repo.Delete(email)
-
 }
-
 func (svc *userService) Create(createUser model.UserCredentials) (string, error) {
 	return svc.repo.Create(createUser)
 }

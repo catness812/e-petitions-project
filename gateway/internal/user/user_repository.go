@@ -6,6 +6,7 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
+	"github.com/gookit/slog"
 )
 
 type IUserRepository interface {
@@ -52,8 +53,13 @@ func (repo *userRepository) GetByID(id uint32) (string, error) {
 	res, err := repo.client.GetUserEmailById(context.Background(), &pb.GetUserEmailByIdRequest{
 		Id: id,
 	})
-	if err != nil || res != nil {
+	if err != nil {
+		slog.Errorf("Error getting user by id: ", err)
 		return res.Value, err
+	}
+	if res == nil && res.Value == "" {
+		slog.Errorf("Response is empty", err)
+		return res.Value, nil
 	}
 
 	return res.Value, nil
