@@ -9,7 +9,8 @@ import (
 )
 
 type IUserRepository interface {
-	Get(email string) (model.User, error)
+	GetByEmail(email string) (model.User, error)
+	GetByID(id uint32) (string, error)
 	Delete(email string) (string, error)
 	Create(createUser model.UserCredentials) (string, error)
 	Update(createUser model.UserCredentials) (string, error)
@@ -31,7 +32,7 @@ type userRepository struct {
 	client pb.UserControllerClient
 }
 
-func (repo *userRepository) Get(email string) (model.User, error) {
+func (repo *userRepository) GetByEmail(email string) (model.User, error) {
 	res, err := repo.client.GetUserByEmail(context.Background(), &pb.GetUserByEmailRequest{
 		Email: email,
 	})
@@ -45,6 +46,17 @@ func (repo *userRepository) Get(email string) (model.User, error) {
 	user.Role = res.Role
 
 	return user, nil
+}
+
+func (repo *userRepository) GetByID(id uint32) (string, error) {
+	res, err := repo.client.GetUserEmailById(context.Background(), &pb.GetUserEmailByIdRequest{
+		Id: id,
+	})
+	if err != nil || res != nil {
+		return res.Value, err
+	}
+
+	return res.Value, nil
 }
 
 func (repo *userRepository) Delete(email string) (string, error) {

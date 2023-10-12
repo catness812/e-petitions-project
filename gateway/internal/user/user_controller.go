@@ -3,11 +3,14 @@ package user
 import (
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gin-gonic/gin"
+	"github.com/gookit/slog"
 	"net/http"
+	"strconv"
 )
 
 type IUserController interface {
-	GetUser(ctx *gin.Context)
+	GetUserByEmail(ctx *gin.Context)
+	GetUserByID(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	CreateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
@@ -26,7 +29,7 @@ type userController struct {
 }
 
 // TODO: "error":"Invalid request format"
-func (c *userController) GetUser(ctx *gin.Context) {
+func (c *userController) GetUserByEmail(ctx *gin.Context) {
 	//email := ctx.Param("email")
 	//res, err := c.service.Get(email)
 
@@ -39,13 +42,31 @@ func (c *userController) GetUser(ctx *gin.Context) {
 		return
 	}
 
-	res, err := c.service.Get(request.Email)
+	res, err := c.service.GetByEmail(request.Email)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message:": res})
+	ctx.JSON(http.StatusOK, gin.H{"message": res})
+
+}
+
+func (c *userController) GetUserByID(ctx *gin.Context) {
+	pid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the user id: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Failed to get the user id", "error": err})
+	}
+
+	email, err := c.service.GetByID(uint32(pid))
+
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": email})
 
 }
 

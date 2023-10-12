@@ -26,3 +26,7 @@ message GetUserByEmailResponse {
 message AddAdminRequest{
     string email = 1;
 }
+
+message GetUserEmailByIdRequest{
+    uint32 id = 1;
+}

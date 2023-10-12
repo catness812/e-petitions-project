@@ -3,7 +3,8 @@ package user
 import "github.com/catness812/e-petitions-project/gateway/model"
 
 type IUserService interface {
-	Get(email string) (model.User, error)
+	GetByEmail(email string) (model.User, error)
+	GetByID(id uint32) (string, error)
 	Delete(email string) (string, error)
 	Create(createUser model.UserCredentials) (string, error)
 	Update(createUser model.UserCredentials) (string, error)
@@ -20,8 +21,12 @@ type userService struct {
 	repo IUserRepository
 }
 
-func (svc *userService) Get(email string) (model.User, error) {
-	return svc.repo.Get(email)
+func (svc *userService) GetByEmail(email string) (model.User, error) {
+	return svc.repo.GetByEmail(email)
+}
+
+func (svc *userService) GetByID(id uint32) (string, error) {
+	return svc.repo.GetByID(id)
 }
 
 func (svc *userService) Delete(email string) (string, error) {

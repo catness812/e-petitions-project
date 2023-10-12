@@ -49,7 +49,7 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"petition_id": resp})
 }
 func (c *petitionController) GetPetitionByID(ctx *gin.Context) {
-	pid, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	pid, err := strconv.ParseUint(ctx.Param("pid"), 10, 32)
 	if err != nil {
 		slog.Errorf("Failed to get the id: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Failed to get the id", "error": err})
@@ -107,7 +107,7 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Petition status updated successfully"})
 }
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
-	idParam, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	idParam, err := strconv.ParseUint(ctx.Param("pid"), 10, 32)
 	if err != nil {
 		slog.Errorf("Failed to get the id: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Failed to get the id", "error": err})
