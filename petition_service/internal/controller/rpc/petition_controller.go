@@ -9,7 +9,6 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/gookit/slog"
-	"github.com/robfig/cron/v3"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -18,7 +17,6 @@ import (
 type IPetitionService interface {
 	CreateNew(petition models.Petition) (uint, error)
 	GetAll(pagination util.Pagination) []models.Petition
-	GetAllActive() ([]models.Petition, error)
 	UpdateStatus(id uint, status string) error
 	Delete(id uint) error
 	GetByID(id uint) (models.Petition, error)
@@ -26,6 +24,7 @@ type IPetitionService interface {
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	CheckPetitionExpiration(petition models.Petition) (string, error)
+	ScheduleDailyCheck()
 }
 
 type Server struct {
@@ -252,53 +251,6 @@ func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*
 	return &empty.Empty{}, nil
 }
 
-func ScheduleDailyCheck(s *Server) {
-	c := cron.New()
-	slog.Info("Scheduled Expiration Checker successfully started...")
-
-	petitions, err := s.PetitionService.GetAllActive()
-	if err != nil {
-		slog.Error(err)
-		return
-	}
-
-	if len(petitions) == 0 {
-		slog.Println("No active petitions found for now...")
-	}
-
-	_, err = c.AddFunc("0 0 * * *", func() {
-		resultChan := make(chan struct {
-			ID    uint
-			Error error
-		})
-
-		for _, petition := range petitions {
-			go func(petition models.Petition) {
-				req := &pb.Petition{Id: uint32(petition.ID)}
-				_, err := s.CheckIfPetitionsExpired(context.Background(), req)
-				resultChan <- struct {
-					ID    uint
-					Error error
-				}{
-					ID:    petition.ID,
-					Error: err,
-				}
-			}(petition)
-		}
-
-		for range petitions {
-			result := <-resultChan
-			if result.Error != nil {
-				slog.Printf("Error checking expiration for petition %v: %v", result.ID, result.Error)
-			}
-		}
-	})
-
-	if err != nil {
-		slog.Fatalf("Failed to add cron job: %v", err)
-	}
-
-	c.Start()
-
-	select {}
+func (s *Server) ScheduleDailyCheck() {
+	s.ScheduleDailyCheck()
 }

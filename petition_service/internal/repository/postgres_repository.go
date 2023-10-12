@@ -21,27 +21,14 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
-func (repo *PetitionRepository) GetAllActive(status models.Status) ([]models.Petition, error) {
+func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	var offset int
 
-	for {
-		var batch []models.Petition
-
-		err := repo.db.Preload("Status").Where("status_id = ?", status.ID).Offset(offset).Limit(50).Find(&batch).Error
-
-		if err != nil {
-			return nil, err
-		}
-
-		if len(batch) == 0 {
-			break
-		}
-
-		petitions = append(petitions, batch...)
-		offset += 50
+	err := repo.db.Preload("Status").Scopes(postgres.Paginate(pagination)).
+		Where("status_id = ?", status.ID).Limit(50).Find(&petitions).Error
+	if err != nil {
+		return nil, err
 	}
-
 	return petitions, nil
 }
 

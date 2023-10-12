@@ -6,12 +6,14 @@ import (
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"github.com/gookit/slog"
+	"github.com/robfig/cron/v3"
 )
 
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
-	GetAllActive(status models.Status) ([]models.Petition, error)
+	GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error)
 	UpdateStatus(id uint, statusID uint) error
 	Delete(id uint) error
 	GetStatusByTitle(title string) (models.Status, error)
@@ -117,18 +119,6 @@ func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition 
 	return svc.petitionRepository.GetAll(pagination)
 }
 
-func (svc *PetitonService) GetAllActive() ([]models.Petition, error) {
-	status, err := svc.petitionRepository.GetStatusByTitle("PUBLIC")
-	if err != nil {
-		return nil, err
-	}
-	petitions, err := svc.petitionRepository.GetAllActive(status)
-	if err != nil {
-		return nil, err
-	}
-	return petitions, nil
-}
-
 func (svc *PetitonService) UpdateStatus(id uint, status string) error {
 	// check if status exists first
 	newStatus, err := svc.petitionRepository.GetStatusByTitle(status)
@@ -183,4 +173,77 @@ func (svc *PetitonService) CheckPetitionExpiration(petition models.Petition) (st
 		}
 	}
 	return "", nil
+}
+
+func (svc *PetitonService) ScheduleDailyCheck() {
+	c := cron.New()
+	slog.Info("Scheduled Expiration Checker successfully started...")
+	_, err := c.AddFunc("0 0 * * *", func() {
+		resultChan := make(chan struct {
+			ID    uint
+			Error error
+		})
+		offset := 0
+		limit := 100
+		for {
+			pag := util.Pagination{
+				Page:  int(offset),
+				Limit: int(limit),
+			}
+			petitions, err := svc.GetAllActive(pag)
+			if err != nil {
+				slog.Error(err)
+				return
+			}
+
+			if len(petitions) == 0 {
+				slog.Println("No active petitions found for now...")
+			}
+
+			for _, petition := range petitions {
+				go func(petition models.Petition) {
+					_, err := svc.CheckPetitionExpiration(petition)
+					resultChan <- struct {
+						ID    uint
+						Error error
+					}{
+						ID:    petition.ID,
+						Error: err,
+					}
+				}(petition)
+			}
+
+			for range petitions {
+				result := <-resultChan
+				if result.Error != nil {
+					slog.Printf("Error checking expiration for petition %v: %v", result.ID, result.Error)
+				}
+			}
+
+			if len(petitions) == 0 {
+				break
+			}
+			offset += limit
+		}
+	})
+
+	if err != nil {
+		slog.Fatalf("Failed to add cron job: %v", err)
+	}
+
+	c.Start()
+
+	select {}
+}
+
+func (svc *PetitonService) GetAllActive(pagination util.Pagination) ([]models.Petition, error) {
+	status, err := svc.petitionRepository.GetStatusByTitle("PUBLIC")
+	if err != nil {
+		return nil, err
+	}
+	petitions, err := svc.petitionRepository.GetPetitionsByStatus(status, pagination)
+	if err != nil {
+		return nil, err
+	}
+	return petitions, nil
 }
