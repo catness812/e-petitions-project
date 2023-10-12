@@ -164,5 +164,5 @@ grpcurl -plaintext -d '{"email":"example@email.com", "otp" : "12345"}'\
 ### Command
 In order to build the image necessary for the Docker compose file, run this command:
 ```shell
-docker build -t petitions-security .
+docker build -t e-petitions-security:1.0 .
 ```

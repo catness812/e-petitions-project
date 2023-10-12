@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  petitions-security:
-    container_name: e-petitions-security
-    image: petitions-security
+  security-service:
+    container_name: security-service
+    image: petitions-security:1.0
     networks:
       - e-petitions-network
     depends_on:
