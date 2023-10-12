@@ -19,5 +19,5 @@ EXPOSE 1337
 
 CMD ["./main"]
 
-#docker build -t e-petitions-gateway .
+#docker build -t e-petitions-gateway:1.0 .
 #docker run --name gateway -it e-petitions-gateway

@@ -58,14 +58,9 @@ services:
 
   gateway:
     container_name: gateway
-    image: e-petitions-gateway
+    image: e-petitions-gateway:1.0
     networks:
       - e-petitions-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
 
 volumes:
   postgres-db:
