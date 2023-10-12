@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   mail-service:
-    container_name: e-petitions-mail
-    image: mail-service
+    container_name: mail-service
+    image: e-petitions-mail:1.0
     networks:
       - e-petitions-network
     depends_on:
