@@ -59,7 +59,7 @@ func (repo *userRepository) GetByID(id uint32) (string, error) {
 	}
 	if res == nil && res.Value == "" {
 		slog.Errorf("Response is empty", err)
-		return res.Value, nil
+		return res.Value, error(errors.New("Response is empty"))
 	}
 
 	return res.Value, nil

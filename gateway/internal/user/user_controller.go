@@ -66,7 +66,7 @@ func (c *userController) GetUserByID(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": email})
+	ctx.JSON(http.StatusOK, gin.H{"email": email})
 
 }
 
