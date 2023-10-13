@@ -158,3 +158,162 @@ grpcurl -plaintext -d '{"email":"example@email.com", "otp" : "12345"}'\
   "validated": true
 }
 ```
+## Test Cases
+### Login: Successful
+In order for a login request to return the expected data, the request should include an **_email_** and a **_password_** of a currently registered user. A registered user is considered the one present in the database.
+Suppose we have a user registered with the **_email_** set to _**example@email.com**_ and the **_password_** set to **_examplepass_**. If sent, this request would return a set of tokens: access and refresh:
+
+#### Request Message
+```json
+{
+  "email": "example@email.com",
+  "password" : "examplepass"
+}
+```
+#### Expected Response Message
+```json
+{
+  "accessToken": "access token here",
+  "refreshToken": "refresh token here"
+}
+```
+
+### Login: Failed
+A login request will return an error from the gRPC method with a status _**"NotFound"**_ error and a _**"failed to login user"**_ error.
+
+#### Request Message
+```json
+{
+  "email": "failexample@email.com",
+  "password" : "failexamplepass"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: NotFound
+Message: failed to login user
+```
+
+### Refresh: Successful
+In order for a refresh request to return the expected data, the request should include a correctly generated **_refresh token_** that was returned after a **_successful login_**.
+Suppose the request contains a correctly generated refresh token with a valid signature. If sent, this request would return a new set of tokens: access and refresh:
+
+#### Request Message
+```json
+{
+  "token": "correctly generated with a valid signature refresh token here"
+}
+```
+#### Expected Response Message
+```json
+{
+  "tokens": {
+    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTcxODMwMDksInVzZXJFbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIn0.5aQNUv8_mEXMt3eYoAa_ymUWfTcbiYuVS2wSSFMXJ94",
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTcyMDM3MDksInVzZXJFbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIn0.rQuTpVE5n2Ti81-YMSocZSQZOBU5Zqj6LR5xw8al1x8"
+  }
+}
+```
+
+### Refresh: Failed
+A refresh request will return an error from the gRPC method with a status _**"Unauthenticated"**_ error and a _**"failed to refresh user session"**_ error.
+
+#### Request Message
+```json
+{
+  "token": "incorrectly generated with a invalid signature refresh token here"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: Unauthenticated
+Message: failed to refresh user session
+```
+
+### ValidateToken: Successful
+In order for a validate request to return the expected data, the request should include a correctly generated **_token_** that was returned after a **_successful login_**.
+Suppose the request contains a correctly generated token with a valid signature. If sent, this request would return the token and the subject included in the claims of this token:
+
+#### Request Message
+```json
+{
+  "token": "correctly generated with a valid signature token here"
+}
+```
+#### Expected Response Message
+```json
+{
+  "token": "correctly generated with a valid signature token here",
+  "email": "example@email.com"
+}
+```
+
+### ValidateToken: Failed
+A validate request will return an error from the gRPC method with a status _**"Unauthenticated"**_ error and a _**"failed to validate token"**_ error.
+
+#### Request Message
+```json
+{
+  "token": "incorrectly generated with a invalid signature token here"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: Unauthenticated
+Message: failed to validate token
+```
+
+### SendOTP: Successful
+In order for a send OTP request to return the expected data, the request should include an **_email_**.
+Suppose the request contains an email. If sent, this request would return the sent otp and the recipient.
+
+#### Request Message
+```json
+{
+  "email": "example@email.com"
+}
+```
+#### Expected Response Message
+```json
+{
+  "OTP": "12345",
+  "email": "example@email.com"
+}
+```
+
+### ValidateOTP: Successful
+In order for a send OTP request to return the expected data, the request should include an **_email_**.
+Suppose the request contains an email. If sent, this request would return the otp sent and the recipient.
+
+#### Request Message
+```json
+{
+  "email": "example@email.com",
+  "OTP": "12345"
+}
+```
+#### Expected Response Message
+```json
+{
+  "validated": true
+}
+```
+### ValidateOTP: Failed
+A validate OTP request will return an error from the gRPC method with a status _**"InvalidArgument"**_ error and a _**"failed to validate otp"**_ error, if the otp sent in the request is not present in the Redis Database.
+
+
+#### Request Message
+```json
+{
+  "email": "example@email.com",
+  "OTP": "12345"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: InvalidArgument
+Message: failed to validate otp
+```
