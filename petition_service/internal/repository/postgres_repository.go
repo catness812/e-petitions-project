@@ -142,3 +142,14 @@ func (r *PetitionRepository) UpdateCurrVotes(petition models.Petition) error {
 	}
 	return nil
 }
+
+func (repo *PetitionRepository) GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error) {
+	var petitionInfo []models.PetitionInfo
+
+	err := repo.db.Debug().Scopes(postgres.Paginate(pagination)).Table("petitions").Select("id, user_id, title").Find(&petitionInfo).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return petitionInfo, nil
+}

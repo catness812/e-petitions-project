@@ -74,3 +74,17 @@ message GetUserVotedPetitionsRequest {
 message GetUserVotedPetitionsResponse {
     repeated Petition petitions = 1;
 }
+
+message PetitionSuggestionRequest {
+    string title = 1;
+}
+
+message PetitionInfo {
+    uint32 id = 1;
+    string title = 2;
+    uint32 user_id = 3;
+}
+
+message PetitionSuggestionResponse {
+    repeated PetitionInfo SuggestedPetitions = 1;
+}

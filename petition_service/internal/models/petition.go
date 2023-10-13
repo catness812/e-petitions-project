@@ -19,3 +19,9 @@ type Petition struct {
 	CurrVotes   uint      `gorm:"not null;default:0" json:"curr_votes"`
 	ExpDate     time.Time `gorm:"not null;" json:"exp_date"`
 }
+
+type PetitionInfo struct {
+	Title  string `gorm:"not null;" json:"title"`
+	UserID uint   `gorm:"not null;" json:"user_id"`
+	ID     uint   `gorm:"not null;" json:"id"`
+}
