@@ -21,6 +21,17 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
+func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error) {
+	var petitions []models.Petition
+
+	err := repo.db.Preload("Status").Scopes(postgres.Paginate(pagination)).
+		Where("status_id = ?", status.ID).Limit(50).Find(&petitions).Error
+	if err != nil {
+		return nil, err
+	}
+	return petitions, nil
+}
+
 func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
 	return &PetitionRepository{
 		db: db,
