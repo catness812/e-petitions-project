@@ -9,7 +9,15 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
-  
+
+  user-service:
+    container_name: user-service
+    image: e-petitions-user:1.0
+    networks:
+      - e-petitions-network
+    depends_on:
+      postgres:
+        condition: service_healthy
   postgres:
     container_name: e-petitions-project-db
     image: postgres:16.0
