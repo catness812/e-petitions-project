@@ -209,8 +209,8 @@ Suppose the request contains a correctly generated refresh token with a valid si
 ```json
 {
   "tokens": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTcxODMwMDksInVzZXJFbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIn0.5aQNUv8_mEXMt3eYoAa_ymUWfTcbiYuVS2wSSFMXJ94",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTcyMDM3MDksInVzZXJFbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIn0.rQuTpVE5n2Ti81-YMSocZSQZOBU5Zqj6LR5xw8al1x8"
+    "access_token": "access token here",
+    "refresh_token": "refresh token here"
   }
 }
 ```
