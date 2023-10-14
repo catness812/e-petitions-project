@@ -25,6 +25,7 @@ type userController struct {
 	service IUserService
 }
 
+// TODO: "error":"Invalid request format"
 func (c *userController) GetUser(ctx *gin.Context) {
 	//email := ctx.Param("email")
 	//res, err := c.service.Get(email)
@@ -63,11 +64,11 @@ func (c *userController) DeleteUser(ctx *gin.Context) {
 
 	res, err := c.service.Delete(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"response": res, "error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": res, "error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "User deleted successfully")
+	ctx.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 
 }
 
@@ -80,10 +81,10 @@ func (c *userController) CreateUser(ctx *gin.Context) {
 	}
 	res, err := c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"response": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, "User created successfully")
+	ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
 }
 
 func (c *userController) UpdateUser(ctx *gin.Context) {
@@ -95,10 +96,10 @@ func (c *userController) UpdateUser(ctx *gin.Context) {
 	}
 	res, err := c.service.Update(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"response": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, "User updated successfully")
+	ctx.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
 }
 
 func (c *userController) AddAdmin(ctx *gin.Context) {
@@ -116,9 +117,9 @@ func (c *userController) AddAdmin(ctx *gin.Context) {
 
 	res, err := c.service.AddAdmin(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"response": res, "error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": res, "error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "Admin added successfully")
+	ctx.JSON(http.StatusOK, gin.H{"message": "Admin added successfully"})
 }
