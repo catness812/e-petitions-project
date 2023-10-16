@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
@@ -60,9 +59,7 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.User, error) {
 	user := &models.User{}
 	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
-	if user.Id == 0 {
-		return nil, errors.New("User not found")
-	}
+
 	if err != nil {
 		return nil, err
 	}
