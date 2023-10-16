@@ -4,6 +4,9 @@ services:
   mail-service:
     container_name: mail-service
     image: e-petitions-mail:1.0
+    build:
+      context: ./mail_service
+      dockerfile: Dockerfile
     networks:
       - e-petitions-network
     depends_on:
