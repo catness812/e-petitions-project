@@ -42,6 +42,7 @@ func (ctrl *SecurityController) Login(ctx *gin.Context) {
 		"message":       "User successfully logged in",
 		"access-token":  tokens.AccessToken,
 		"refresh-token": tokens.RefreshToken,
+		"userId":        tokens.UserId,
 	})
 }
 
