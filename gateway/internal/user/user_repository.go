@@ -86,12 +86,14 @@ func (repo *userRepository) Delete(email string) (string, error) {
 func (repo *userRepository) Create(createUser model.UserCredentials) (string, error) {
 
 	res, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
-		Email:    createUser.Email,
-		Password: createUser.Password,
+		Email:      createUser.Email,
+		Password:   createUser.Password,
+		HasAccount: true,
 	})
 
 	if err != nil {
 		slog.Errorf("Error creating user: %v", err)
+
 		return "", err
 	}
 
