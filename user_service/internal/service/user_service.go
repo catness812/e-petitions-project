@@ -40,15 +40,24 @@ func (svc *UserService) Create(user *models.User) error {
 		user.Role = "user"
 		err = validMailAddress(user.Email)
 		if err != nil {
+			slog.Errorf("invalid email: %v\n", err.Error())
 			return errors.New("invalid email")
 		}
 		hashedPassword, err := svc.generatePasswordHash(user.Password)
 		if err != nil {
+			slog.Errorf("can't register: %v\n", err.Error())
 			return errors.New("can't register")
 		}
 		user.Password = hashedPassword
-		return svc.userRepo.Create(user)
+		err = svc.userRepo.Create(user)
+		if err != nil {
+			slog.Errorf("user failed to insert in database: %v\n", err.Error())
+			return err
+		}
+
+		return nil
 	} else if err != nil {
+		slog.Errorf("Error adding user:%v", err.Error())
 		return err
 	}
 	if !existingUser.HasAccount {
@@ -57,17 +66,20 @@ func (svc *UserService) Create(user *models.User) error {
 		existingUser.HasAccount = user.HasAccount
 		hashedPassword, err := svc.generatePasswordHash(existingUser.Password)
 		if err != nil {
+			slog.Errorf("Generating paswword hash: %v\n", err.Error())
 			return errors.New("error generating password hash")
 		}
 		existingUser.Password = hashedPassword
 		slog.Info("hashed pass ", hashedPassword)
 		err = svc.userRepo.UpdateUser(existingUser)
 		if err != nil {
+			slog.Errorf("error updating password: %v\n", err.Error())
 			return errors.New("error updating password")
 		}
+		slog.Info("User added successfully")
 		return nil
 	} else {
-		// if user exists
+		slog.Info("User already Exists")
 		return nil
 	}
 }
@@ -140,6 +152,7 @@ func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
 func validMailAddress(address string) error {
 	_, err := mail.ParseAddress(address)
 	if err != nil {
+		slog.Errorf("invalid email: %v\n", err.Error())
 		return errors.New("invalid email address")
 	}
 	return nil
