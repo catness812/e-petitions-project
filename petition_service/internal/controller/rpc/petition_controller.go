@@ -85,6 +85,7 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 		UserID:      uint(req.UserId),
 		Category:    req.Category,
 		VoteGoal:    uint(req.VoteGoal),
+		ExpDate:     req.ExpDate.AsTime(),
 	}
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)

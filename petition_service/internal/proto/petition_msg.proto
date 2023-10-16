@@ -37,6 +37,7 @@ message CreatePetitionRequest {
     uint32 user_id = 4;
     string category = 5;
     uint32 vote_goal = 8;
+    google.protobuf.Timestamp exp_date = 9;
 }
 
 message PetitionId {
