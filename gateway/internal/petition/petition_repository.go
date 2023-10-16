@@ -6,7 +6,9 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
+	"github.com/golang/protobuf/ptypes"
 	"github.com/gookit/slog"
+	"time"
 )
 
 type IPetitionRepository interface {
@@ -47,10 +49,32 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 	petition.UserID = pbPetition.UserId
 	if pbPetition.Status == nil {
 		slog.Printf("Failed to get status value ", pbPetition.Status)
-
 	} else {
 		petition.Status.ID = pbPetition.Status.Id
 		petition.Status.Status = pbPetition.Status.Title
+	}
+	petition.Vote_Goal = pbPetition.VoteGoal
+	petition.Current_Votes = pbPetition.CurrentVotes
+
+	expDate, err := ptypes.Timestamp(pbPetition.ExpDate)
+	if err != nil {
+		slog.Printf("Failed to convert ExpDate to string: %v", err)
+	} else {
+		petition.Exp_Date = expDate.Format(time.DateTime) // Format as RFC3339 or your desired format
+	}
+
+	updDate, err := ptypes.Timestamp(pbPetition.UpdatedAt)
+	if err != nil {
+		slog.Printf("Failed to convert ExpDate to string: %v", err)
+	} else {
+		petition.UpdatedAt = updDate.Format(time.DateTime) // Format as RFC3339 or your desired format
+	}
+
+	crtDate, err := ptypes.Timestamp(pbPetition.CreatedAt)
+	if err != nil {
+		slog.Printf("Failed to convert ExpDate to string: %v", err)
+	} else {
+		petition.CreatedAt = crtDate.Format(time.DateTime) // Format as RFC3339 or your desired format
 	}
 
 	return petition
