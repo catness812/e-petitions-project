@@ -5,4 +5,4 @@ proto_security_gateway:
 	
 
 mail-docker-build:
-	docker build -t mail-service ./mail_service
+	docker build -t e-petitions-mail:1.0 ./mail_service
