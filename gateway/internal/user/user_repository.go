@@ -88,7 +88,7 @@ func (repo *userRepository) Create(createUser model.UserCredentials) (string, er
 	res, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
 		Email:      createUser.Email,
 		Password:   createUser.Password,
-		HasAccount: true,
+		HasAccount: createUser.HasAccount,
 	})
 
 	if err != nil {
