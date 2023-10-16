@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
@@ -53,8 +54,12 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 			Id:    uint32(petition.Status.ID),
 			Title: petition.Status.Title,
 		},
-		UserId:   uint32(petition.UserID),
-		VoteGoal: uint32(petition.VoteGoal),
+		UserId:       uint32(petition.UserID),
+		VoteGoal:     uint32(petition.VoteGoal),
+		CreatedAt:    timestamppb.New(petition.CreatedAt),
+		UpdatedAt:    timestamppb.New(petition.UpdatedAt),
+		CurrentVotes: uint32(petition.CurrVotes),
+		ExpDate:      timestamppb.New(petition.ExpDate),
 	}, nil
 }
 
@@ -128,12 +133,17 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 			Category:    p.Category,
 			Description: p.Description,
 			Image:       p.Image,
+
 			Status: &pb.Status{
 				Id:    uint32(p.Status.ID),
 				Title: p.Status.Title,
 			},
-			UserId:   uint32(p.UserID),
-			VoteGoal: uint32(p.VoteGoal),
+			UserId:       uint32(p.UserID),
+			VoteGoal:     uint32(p.VoteGoal),
+			CreatedAt:    timestamppb.New(p.CreatedAt),
+			UpdatedAt:    timestamppb.New(p.UpdatedAt),
+			CurrentVotes: uint32(p.CurrVotes),
+			ExpDate:      timestamppb.New(p.ExpDate),
 		}
 	}
 
