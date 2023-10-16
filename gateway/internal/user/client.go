@@ -20,6 +20,7 @@ func InitUserServiceClient(c *config.Config) pb.UserControllerClient {
 
 	if err != nil {
 		slog.Fatalf("Could not connect: %v", err)
+		return nil
 	}
 
 	return pb.NewUserControllerClient(cc)

@@ -16,7 +16,8 @@ func InitPetitonServiceClient(c *config.Config) pb.PetitionServiceClient {
 	cc, err := grpc.Dial(c.PetitionPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
-		slog.Fatalf("Could not connect: %v", err)
+		slog.Fatal("Could not connect to Petition Service")
+		return nil
 	}
 
 	return pb.NewPetitionServiceClient(cc)
