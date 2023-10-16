@@ -153,3 +153,14 @@ func (repo *PetitionRepository) GetPetitionsTitles(pagination util.Pagination) (
 
 	return petitionInfo, nil
 }
+
+func (repo *PetitionRepository) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
+	var petitions []models.PetitionInfo
+	searchTerm = "%" + searchTerm + "%"
+	err := repo.db.Where("lower(title) LIKE lower(?)", searchTerm).Table("petitions").Scopes(postgres.Paginate(pagination)).
+		Select("id, user_id, title").Find(&petitions).Error
+	if err != nil {
+		return nil, err
+	}
+	return petitions, nil
+}

@@ -88,3 +88,9 @@ message PetitionInfo {
 message PetitionSuggestionResponse {
     repeated PetitionInfo SuggestedPetitions = 1;
 }
+
+message SearchPetitionsByTitRequest {
+    string title = 1;
+    uint32 page = 2;
+    uint32 limit = 3;
+}

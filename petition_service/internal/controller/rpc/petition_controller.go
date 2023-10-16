@@ -25,7 +25,7 @@ type IPetitionService interface {
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	CheckPetitionExpiration(petition models.Petition) (string, error)
 	GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error)
-
+	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
 	ScheduleDailyCheck()
 }
 
@@ -276,6 +276,32 @@ func (s *Server) GetAllSimilarPetitions(_ context.Context, req *pb.PetitionSugge
 	}
 	return &pb.PetitionSuggestionResponse{
 		SuggestedPetitions: getAllSimilarPetitionsResponse,
+	}, nil
+
+}
+
+func (s *Server) SearchPetitionsByTitle(_ context.Context, req *pb.SearchPetitionsByTitRequest) (*pb.PetitionSuggestionResponse, error) {
+	pag := util.Pagination{
+		Page:  int(req.Page),
+		Limit: int(req.Limit),
+	}
+	petitions, err := s.PetitionService.SearchPetitionsByTitle(req.Title, pag)
+	if err != nil {
+		return nil, err
+	}
+
+	SearchPetitionsByTitleResponse := make([]*pb.PetitionInfo, len(petitions))
+
+	for i := range SearchPetitionsByTitleResponse {
+		p := petitions[i]
+		SearchPetitionsByTitleResponse[i] = &pb.PetitionInfo{
+			Id:     uint32(p.ID),
+			Title:  p.Title,
+			UserId: uint32(p.UserID),
+		}
+	}
+	return &pb.PetitionSuggestionResponse{
+		SuggestedPetitions: SearchPetitionsByTitleResponse,
 	}, nil
 
 }

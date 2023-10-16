@@ -26,6 +26,7 @@ type IPetitionRepository interface {
 	UpdateCurrVotes(petition models.Petition) error
 	HasUserVoted(userID, petitionID uint) error
 	GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error)
+	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
 }
 
 type IPublisherRepository interface {
@@ -277,6 +278,16 @@ func (svc *PetitonService) GetAllSimilarPetitions(title string) ([]models.Petiti
 		}
 
 		offset += limit
+	}
+	return similarPetitions, nil
+}
+
+func (svc *PetitonService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
+	similarPetitions := make([]models.PetitionInfo, 0)
+	var err error
+	similarPetitions, err = svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
+	if err != nil {
+		return nil, err
 	}
 	return similarPetitions, nil
 }
