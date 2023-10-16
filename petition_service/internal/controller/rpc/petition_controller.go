@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -22,6 +23,8 @@ type IPetitionService interface {
 	CreateVote(vote models.Vote) error
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	CheckPetitionExpiration(petition models.Petition) (string, error)
+	ScheduleDailyCheck()
 }
 
 type Server struct {
@@ -227,4 +230,27 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	return &pb.GetUserVotedPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
+}
+
+func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*empty.Empty, error) {
+	petition, err := s.PetitionService.GetByID(uint(req.Id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Errorf("Petition %v not found", req.Id)
+			return nil, status.Error(codes.NotFound, "petition not found")
+		}
+		return nil, err
+	}
+	slog.Info("Petition %v successfully found", req.Id)
+
+	if _, err := s.PetitionService.CheckPetitionExpiration(petition); err != nil {
+		return nil, err
+	}
+
+	slog.Info("Petition %v expiration date successfully checked", req.Id)
+	return &empty.Empty{}, nil
+}
+
+func (s *Server) ScheduleDailyCheck() {
+	s.ScheduleDailyCheck()
 }

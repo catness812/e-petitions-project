@@ -2,6 +2,7 @@ package security_controller
 
 import (
 	"context"
+	"errors"
 	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	"github.com/catness812/e-petitions-project/security_service/internal/pb"
 	"github.com/gookit/slog"
@@ -39,7 +40,7 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) 
 	token, err := s.securitySvc.Login(&userLogin)
 	if err != nil {
 		slog.Errorf("Failed to login login user: %v", err)
-		return nil, status.Error(codes.NotFound, err.Error())
+		return nil, status.Error(codes.NotFound, errors.New("failed to login user").Error())
 	}
 
 	return &pb.Tokens{
@@ -53,12 +54,12 @@ func (s *SecurityRpcServer) RefreshSession(ctx context.Context, req *pb.RefreshR
 	userEmail, err := jwtoken.IsTokenValid(refToken)
 	if err != nil {
 		slog.Errorf("Failed to validate token: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Unauthenticated, errors.New("failed to refresh user session").Error())
 	}
 	tokenMap, err := s.securitySvc.RefreshUserToken(refToken, userEmail)
 	if err != nil {
 		slog.Errorf("Failed to refresh user session: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Internal, errors.New("failed to refresh user session").Error())
 	}
 	return &pb.RefreshResponse{Tokens: tokenMap}, nil
 }
@@ -67,7 +68,7 @@ func (s *SecurityRpcServer) ValidateToken(ctx context.Context, req *pb.Token) (*
 	email, err := jwtoken.IsTokenValid(req.Token)
 	if err != nil {
 		slog.Errorf("Failed to validate token: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Unauthenticated, errors.New("failed to validate token").Error())
 	}
 	result := &pb.ValidateTokenResponse{Token: req.Token, Email: email}
 	return result, nil
@@ -77,7 +78,7 @@ func (s *SecurityRpcServer) SendOTP(ctx context.Context, req *pb.OTPInfo) (*pb.O
 	otpCode, err := s.securitySvc.SendOTP(req.Email, s.rabbitCh, s.cfg)
 	if err != nil {
 		slog.Errorf("Failed to send otp: %v", err)
-		return nil, err
+		return nil, status.Error(codes.Internal, errors.New("failed to send otp").Error())
 	}
 	return &pb.OTPInfo{OTP: otpCode, Email: req.Email}, nil
 }
@@ -85,7 +86,7 @@ func (s *SecurityRpcServer) SendOTP(ctx context.Context, req *pb.OTPInfo) (*pb.O
 func (s *SecurityRpcServer) ValidateOTP(ctx context.Context, req *pb.OTPInfo) (*pb.IsOTPValidated, error) {
 	if err := s.securitySvc.VerifyOTP(req.Email, req.OTP); err != nil {
 		slog.Errorf("Failed to validate otp: %v", err)
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, errors.New("failed to validate otp").Error())
 	}
 	return &pb.IsOTPValidated{Validated: true}, nil
 }

@@ -35,9 +35,9 @@ func SendNotificationMail(msg string) {
 }
 
 func formatMailMessage(data string, path string) []byte {
-	reg, err := raymond.ParseFile("./mail_service/internal/templates/" + path)
+	reg, err := raymond.ParseFile("./mail_service/templates/" + path)
 	if err != nil {
-		reg, err = raymond.ParseFile("../mail_service/internal/templates/" + path)
+		reg, err = raymond.ParseFile("../mail_service/templates/" + path)
 		if err != nil {
 			slog.Fatalf("failed to parse template: %v", err)
 		}
