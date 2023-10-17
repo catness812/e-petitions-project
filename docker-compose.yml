@@ -66,9 +66,11 @@ services:
       dockerfile: Dockerfile
     networks:
       - e-petitions-network
+    ports:
+      - "1337:1337"
   security-service:
     container_name: security-service
-    image: petitions-security:1.0
+    image: e-petitions-security:1.0
     build:
       context: ./security_service
       dockerfile: Dockerfile

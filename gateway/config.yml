@@ -1,6 +1,6 @@
-petition_port: :50050
-user_port: :50052
-security_port: :9002
+petition_port: petition-service:50050
+user_port: user-service:50052
+security_port: security-service:9002
 http_port: :1337
 
 
