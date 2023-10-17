@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/gookit/slog"
 	"gopkg.in/yaml.v3"
@@ -37,22 +38,17 @@ type UserService struct {
 var Cfg Config
 
 func LoadConfig() {
-	var errOccurred bool
-
-	data, err := os.ReadFile("./petition_service/config.yml")
+	wd, err := os.Getwd()
 	if err != nil {
-		errOccurred = true
+		slog.Fatalf("Failed to get working directory: %v", err)
 	}
-
-	if errOccurred {
-		data, err = os.ReadFile("../petition_service/config.yml")
-		if err == nil {
-			errOccurred = false
+	configPath := filepath.Join(wd, "config.yml")
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		data, err = os.ReadFile("../mail_service/config.yml")
+		if err != nil {
+			slog.Fatalf("Failed to read configuration file: %v", err)
 		}
-	}
-
-	if errOccurred {
-		slog.Error("Failed to read configuration file: %v", err)
 	}
 
 	if err := yaml.Unmarshal(data, &Cfg); err != nil {
