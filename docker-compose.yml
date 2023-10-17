@@ -76,6 +76,14 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+   user-service:
+    container_name: user-service
+    image: e-petitions-user:1.0
+    networks:
+      - e-petitions-network
+    depends_on:
+      postgres:
+        condition: service_healthy
 volumes:
   postgres-db:
     driver: local
