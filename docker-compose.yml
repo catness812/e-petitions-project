@@ -70,9 +70,11 @@ services:
     image: e-petitions-gateway:1.0
     networks:
       - e-petitions-network
+    ports:
+      - "1337:1337"
   security-service:
     container_name: security-service
-    image: petitions-security:1.0
+    image: e-petitions-security:1.0
     networks:
       - e-petitions-network
     depends_on:
@@ -80,7 +82,7 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-   user-service:
+  user-service:
     container_name: user-service
     image: e-petitions-user:1.0
     networks:

@@ -22,5 +22,5 @@ rabbit:
   port: 5672
 
 gateway:
-  host: localhost
+  host: e-petitions-gateway
   port: :1337
