@@ -32,6 +32,7 @@ services:
       - redis-data:/data
     ports:
       - "6379:6379"
+
   mailcatcher:
     image: dockage/mailcatcher:0.9.0
     networks:
@@ -101,6 +102,8 @@ services:
     networks:
       - e-petitions-network
     depends_on:
+      user-service:
+        condition: service_started
       postgres:
         condition: service_healthy
       rabbitmq:
@@ -115,6 +118,8 @@ services:
     networks:
       - e-petitions-network
     depends_on:
+      mailcatcher:
+        condition: service_started
       rabbitmq:
         condition: service_healthy
 
