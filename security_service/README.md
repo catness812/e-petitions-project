@@ -9,6 +9,7 @@ Security is a microservice built for the e-petitions project in order to provide
 - [ValidateToken](#validatetoken)
 - [SendOTP](#sendotp)
 - [ValidateOTP](#validateotp)
+- [Docker Image Creation](#docker-image-creation)
 
 ## Conventions
 Security is developed to use the gRPC protocol and will use messages from predefined proto files (internal/proto folder).
@@ -316,4 +317,10 @@ A validate OTP request will return an error from the gRPC method with a status _
 ERROR:
 Code: InvalidArgument
 Message: failed to validate otp
+```
+## Docker Image Creation
+### Command
+In order to build the image necessary for the Docker compose file, run this command:
+```shell
+docker build -t e-petitions-security:1.0 .
 ```

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -62,6 +63,8 @@ func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
 		return result.Error
 	}
 	petition.StatusID = statusID
+	petition.UpdatedAt = time.Now()
+
 	repo.db.Save(&petition)
 	return nil
 }

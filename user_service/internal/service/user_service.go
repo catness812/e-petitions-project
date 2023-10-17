@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"net/mail"
+	"regexp"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/gookit/slog"
@@ -38,8 +38,8 @@ func (svc *UserService) Create(user *models.User) error {
 		// if user doesn't exists it creates it
 		user.HasAccount = true
 		user.Role = "user"
-		err = validMailAddress(user.Email)
-		if err != nil {
+		valid, err := validMailAddress(user.Email)
+		if err != nil || !valid {
 			slog.Errorf("invalid email: %v\n", err.Error())
 			return errors.New("invalid email")
 		}
@@ -57,7 +57,7 @@ func (svc *UserService) Create(user *models.User) error {
 
 		return nil
 	} else if err != nil {
-		slog.Errorf("Error adding user:%v", err.Error())
+		slog.Info("Error adding user:%v", err.Error())
 		return err
 	}
 	if !existingUser.HasAccount {
@@ -149,11 +149,8 @@ func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
 	return userEmail, nil
 }
 
-func validMailAddress(address string) error {
-	_, err := mail.ParseAddress(address)
-	if err != nil {
-		slog.Errorf("invalid email: %v\n", err.Error())
-		return errors.New("invalid email address")
-	}
-	return nil
+func validMailAddress(address string) (bool, error) {
+	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	valid, err := regexp.MatchString(regex, address)
+	return valid, err
 }

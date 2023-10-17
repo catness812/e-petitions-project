@@ -9,12 +9,12 @@ import (
 
 func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
 	svc, err := InitAuthServiceClient(cfg)
-	securityrepo := NewSecurityRepository(cfg, svc)
-	securitysvc := NewSecurityService(securityrepo)
-
 	if err != nil {
 		slog.Fatalf("Failed to connect to security service grpc: %v", err)
 	}
+	securityrepo := NewSecurityRepository(cfg, svc)
+	securitysvc := NewSecurityService(securityrepo)
+
 	userctrl := NewSecurityController(securitysvc)
 
 	authenticationMiddleware := middleware.NewAuthenticationMiddleware(svc)
