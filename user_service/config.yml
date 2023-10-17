@@ -3,6 +3,6 @@ grpc_port: 50052
 postgres:
   user: admin
   password: pass
-  host: postgres
+  host: "postgres"
   port: 5432
   db_name: e-petitions-project-db

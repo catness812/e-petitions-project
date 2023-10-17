@@ -3,16 +3,16 @@ grpc_port: 50050
 postgres:
   user: admin
   password: pass
-  host: postgres
-  port: 5435
+  host: "postgres"
+  port: 5432
   db_name: e-petitions-project-db
 
 rabbit:
   user: admin
   password: admin
-  host: rabbitmq
+  host: "rabbitmq"
   port: 5672
 
 user_service:
   port: 50052
-  address: e-petitions-user
+  address: "user-service"
