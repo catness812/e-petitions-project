@@ -2,7 +2,7 @@ package service
 
 import (
 	"errors"
-	"net/mail"
+	"regexp"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
 	"github.com/gookit/slog"
@@ -38,17 +38,26 @@ func (svc *UserService) Create(user *models.User) error {
 		// if user doesn't exists it creates it
 		user.HasAccount = true
 		user.Role = "user"
-		err = validMailAddress(user.Email)
-		if err != nil {
+		valid, err := validMailAddress(user.Email)
+		if err != nil || !valid {
+			slog.Errorf("invalid email: %v\n", err.Error())
 			return errors.New("invalid email")
 		}
 		hashedPassword, err := svc.generatePasswordHash(user.Password)
 		if err != nil {
+			slog.Errorf("can't register: %v\n", err.Error())
 			return errors.New("can't register")
 		}
 		user.Password = hashedPassword
-		return svc.userRepo.Create(user)
+		err = svc.userRepo.Create(user)
+		if err != nil {
+			slog.Errorf("user failed to insert in database: %v\n", err.Error())
+			return err
+		}
+
+		return nil
 	} else if err != nil {
+		slog.Info("Error adding user:%v", err.Error())
 		return err
 	}
 	if !existingUser.HasAccount {
@@ -57,17 +66,20 @@ func (svc *UserService) Create(user *models.User) error {
 		existingUser.HasAccount = user.HasAccount
 		hashedPassword, err := svc.generatePasswordHash(existingUser.Password)
 		if err != nil {
+			slog.Errorf("Generating paswword hash: %v\n", err.Error())
 			return errors.New("error generating password hash")
 		}
 		existingUser.Password = hashedPassword
 		slog.Info("hashed pass ", hashedPassword)
 		err = svc.userRepo.UpdateUser(existingUser)
 		if err != nil {
+			slog.Errorf("error updating password: %v\n", err.Error())
 			return errors.New("error updating password")
 		}
+		slog.Info("User added successfully")
 		return nil
 	} else {
-		// if user exists
+		slog.Info("User already Exists")
 		return nil
 	}
 }
@@ -137,10 +149,8 @@ func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
 	return userEmail, nil
 }
 
-func validMailAddress(address string) error {
-	_, err := mail.ParseAddress(address)
-	if err != nil {
-		return errors.New("invalid email address")
-	}
-	return nil
+func validMailAddress(address string) (bool, error) {
+	regex := `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`
+	valid, err := regexp.MatchString(regex, address)
+	return valid, err
 }
