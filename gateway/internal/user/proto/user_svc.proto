@@ -11,5 +11,6 @@ service UserController{
     rpc UpdateUser(UserRequest) returns (google.protobuf.StringValue);
     rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.StringValue);
     rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
+    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (google.protobuf.StringValue);
     rpc AddAdmin(AddAdminRequest) returns (google.protobuf.StringValue);
 }

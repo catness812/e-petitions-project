@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -19,6 +20,17 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	// find paginated petitions
 	repo.db.Scopes(postgres.Paginate(pagination)).Preload("Status").Find(&petitions)
 	return petitions
+}
+
+func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error) {
+	var petitions []models.Petition
+
+	err := repo.db.Preload("Status").Scopes(postgres.Paginate(pagination)).
+		Where("status_id = ?", status.ID).Limit(50).Find(&petitions).Error
+	if err != nil {
+		return nil, err
+	}
+	return petitions, nil
 }
 
 func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
@@ -51,6 +63,8 @@ func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
 		return result.Error
 	}
 	petition.StatusID = statusID
+	petition.UpdatedAt = time.Now()
+
 	repo.db.Save(&petition)
 	return nil
 }
