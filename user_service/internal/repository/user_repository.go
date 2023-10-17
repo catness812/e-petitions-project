@@ -49,7 +49,7 @@ func (repo *UserRepository) Delete(userEmail string) error {
 
 func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, error) {
 	user := &models.User{}
-	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
+	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -58,10 +58,11 @@ func (repo *UserRepository) GetUserByEmail(userEmail string) (*models.User, erro
 
 func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.User, error) {
 	user := &models.User{}
-	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(user).Error
-
-	if err != nil {
+	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(&user).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
+	} else if err == gorm.ErrRecordNotFound || user.Id == 0 {
+		return nil, nil
 	}
 	return user, nil
 }
@@ -70,7 +71,7 @@ func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
 	var userEmail string
 	user := &models.User{}
 
-	err := repo.dbClient.Debug().Where("id = ?", userID).First(user).Error
+	err := repo.dbClient.Debug().Where("id = ?", userID).First(&user).Error
 	if err != nil {
 		return "", err
 	}

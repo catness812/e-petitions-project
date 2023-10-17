@@ -34,13 +34,11 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	if req.Email == "" || req.Password == "" {
 		return nil, errors.New("Email and Password cannot be empty")
 	}
-
 	user := &models.User{
 		Email:      req.Email,
 		Password:   req.Password,
 		HasAccount: req.HasAccount,
 	}
-
 	err := ctrl.userservice.Create(user)
 
 	if err != nil {
