@@ -15,7 +15,7 @@ import (
 )
 
 type ISecurityService interface {
-	Login(user *models.UserCredentialsModel) (map[string]string, error)
+	Login(user *models.UserCredentialsModel) (map[string]string, string, error)
 	RefreshUserToken(token string, email string) (map[string]string, error)
 	SendOTP(mail string, ch *amqp.Channel, cfg *config.Config) (string, error)
 	VerifyOTP(mail string, userOTP string) error
@@ -37,7 +37,7 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) 
 		Password: req.GetPassword(),
 	}
 
-	token, err := s.securitySvc.Login(&userLogin)
+	token, userId, err := s.securitySvc.Login(&userLogin)
 	if err != nil {
 		slog.Errorf("Failed to login login user: %v", err)
 		return nil, status.Error(codes.NotFound, errors.New("failed to login user").Error())
@@ -46,6 +46,7 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) 
 	return &pb.Tokens{
 		AccessToken:  token["access_token"],
 		RefreshToken: token["refresh_token"],
+		UserId:       userId,
 	}, nil
 }
 
