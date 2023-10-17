@@ -14,7 +14,10 @@ message Petition {
     Status status = 6;
     uint32 user_id = 7;
     uint32 vote_goal = 8;
-    google.protobuf.Timestamp exp_date = 9;
+    uint32 current_votes = 9;
+    google.protobuf.Timestamp exp_date = 10;
+    google.protobuf.Timestamp updated_at = 11;
+    google.protobuf.Timestamp created_at = 12;
 }
 
 message Status {
@@ -34,6 +37,7 @@ message CreatePetitionRequest {
     uint32 user_id = 4;
     string category = 5;
     uint32 vote_goal = 8;
+    google.protobuf.Timestamp exp_date = 9;
 }
 
 message PetitionId {

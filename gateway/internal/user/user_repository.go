@@ -6,10 +6,12 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
+	"github.com/gookit/slog"
 )
 
 type IUserRepository interface {
-	Get(email string) (model.User, error)
+	GetByEmail(email string) (model.User, error)
+	GetByID(id uint32) (string, error)
 	Delete(email string) (string, error)
 	Create(createUser model.UserCredentials) (string, error)
 	Update(createUser model.UserCredentials) (string, error)
@@ -31,11 +33,12 @@ type userRepository struct {
 	client pb.UserControllerClient
 }
 
-func (repo *userRepository) Get(email string) (model.User, error) {
+func (repo *userRepository) GetByEmail(email string) (model.User, error) {
 	res, err := repo.client.GetUserByEmail(context.Background(), &pb.GetUserByEmailRequest{
 		Email: email,
 	})
 	if err != nil {
+		slog.Errorf("Error getting user by email: %v", err)
 		return model.User{}, err
 	}
 	var user model.User
@@ -47,37 +50,59 @@ func (repo *userRepository) Get(email string) (model.User, error) {
 	return user, nil
 }
 
+func (repo *userRepository) GetByID(id uint32) (string, error) {
+	res, err := repo.client.GetUserEmailById(context.Background(), &pb.GetUserEmailByIdRequest{
+		Id: id,
+	})
+	if err != nil {
+		slog.Errorf("Error getting user by id: %v", err)
+		return res.Value, err
+	}
+	if res == nil && res.Value == "" {
+		slog.Error("Response is empty")
+		return res.Value, errors.New("Response is empty ")
+	}
+
+	return res.Value, nil
+}
+
 func (repo *userRepository) Delete(email string) (string, error) {
 	res, err := repo.client.DeleteUser(context.Background(), &pb.DeleteUserRequest{
 		Email: email,
 	})
 	if err != nil {
+		slog.Errorf("Error deleting user: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
-		return res.Value, nil
+	if res == nil && res.Value == "" {
+		slog.Error("DeleteUser response is empty")
+		return res.Value, errors.New("DeleteUser response is empty")
 	}
 
-	return "", errors.New("DeleteUser response is empty")
+	return res.Value, nil
 }
 
 func (repo *userRepository) Create(createUser model.UserCredentials) (string, error) {
 
 	res, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
-		Email:    createUser.Email,
-		Password: createUser.Password,
+		Email:      createUser.Email,
+		Password:   createUser.Password,
+		HasAccount: createUser.HasAccount,
 	})
 
 	if err != nil {
+		slog.Errorf("Error creating user: %v", err)
+
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
-		return res.Value, nil
+	if res == nil && res.Value == "" {
+		slog.Error("CreateUser response is empty")
+		return res.Value, errors.New("CreateUser response is empty")
 	}
 
-	return "", errors.New("CreateUser response is empty")
+	return res.Value, nil
 
 }
 
@@ -88,14 +113,16 @@ func (repo *userRepository) Update(createUser model.UserCredentials) (string, er
 	})
 
 	if err != nil {
+		slog.Errorf("Error updating user: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
+	if res == nil && res.Value == "" {
+		slog.Errorf("UpdateUser response is empty")
 		return res.Value, nil
 	}
 
-	return "", errors.New("UpdateUser response is empty")
+	return res.Value, nil
 }
 
 func (repo *userRepository) AddAdmin(email string) (string, error) {
@@ -103,12 +130,14 @@ func (repo *userRepository) AddAdmin(email string) (string, error) {
 		Email: email,
 	})
 	if err != nil {
+		slog.Errorf("Error adding admin: %v", err)
 		return "", err
 	}
 
-	if res != nil && res.Value != "" {
-		return res.Value, nil
+	if res == nil && res.Value == "" {
+		slog.Errorf("AddAdmin response is empty")
+		return res.Value, errors.New("AddAdmin response is empty")
 	}
 
-	return "", errors.New("AddAdmin response is empty")
+	return res.Value, nil
 }

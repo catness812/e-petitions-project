@@ -1,7 +1,6 @@
 package petition
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -37,6 +36,7 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	var petition model.CreatePetition
 	err := ctx.BindJSON(&petition)
 	if err != nil {
+		slog.Errorf("Failed to bind petition: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -47,10 +47,11 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("Petition created successfully")
 	ctx.JSON(http.StatusCreated, gin.H{"petition_id": resp})
 }
 func (c *petitionController) GetPetitionByID(ctx *gin.Context) {
-	pid, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	pid, err := strconv.ParseUint(ctx.Param("pid"), 10, 32)
 	if err != nil {
 		slog.Errorf("Failed to get the id: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Failed to get the id", "error": err})
@@ -64,6 +65,7 @@ func (c *petitionController) GetPetitionByID(ctx *gin.Context) {
 		return
 	}
 
+	slog.Info("Petition retrieved successfully")
 	ctx.JSON(http.StatusOK, petition)
 }
 func (c *petitionController) GetPetitions(ctx *gin.Context) {
@@ -72,12 +74,14 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 
 	page, err := strconv.ParseUint(pageStr, 10, 32)
 	if err != nil {
+		slog.Errorf("Failed to get the page: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'page' parameter"})
 		return
 	}
 
 	limit, err := strconv.ParseUint(limitStr, 10, 32)
 	if err != nil {
+		slog.Errorf("Failed to get the limit: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' parameter"})
 		return
 	}
@@ -88,6 +92,7 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 		return
 	}
 
+	slog.Infof("All petitions retrieved successfully")
 	ctx.JSON(http.StatusOK, petitions)
 
 }
@@ -95,11 +100,10 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 	var status model.Status
 	err := ctx.BindJSON(&status)
 	if err != nil {
+		slog.Errorf("Failed to bind status: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	fmt.Println(status)
 	err = c.service.UpdatePetitionStatus(status.ID, status.Status)
 
 	if err != nil {
@@ -107,10 +111,11 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 		return
 	}
 
+	slog.Infof("Petition status updated successfully")
 	ctx.JSON(http.StatusOK, gin.H{"message": "Petition status updated successfully"})
 }
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
-	idParam, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	idParam, err := strconv.ParseUint(ctx.Param("pid"), 10, 32)
 	if err != nil {
 		slog.Errorf("Failed to get the id: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Failed to get the id", "error": err})
@@ -120,6 +125,12 @@ func (c *petitionController) DeletePetition(ctx *gin.Context) {
 
 	err = c.service.DeletePetition(id)
 
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	slog.Infof("Petition deleted successfully")
 	ctx.JSON(http.StatusOK, gin.H{"message": "Petition deleted successfully"})
 }
 func (c *petitionController) ValidatePetitionID(ctx *gin.Context) {
@@ -140,92 +151,91 @@ func (c *petitionController) ValidatePetitionID(ctx *gin.Context) {
 
 }
 func (c *petitionController) CreateVote(ctx *gin.Context) {
-	var ids struct {
-		UserID     uint32 `json:"user_id"`
-		PetitionID uint32 `json:"petition_id"`
-	}
-
-	if err := ctx.BindJSON(&ids); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the user id: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'uid' parameter", "error": err.Error()})
 		return
 	}
 
-	err := c.service.CreateVote(ids.UserID, ids.PetitionID)
+	pid, err := strconv.ParseUint(ctx.Param("pid"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the petition id: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'pid' parameter", "error": err.Error()})
+		return
+	}
+
+	err = c.service.CreateVote(uint32(uid), uint32(pid))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	slog.Infof("Petition signed successfully")
 	ctx.JSON(http.StatusOK, gin.H{"message": "Vote created successfully"})
 
 }
 func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
-	var uid struct {
-		UserID uint32 `json:"user_id"`
-	}
-	if err := ctx.BindJSON(&uid); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+
+	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the user id: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'uid' parameter", "error": err.Error()})
 		return
 	}
 
-	pageStr := ctx.Param("page")
-	limitStr := ctx.Param("limit")
-
-	page, err := strconv.ParseUint(pageStr, 10, 32)
+	page, err := strconv.ParseUint(ctx.Param("page"), 10, 32)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'page' parameter"})
+		slog.Errorf("Failed to get the page: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'page' parameter", "error": err.Error()})
 		return
 	}
 
-	limit, err := strconv.ParseUint(limitStr, 10, 32)
+	limit, err := strconv.ParseUint(ctx.Param("limit"), 10, 32)
 	if err != nil {
+		slog.Errorf("Failed to get the limit: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' parameter"})
 		return
 	}
 
-	res, err := c.service.GetUserPetitions(uid.UserID, uint32(page), uint32(limit))
+	res, err := c.service.GetUserPetitions(uint32(uid), uint32(page), uint32(limit))
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
+	slog.Infof("User created petitions retrieved successfully")
 	ctx.JSON(http.StatusOK, gin.H{"user_petitions": res})
 
 }
 func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
-	var uid struct {
-		UserID uint32 `json:"user_id"`
+	uid, err := strconv.ParseUint(ctx.Param("uid"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the user id: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'uid' parameter", "error": err.Error()})
+		return
 	}
-	if err := ctx.BindJSON(&uid); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	page, err := strconv.ParseUint(ctx.Param("page"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the page: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'page' parameter", "error": err.Error()})
 		return
 	}
 
-	pageStr := ctx.Param("page")
-	limitStr := ctx.Param("limit")
-
-	// Convert the page and limit strings to uint32
-	page, err := strconv.ParseUint(pageStr, 10, 32)
+	limit, err := strconv.ParseUint(ctx.Param("limit"), 10, 32)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'page' parameter"})
-		return
-	}
-	pag := uint32(page)
-
-	limit, err := strconv.ParseUint(limitStr, 10, 32)
-	if err != nil {
+		slog.Errorf("Failed to get the limit: ", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' parameter"})
 		return
 	}
 
-	lim := uint32(limit)
-
-	res, err := c.service.GetUserVotedPetitions(uid.UserID, pag, lim)
+	res, err := c.service.GetUserVotedPetitions(uint32(uid), uint32(page), uint32(limit))
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 
+	slog.Infof("User voted petitions retrieved successfully")
 	ctx.JSON(http.StatusOK, gin.H{"user_voted_petitions": res})
 
 }
