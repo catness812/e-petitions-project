@@ -1,17 +1,6 @@
 version: '3.8'
 
 services:
-  mail-service:
-    container_name: mail-service
-    image: e-petitions-mail:1.0
-    build:
-      context: ./mail_service
-      dockerfile: Dockerfile
-    networks:
-      - e-petitions-network
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
   postgres:
     container_name: e-petitions-project-db
     image: postgres:16.0
@@ -33,6 +22,7 @@ services:
       timeout: 60s
       retries: 5
       start_period: 60s
+
   redis:
     image: redis:7.0.13
     networks:
@@ -42,6 +32,7 @@ services:
       - redis-data:/data
     ports:
       - "6379:6379"
+
   mailcatcher:
     image: dockage/mailcatcher:0.9.0
     networks:
@@ -50,6 +41,7 @@ services:
     ports:
       - "1080:1080"
       - "1025:1025"
+
   rabbitmq:
     image: rabbitmq:3.13-rc-management
     networks:
@@ -65,14 +57,22 @@ services:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
       timeout: 30s
+  
   gateway:
     container_name: gateway
     image: e-petitions-gateway:1.0
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
     networks:
       - e-petitions-network
+  
   security-service:
     container_name: security-service
     image: petitions-security:1.0
+    build:
+      context: ./security_service
+      dockerfile: Dockerfile
     networks:
       - e-petitions-network
     depends_on:
@@ -80,14 +80,49 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-   user-service:
+  
+  user-service:
     container_name: user-service
     image: e-petitions-user:1.0
+    build:
+      context: ./user_service
+      dockerfile: Dockerfile
     networks:
       - e-petitions-network
     depends_on:
       postgres:
         condition: service_healthy
+
+  petition-service:
+    container_name: petition-service
+    image: e-petitions-petition:1.0
+    build:
+      context: ./petition_service
+      dockerfile: Dockerfile
+    networks:
+      - e-petitions-network
+    depends_on:
+      user-service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  mail-service:
+    container_name: mail-service
+    image: e-petitions-mail:1.0
+    build:
+      context: ./mail_service
+      dockerfile: Dockerfile
+    networks:
+      - e-petitions-network
+    depends_on:
+      mailcatcher:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
 volumes:
   postgres-db:
     driver: local
