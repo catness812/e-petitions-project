@@ -65,7 +65,11 @@ services:
       test: rabbitmq-diagnostics -q ping
       interval: 30s
       timeout: 30s
-      retries: 3
+  gateway:
+    container_name: gateway
+    image: e-petitions-gateway:1.0
+    networks:
+      - e-petitions-network
   security-service:
     container_name: security-service
     image: petitions-security:1.0
