@@ -2,6 +2,3 @@ petition_port: petition-service:50050
 security_port: security-service:50051
 user_port: user-service:50052
 http_port: :1337
-
-
-

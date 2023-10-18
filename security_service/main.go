@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	"github.com/catness812/e-petitions-project/security_service/internal/controller"
 	"github.com/catness812/e-petitions-project/security_service/internal/pb"
@@ -32,7 +33,7 @@ func RunSecurityService() {
 	redisRepo := security_repository.NewRedisRepository(redisDB)
 	sService := security_service.NewSecurityService(userRepo, redisRepo)
 	sRpcServer := security_controller.NewSecurityRpcServer(sService, rabbitCh, cfg)
-	lis, err := net.Listen("tcp", "localhost:9002")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", cfg.GrpcPort))
 	if err != nil {
 		slog.Fatalf("Failed to listen to security service on GRPC port 9002: %v", err)
 	}

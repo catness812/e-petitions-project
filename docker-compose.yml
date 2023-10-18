@@ -81,6 +81,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+    ports:
+      - "50051:50051"
   user-service:
     container_name: user-service
     image: e-petitions-user:1.0
@@ -92,6 +94,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    ports:
+      - "50052:50052"
 
   petition-service:
     container_name: petition-service
@@ -108,6 +112,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+#    ports:
+#      - "50050:50050"
 
   mail-service:
     container_name: mail-service
