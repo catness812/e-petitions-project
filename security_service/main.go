@@ -39,9 +39,9 @@ func RunSecurityService() {
 	grpcServer := grpc.NewServer()
 	pb.RegisterSecurityServiceServer(grpcServer, sRpcServer)
 
-	slog.Println("Listening security on 9002")
+	slog.Infof("Listening security on %v", cfg.GrpcPort)
 	if err := grpcServer.Serve(lis); err != nil {
-		slog.Fatalf("failed to serve security service on 9002: %v", err)
+		slog.Fatalf("failed to serve security service on %v: %v", cfg.GrpcPort, err)
 	}
 }
 
