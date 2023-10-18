@@ -9,6 +9,7 @@ Security is a microservice built for the e-petitions project in order to provide
 - [ValidateToken](#validatetoken)
 - [SendOTP](#sendotp)
 - [ValidateOTP](#validateotp)
+- [Docker Image Creation](#docker-image-creation)
 
 ## Conventions
 Security is developed to use the gRPC protocol and will use messages from predefined proto files (internal/proto folder).
@@ -209,8 +210,8 @@ Suppose the request contains a correctly generated refresh token with a valid si
 ```json
 {
   "tokens": {
-    "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTcxODMwMDksInVzZXJFbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIn0.5aQNUv8_mEXMt3eYoAa_ymUWfTcbiYuVS2wSSFMXJ94",
-    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTcyMDM3MDksInVzZXJFbWFpbCI6ImV4YW1wbGVAZW1haWwuY29tIn0.rQuTpVE5n2Ti81-YMSocZSQZOBU5Zqj6LR5xw8al1x8"
+    "access_token": "access token here",
+    "refresh_token": "refresh token here"
   }
 }
 ```
@@ -316,4 +317,10 @@ A validate OTP request will return an error from the gRPC method with a status _
 ERROR:
 Code: InvalidArgument
 Message: failed to validate otp
+```
+## Docker Image Creation
+### Command
+In order to build the image necessary for the Docker compose file, run this command:
+```shell
+docker build -t e-petitions-security:1.0 .
 ```

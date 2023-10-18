@@ -3,6 +3,8 @@ module github.com/catness812/e-petitions-project/petition_service
 go 1.21.0
 
 require (
+	github.com/gookit/slog v0.5.4
+	github.com/streadway/amqp v1.1.0
 	google.golang.org/grpc v1.58.1
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -29,7 +31,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect

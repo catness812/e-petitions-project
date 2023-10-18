@@ -25,6 +25,7 @@ resources:
     description: Manage users
 
 # Define permissions
+#Resource: petition
 permissions:
   - role: admin
     resource: petition
@@ -47,6 +48,8 @@ permissions:
       write: false
       delete: false
 
+#Resource: user
+
   - role: admin
     resource: user
     allow:
@@ -59,4 +62,11 @@ permissions:
     allow:
       read: false
       write: false
+      delete: false
+
+  - role: anon
+    resource: user
+    allow:
+      read: true
+      write: true
       delete: false

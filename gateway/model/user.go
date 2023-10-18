@@ -7,11 +7,13 @@ type User struct {
 }
 
 type UserCredentials struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8,max=50"`
+	Email      string `json:"email" binding:"required,email"`
+	Password   string `json:"password" binding:"required,min=8,max=50"`
+	HasAccount bool   `json:"hasAccount"`
 }
 
 type Tokens struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
+	UserId       string `json:"user_id"`
 }

@@ -18,6 +18,7 @@ message UserCredentials {
 message Tokens {
   string access_token = 1;
   string refresh_token = 2;
+  string userId = 3;
 }
 
 message RefreshRequest {

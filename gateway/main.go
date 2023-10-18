@@ -6,23 +6,23 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/gookit/slog"
 	"net/http"
 )
 
 func main() {
-	config.LoadConfig()
+	cfg := config.LoadConfig()
 	rbacCfg := config.LoadConfigRBAC()
 
 	r := gin.Default()
 	r.Use(corsMiddleware())
-	user.RegisterUserRoutes(r, &config.Cfg, rbacCfg)
-	petition.RegisterPetitionRoutes(r, &config.Cfg)
-	security.RegisterSecurityRoutes(r, &config.Cfg)
+	user.RegisterUserRoutes(r, cfg, rbacCfg)
+	petition.RegisterPetitionRoutes(r, cfg)
+	security.RegisterSecurityRoutes(r, cfg)
 
 	err := r.Run(":1337")
 	if err != nil {
-		log.Fatal("Failed to start server: ", err)
+		slog.Fatalf("Failed to start server: %v", err)
 	}
 }
 
