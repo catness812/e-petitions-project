@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserControllerClient interface {
 	CreateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	CreateUserOTP(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	UpdateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 	GetUserByEmail(ctx context.Context, in *GetUserByEmailRequest, opts ...grpc.CallOption) (*GetUserByEmailResponse, error)
@@ -42,6 +43,15 @@ func NewUserControllerClient(cc grpc.ClientConnInterface) UserControllerClient {
 func (c *userControllerClient) CreateUser(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
 	out := new(wrapperspb.StringValue)
 	err := c.cc.Invoke(ctx, "/rpctransport.UserController/CreateUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userControllerClient) CreateUserOTP(ctx context.Context, in *UserRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
+	out := new(wrapperspb.StringValue)
+	err := c.cc.Invoke(ctx, "/rpctransport.UserController/CreateUserOTP", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,6 +108,7 @@ func (c *userControllerClient) AddAdmin(ctx context.Context, in *AddAdminRequest
 // for forward compatibility
 type UserControllerServer interface {
 	CreateUser(context.Context, *UserRequest) (*wrapperspb.StringValue, error)
+	CreateUserOTP(context.Context, *UserRequest) (*wrapperspb.StringValue, error)
 	UpdateUser(context.Context, *UserRequest) (*wrapperspb.StringValue, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*wrapperspb.StringValue, error)
 	GetUserByEmail(context.Context, *GetUserByEmailRequest) (*GetUserByEmailResponse, error)
@@ -112,6 +123,9 @@ type UnimplementedUserControllerServer struct {
 
 func (UnimplementedUserControllerServer) CreateUser(context.Context, *UserRequest) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
+}
+func (UnimplementedUserControllerServer) CreateUserOTP(context.Context, *UserRequest) (*wrapperspb.StringValue, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateUserOTP not implemented")
 }
 func (UnimplementedUserControllerServer) UpdateUser(context.Context, *UserRequest) (*wrapperspb.StringValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
@@ -155,6 +169,24 @@ func _UserController_CreateUser_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserControllerServer).CreateUser(ctx, req.(*UserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserController_CreateUserOTP_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserControllerServer).CreateUserOTP(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/rpctransport.UserController/CreateUserOTP",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserControllerServer).CreateUserOTP(ctx, req.(*UserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -259,6 +291,10 @@ var UserController_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateUser",
 			Handler:    _UserController_CreateUser_Handler,
+		},
+		{
+			MethodName: "CreateUserOTP",
+			Handler:    _UserController_CreateUserOTP_Handler,
 		},
 		{
 			MethodName: "UpdateUser",
