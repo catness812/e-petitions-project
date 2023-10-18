@@ -14,6 +14,7 @@ type IUserRepository interface {
 	GetByID(id uint32) (string, error)
 	Delete(email string) (string, error)
 	Create(createUser model.UserCredentials) (string, error)
+	OTPCreate(createUser model.UserCredentials) (string, error)
 	Update(createUser model.UserCredentials) (string, error)
 	AddAdmin(email string) (string, error)
 }
@@ -86,9 +87,8 @@ func (repo *userRepository) Delete(email string) (string, error) {
 func (repo *userRepository) Create(createUser model.UserCredentials) (string, error) {
 
 	res, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
-		Email:      createUser.Email,
-		Password:   createUser.Password,
-		HasAccount: createUser.HasAccount,
+		Email:    createUser.Email,
+		Password: createUser.Password,
 	})
 
 	if err != nil {
@@ -100,6 +100,28 @@ func (repo *userRepository) Create(createUser model.UserCredentials) (string, er
 	if res == nil && res.Value == "" {
 		slog.Error("CreateUser response is empty")
 		return res.Value, errors.New("CreateUser response is empty")
+	}
+
+	return res.Value, nil
+
+}
+
+func (repo *userRepository) OTPCreate(createUser model.UserCredentials) (string, error) {
+
+	res, err := repo.client.CreateUserOTP(context.Background(), &pb.UserRequest{
+		Email:    createUser.Email,
+		Password: createUser.Password,
+	})
+
+	if err != nil {
+		slog.Errorf("Error creating OTP user: %v", err)
+
+		return "", err
+	}
+
+	if res == nil && res.Value == "" {
+		slog.Error("CreateUserOTP response is empty")
+		return res.Value, errors.New("CreateUserOTP response is empty")
 	}
 
 	return res.Value, nil
