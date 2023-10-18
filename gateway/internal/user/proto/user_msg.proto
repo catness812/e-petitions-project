@@ -6,6 +6,7 @@ option go_package = "/pb";
 message UserRequest{
     string email = 1;
     string password = 2;
+    bool   HasAccount = 3;
 }
 
 message DeleteUserRequest {

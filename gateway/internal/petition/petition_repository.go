@@ -2,13 +2,12 @@ package petition
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/gookit/slog"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 )
 
@@ -22,8 +21,6 @@ type IPetitionRepository interface {
 	CreateVote(userID uint32, petitionID uint32) error
 	GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
 	GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
-	GetAllSimilarPetitions(title string) ([]model.Petition, error)
-	SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error)
 }
 
 func NewPetitionRepository(c *config.Config, client pb.PetitionServiceClient) (IPetitionRepository, error) {
@@ -44,46 +41,26 @@ type petitionRepository struct {
 func mapPetition(pbPetition *pb.Petition) model.Petition {
 	var petition model.Petition
 
-	if pbPetition.Id == 0 {
-		slog.Printf("Failed to get status value ", pbPetition.UserId)
-	} else {
-		petition.PetitionId = pbPetition.Id
-	}
-	if pbPetition.Title == "" {
-		slog.Printf("Failed to get status value ", pbPetition.Title)
-	} else {
-		petition.Title = pbPetition.Title
-	}
-	if pbPetition.Category == "" {
-		slog.Printf("Failed to get status value ", pbPetition.Category)
-	} else {
-		petition.Category = pbPetition.Category
-	}
-	if pbPetition.Description == "" {
-		slog.Printf("Failed to get status value ", pbPetition.Description)
-	} else {
-		petition.Description = pbPetition.Description
-	}
+	petition.PetitionId = pbPetition.Id
+	petition.Title = pbPetition.Title
+	petition.Category = pbPetition.Category
+	petition.Description = pbPetition.Description
 	petition.Image = pbPetition.Image
-	if pbPetition.UserId == 0 {
-		slog.Printf("Failed to get status value ", pbPetition.UserId)
-	} else {
-		petition.UserID = pbPetition.UserId
-	}
+	petition.UserID = pbPetition.UserId
 	if pbPetition.Status == nil {
 		slog.Printf("Failed to get status value ", pbPetition.Status)
 	} else {
 		petition.Status.ID = pbPetition.Status.Id
 		petition.Status.Status = pbPetition.Status.Title
 	}
-	petition.VoteGoal = pbPetition.VoteGoal
-	petition.CurrentVotes = pbPetition.CurrentVotes
+	petition.Vote_Goal = pbPetition.VoteGoal
+	petition.Current_Votes = pbPetition.CurrentVotes
 
 	expDate, err := ptypes.Timestamp(pbPetition.ExpDate)
 	if err != nil {
 		slog.Printf("Failed to convert ExpDate to string: %v", err)
 	} else {
-		petition.ExpDate = expDate.Format(time.DateTime) // Format as RFC3339 or your desired format
+		petition.Exp_Date = expDate.Format(time.DateTime) // Format as RFC3339 or your desired format
 	}
 
 	updDate, err := ptypes.Timestamp(pbPetition.UpdatedAt)
@@ -103,38 +80,7 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 	return petition
 }
 
-func mapPetitionSuggestion(pbPetition *pb.PetitionInfo) model.Petition {
-	var petition model.Petition
-	if pbPetition.Id == 0 {
-		slog.Printf("Failed to get status value ", pbPetition.Id)
-	} else {
-		petition.PetitionId = pbPetition.Id
-	}
-	if pbPetition.Title == "" {
-		slog.Printf("Failed to get status value ", pbPetition.Title)
-	} else {
-		petition.Title = pbPetition.Title
-	}
-	if pbPetition.UserId == 0 {
-		slog.Printf("Failed to get status value ", pbPetition.UserId)
-	} else {
-		petition.UserID = pbPetition.UserId
-	}
-
-	return petition
-}
-
 func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (uint32, error) {
-	expDate, err := time.Parse(time.RFC3339, petition.ExpDate)
-	if err != nil {
-		slog.Errorf("Failed to parse expDate: %v", err)
-		return 0, err
-	}
-	expDateTimestamp := timestamppb.New(expDate)
-	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
-		slog.Errorf("Failed to convert time to Timestamp")
-		return 0, errors.New("Failed to convert time to Timestamp ")
-	}
 	resp, err := repo.client.CreatePetition(context.Background(), &pb.CreatePetitionRequest{
 		Title:       petition.Title,
 		Description: petition.Description,
@@ -142,7 +88,6 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 		UserId:      petition.UserID,
 		Category:    petition.Category,
 		VoteGoal:    petition.VoteGoal,
-		ExpDate:     expDateTimestamp,
 	})
 
 	if err != nil {
@@ -260,6 +205,7 @@ func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, lim
 }
 
 func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+	fmt.Println(userID, page, limit)
 	resp, err := repo.client.GetUserVotedPetitions(context.Background(), &pb.GetUserVotedPetitionsRequest{
 		UserId: userID,
 		Page:   page,
@@ -278,42 +224,4 @@ func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32
 	}
 
 	return petitions, nil
-}
-
-func (repo *petitionRepository) GetAllSimilarPetitions(title string) ([]model.Petition, error) {
-	resp, err := repo.client.GetAllSimilarPetitions(context.Background(), &pb.PetitionSuggestionRequest{
-		Title: title,
-	})
-	var petitions []model.Petition
-	if err != nil {
-		slog.Errorf("Failed to get all similar petitions: ", err)
-		return nil, err
-	}
-	for _, grpcPetition := range resp.SuggestedPetitions {
-		petition := mapPetitionSuggestion(grpcPetition)
-		petitions = append(petitions, petition)
-	}
-
-	return petitions, nil
-}
-
-func (repo *petitionRepository) SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error) {
-
-	resp, err := repo.client.SearchPetitionsByTitle(context.Background(), &pb.SearchPetitionsByTitRequest{
-		Title: title,
-		Page:  page,
-		Limit: limit,
-	})
-	var petitions []model.Petition
-	if err != nil {
-		slog.Errorf("Failed to get all similar petitions: ", err)
-		return nil, err
-	}
-	for _, grpcPetition := range resp.SuggestedPetitions {
-		petition := mapPetitionSuggestion(grpcPetition)
-		petitions = append(petitions, petition)
-	}
-
-	return petitions, nil
-
 }

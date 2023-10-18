@@ -12,8 +12,6 @@ type IPetitionService interface {
 	CreateVote(userID uint32, petitionID uint32) error
 	GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
 	GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
-	GetAllSimilarPetitions(title string) ([]model.Petition, error)
-	SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error)
 }
 
 func NewPetitionService(repo IPetitionRepository) (IPetitionService, error) {
@@ -60,12 +58,4 @@ func (svc *petitionService) GetUserPetitions(userID uint32, page uint32, limit u
 
 func (svc *petitionService) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
 	return svc.repo.GetUserVotedPetitions(userID, page, limit)
-}
-
-func (svc *petitionService) GetAllSimilarPetitions(title string) ([]model.Petition, error) {
-	return svc.repo.GetAllSimilarPetitions(title)
-}
-
-func (svc *petitionService) SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error) {
-	return svc.repo.SearchPetitionsByTitle(title, page, limit)
 }

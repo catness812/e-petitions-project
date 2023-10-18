@@ -785,226 +785,6 @@ func (x *GetUserVotedPetitionsResponse) GetPetitions() []*Petition {
 	return nil
 }
 
-type PetitionSuggestionRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-}
-
-func (x *PetitionSuggestionRequest) Reset() {
-	*x = PetitionSuggestionRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_petition_msg_proto_msgTypes[12]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PetitionSuggestionRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PetitionSuggestionRequest) ProtoMessage() {}
-
-func (x *PetitionSuggestionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_petition_msg_proto_msgTypes[12]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PetitionSuggestionRequest.ProtoReflect.Descriptor instead.
-func (*PetitionSuggestionRequest) Descriptor() ([]byte, []int) {
-	return file_petition_msg_proto_rawDescGZIP(), []int{12}
-}
-
-func (x *PetitionSuggestionRequest) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-type PetitionInfo struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Id     uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Title  string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
-	UserId uint32 `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-}
-
-func (x *PetitionInfo) Reset() {
-	*x = PetitionInfo{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_petition_msg_proto_msgTypes[13]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PetitionInfo) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PetitionInfo) ProtoMessage() {}
-
-func (x *PetitionInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_petition_msg_proto_msgTypes[13]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PetitionInfo.ProtoReflect.Descriptor instead.
-func (*PetitionInfo) Descriptor() ([]byte, []int) {
-	return file_petition_msg_proto_rawDescGZIP(), []int{13}
-}
-
-func (x *PetitionInfo) GetId() uint32 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-func (x *PetitionInfo) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *PetitionInfo) GetUserId() uint32 {
-	if x != nil {
-		return x.UserId
-	}
-	return 0
-}
-
-type PetitionSuggestionResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	SuggestedPetitions []*PetitionInfo `protobuf:"bytes,1,rep,name=SuggestedPetitions,proto3" json:"SuggestedPetitions,omitempty"`
-}
-
-func (x *PetitionSuggestionResponse) Reset() {
-	*x = PetitionSuggestionResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_petition_msg_proto_msgTypes[14]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *PetitionSuggestionResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*PetitionSuggestionResponse) ProtoMessage() {}
-
-func (x *PetitionSuggestionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_petition_msg_proto_msgTypes[14]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use PetitionSuggestionResponse.ProtoReflect.Descriptor instead.
-func (*PetitionSuggestionResponse) Descriptor() ([]byte, []int) {
-	return file_petition_msg_proto_rawDescGZIP(), []int{14}
-}
-
-func (x *PetitionSuggestionResponse) GetSuggestedPetitions() []*PetitionInfo {
-	if x != nil {
-		return x.SuggestedPetitions
-	}
-	return nil
-}
-
-type SearchPetitionsByTitRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Page  uint32 `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
-	Limit uint32 `protobuf:"varint,3,opt,name=limit,proto3" json:"limit,omitempty"`
-}
-
-func (x *SearchPetitionsByTitRequest) Reset() {
-	*x = SearchPetitionsByTitRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_petition_msg_proto_msgTypes[15]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *SearchPetitionsByTitRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SearchPetitionsByTitRequest) ProtoMessage() {}
-
-func (x *SearchPetitionsByTitRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_petition_msg_proto_msgTypes[15]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SearchPetitionsByTitRequest.ProtoReflect.Descriptor instead.
-func (*SearchPetitionsByTitRequest) Descriptor() ([]byte, []int) {
-	return file_petition_msg_proto_rawDescGZIP(), []int{15}
-}
-
-func (x *SearchPetitionsByTitRequest) GetTitle() string {
-	if x != nil {
-		return x.Title
-	}
-	return ""
-}
-
-func (x *SearchPetitionsByTitRequest) GetPage() uint32 {
-	if x != nil {
-		return x.Page
-	}
-	return 0
-}
-
-func (x *SearchPetitionsByTitRequest) GetLimit() uint32 {
-	if x != nil {
-		return x.Limit
-	}
-	return 0
-}
-
 var File_petition_msg_proto protoreflect.FileDescriptor
 
 var file_petition_msg_proto_rawDesc = []byte{
@@ -1098,28 +878,8 @@ var file_petition_msg_proto_rawDesc = []byte{
 	0x69, 0x6f, 0x6e, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2d, 0x0a, 0x09,
 	0x70, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
 	0x0f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e,
-	0x52, 0x09, 0x70, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x22, 0x31, 0x0a, 0x19, 0x50,
-	0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x69, 0x6f,
-	0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c,
-	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x22, 0x4d,
-	0x0a, 0x0c, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x6e, 0x66, 0x6f, 0x12, 0x0e,
-	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x02, 0x69, 0x64, 0x12, 0x14,
-	0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74,
-	0x69, 0x74, 0x6c, 0x65, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18,
-	0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22, 0x61, 0x0a,
-	0x1a, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x75, 0x67, 0x67, 0x65, 0x73, 0x74,
-	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x43, 0x0a, 0x12, 0x53,
-	0x75, 0x67, 0x67, 0x65, 0x73, 0x74, 0x65, 0x64, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e,
-	0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e,
-	0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x6e, 0x66, 0x6f, 0x52, 0x12, 0x53, 0x75,
-	0x67, 0x67, 0x65, 0x73, 0x74, 0x65, 0x64, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73,
-	0x22, 0x5d, 0x0a, 0x1b, 0x53, 0x65, 0x61, 0x72, 0x63, 0x68, 0x50, 0x65, 0x74, 0x69, 0x74, 0x69,
-	0x6f, 0x6e, 0x73, 0x42, 0x79, 0x54, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
-	0x14, 0x0a, 0x05, 0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05,
-	0x74, 0x69, 0x74, 0x6c, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x61, 0x67, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x0d, 0x52, 0x04, 0x70, 0x61, 0x67, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x6c, 0x69, 0x6d,
-	0x69, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x05, 0x6c, 0x69, 0x6d, 0x69, 0x74, 0x42,
-	0x06, 0x5a, 0x04, 0x2e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x09, 0x70, 0x65, 0x74, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x42, 0x06, 0x5a, 0x04, 0x2e,
+	0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1134,7 +894,7 @@ func file_petition_msg_proto_rawDescGZIP() []byte {
 	return file_petition_msg_proto_rawDescData
 }
 
-var file_petition_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_petition_msg_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_petition_msg_proto_goTypes = []interface{}{
 	(*Petition)(nil),                      // 0: proto.Petition
 	(*Status)(nil),                        // 1: proto.Status
@@ -1148,27 +908,22 @@ var file_petition_msg_proto_goTypes = []interface{}{
 	(*GetUserPetitionsResponse)(nil),      // 9: proto.GetUserPetitionsResponse
 	(*GetUserVotedPetitionsRequest)(nil),  // 10: proto.GetUserVotedPetitionsRequest
 	(*GetUserVotedPetitionsResponse)(nil), // 11: proto.GetUserVotedPetitionsResponse
-	(*PetitionSuggestionRequest)(nil),     // 12: proto.PetitionSuggestionRequest
-	(*PetitionInfo)(nil),                  // 13: proto.PetitionInfo
-	(*PetitionSuggestionResponse)(nil),    // 14: proto.PetitionSuggestionResponse
-	(*SearchPetitionsByTitRequest)(nil),   // 15: proto.SearchPetitionsByTitRequest
-	(*timestamppb.Timestamp)(nil),         // 16: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil),         // 12: google.protobuf.Timestamp
 }
 var file_petition_msg_proto_depIdxs = []int32{
 	1,  // 0: proto.Petition.status:type_name -> proto.Status
-	16, // 1: proto.Petition.exp_date:type_name -> google.protobuf.Timestamp
-	16, // 2: proto.Petition.updated_at:type_name -> google.protobuf.Timestamp
-	16, // 3: proto.Petition.created_at:type_name -> google.protobuf.Timestamp
-	16, // 4: proto.CreatePetitionRequest.exp_date:type_name -> google.protobuf.Timestamp
+	12, // 1: proto.Petition.exp_date:type_name -> google.protobuf.Timestamp
+	12, // 2: proto.Petition.updated_at:type_name -> google.protobuf.Timestamp
+	12, // 3: proto.Petition.created_at:type_name -> google.protobuf.Timestamp
+	12, // 4: proto.CreatePetitionRequest.exp_date:type_name -> google.protobuf.Timestamp
 	0,  // 5: proto.GetPetitionsResponse.petitions:type_name -> proto.Petition
 	0,  // 6: proto.GetUserPetitionsResponse.petitions:type_name -> proto.Petition
 	0,  // 7: proto.GetUserVotedPetitionsResponse.petitions:type_name -> proto.Petition
-	13, // 8: proto.PetitionSuggestionResponse.SuggestedPetitions:type_name -> proto.PetitionInfo
-	9,  // [9:9] is the sub-list for method output_type
-	9,  // [9:9] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_petition_msg_proto_init() }
@@ -1321,54 +1076,6 @@ func file_petition_msg_proto_init() {
 				return nil
 			}
 		}
-		file_petition_msg_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PetitionSuggestionRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_petition_msg_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PetitionInfo); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_petition_msg_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*PetitionSuggestionResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_petition_msg_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*SearchPetitionsByTitRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1376,7 +1083,7 @@ func file_petition_msg_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_petition_msg_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
