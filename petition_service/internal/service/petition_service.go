@@ -6,6 +6,7 @@ import (
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+
 	"github.com/gookit/slog"
 	"github.com/robfig/cron/v3"
 )
@@ -24,6 +25,8 @@ type IPetitionRepository interface {
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	UpdateCurrVotes(petition models.Petition) error
 	HasUserVoted(userID, petitionID uint) error
+	GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error)
+	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
 }
 
 type IPublisherRepository interface {
@@ -246,4 +249,45 @@ func (svc *PetitonService) GetAllActive(pagination util.Pagination) ([]models.Pe
 		return nil, err
 	}
 	return petitions, nil
+}
+
+func (svc *PetitonService) GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error) {
+	offset := 0
+	limit := 100
+	similarPetitions := make([]models.PetitionInfo, 0)
+	for {
+		pag := util.Pagination{
+			Page:  int(offset),
+			Limit: int(limit),
+		}
+
+		petitions, err := svc.petitionRepository.GetPetitionsTitles(pag)
+		if err != nil {
+			return nil, err
+		}
+		if len(petitions) == 0 {
+			break
+		}
+		processedTitle := util.PreprocessText(title)
+		for _, petition := range petitions {
+			similarity := util.CalculateTitleSimilarity(processedTitle, petition.Title)
+			if similarity >= 0.5 {
+				similarPetitions = append(similarPetitions, petition)
+
+			}
+		}
+
+		offset += limit
+	}
+	return similarPetitions, nil
+}
+
+func (svc *PetitonService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
+	similarPetitions := make([]models.PetitionInfo, 0)
+	var err error
+	similarPetitions, err = svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
+	if err != nil {
+		return nil, err
+	}
+	return similarPetitions, nil
 }

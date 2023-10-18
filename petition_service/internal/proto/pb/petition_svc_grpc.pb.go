@@ -8,10 +8,10 @@ package pb
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -26,11 +26,11 @@ type PetitionServiceClient interface {
 	GetPetitionById(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*Petition, error)
 	CreatePetition(ctx context.Context, in *CreatePetitionRequest, opts ...grpc.CallOption) (*PetitionId, error)
 	GetPetitions(ctx context.Context, in *GetPetitionsRequest, opts ...grpc.CallOption) (*GetPetitionsResponse, error)
-	UpdatePetitionStatus(ctx context.Context, in *UpdatePetitionStatusRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	DeletePetition(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*empty.Empty, error)
+	UpdatePetitionStatus(ctx context.Context, in *UpdatePetitionStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeletePetition(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// returns empty if is valid, error if not valid
-	ValidatePetitionId(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*empty.Empty, error)
-	CreateVote(ctx context.Context, in *CreateVoteRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	ValidatePetitionId(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CreateVote(ctx context.Context, in *CreateVoteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetUserPetitions(ctx context.Context, in *GetUserPetitionsRequest, opts ...grpc.CallOption) (*GetUserPetitionsResponse, error)
 	GetUserVotedPetitions(ctx context.Context, in *GetUserVotedPetitionsRequest, opts ...grpc.CallOption) (*GetUserVotedPetitionsResponse, error)
 	CheckIfPetitionsExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -73,10 +73,8 @@ func (c *petitionServiceClient) GetPetitions(ctx context.Context, in *GetPetitio
 	return out, nil
 }
 
-
 func (c *petitionServiceClient) UpdatePetitionStatus(ctx context.Context, in *UpdatePetitionStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-
 	err := c.cc.Invoke(ctx, "/proto.PetitionService/UpdatePetitionStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -86,7 +84,6 @@ func (c *petitionServiceClient) UpdatePetitionStatus(ctx context.Context, in *Up
 
 func (c *petitionServiceClient) DeletePetition(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-
 	err := c.cc.Invoke(ctx, "/proto.PetitionService/DeletePetition", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -96,7 +93,6 @@ func (c *petitionServiceClient) DeletePetition(ctx context.Context, in *Petition
 
 func (c *petitionServiceClient) ValidatePetitionId(ctx context.Context, in *PetitionId, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-
 	err := c.cc.Invoke(ctx, "/proto.PetitionService/ValidatePetitionId", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -106,7 +102,6 @@ func (c *petitionServiceClient) ValidatePetitionId(ctx context.Context, in *Peti
 
 func (c *petitionServiceClient) CreateVote(ctx context.Context, in *CreateVoteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-
 	err := c.cc.Invoke(ctx, "/proto.PetitionService/CreateVote", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -153,7 +148,6 @@ func (c *petitionServiceClient) GetAllSimilarPetitions(ctx context.Context, in *
 func (c *petitionServiceClient) SearchPetitionsByTitle(ctx context.Context, in *SearchPetitionsByTitRequest, opts ...grpc.CallOption) (*PetitionSuggestionResponse, error) {
 	out := new(PetitionSuggestionResponse)
 	err := c.cc.Invoke(ctx, "/proto.PetitionService/SearchPetitionsByTitle", in, out, opts...)
-
 	if err != nil {
 		return nil, err
 	}
@@ -167,18 +161,17 @@ type PetitionServiceServer interface {
 	GetPetitionById(context.Context, *PetitionId) (*Petition, error)
 	CreatePetition(context.Context, *CreatePetitionRequest) (*PetitionId, error)
 	GetPetitions(context.Context, *GetPetitionsRequest) (*GetPetitionsResponse, error)
-	UpdatePetitionStatus(context.Context, *UpdatePetitionStatusRequest) (*empty.Empty, error)
-	DeletePetition(context.Context, *PetitionId) (*empty.Empty, error)
+	UpdatePetitionStatus(context.Context, *UpdatePetitionStatusRequest) (*emptypb.Empty, error)
+	DeletePetition(context.Context, *PetitionId) (*emptypb.Empty, error)
 	// returns empty if is valid, error if not valid
-	ValidatePetitionId(context.Context, *PetitionId) (*empty.Empty, error)
-	CreateVote(context.Context, *CreateVoteRequest) (*empty.Empty, error)
+	ValidatePetitionId(context.Context, *PetitionId) (*emptypb.Empty, error)
+	CreateVote(context.Context, *CreateVoteRequest) (*emptypb.Empty, error)
 	GetUserPetitions(context.Context, *GetUserPetitionsRequest) (*GetUserPetitionsResponse, error)
 	GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error)
 	CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error)
 	GetAllSimilarPetitions(context.Context, *PetitionSuggestionRequest) (*PetitionSuggestionResponse, error)
 	SearchPetitionsByTitle(context.Context, *SearchPetitionsByTitRequest) (*PetitionSuggestionResponse, error)
 	mustEmbedUnimplementedPetitionServiceServer()
-
 }
 
 // UnimplementedPetitionServiceServer must be embedded to have forward compatible implementations.
@@ -194,16 +187,16 @@ func (UnimplementedPetitionServiceServer) CreatePetition(context.Context, *Creat
 func (UnimplementedPetitionServiceServer) GetPetitions(context.Context, *GetPetitionsRequest) (*GetPetitionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetPetitions not implemented")
 }
-func (UnimplementedPetitionServiceServer) UpdatePetitionStatus(context.Context, *UpdatePetitionStatusRequest) (*empty.Empty, error) {
+func (UnimplementedPetitionServiceServer) UpdatePetitionStatus(context.Context, *UpdatePetitionStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePetitionStatus not implemented")
 }
-func (UnimplementedPetitionServiceServer) DeletePetition(context.Context, *PetitionId) (*empty.Empty, error) {
+func (UnimplementedPetitionServiceServer) DeletePetition(context.Context, *PetitionId) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePetition not implemented")
 }
-func (UnimplementedPetitionServiceServer) ValidatePetitionId(context.Context, *PetitionId) (*empty.Empty, error) {
+func (UnimplementedPetitionServiceServer) ValidatePetitionId(context.Context, *PetitionId) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidatePetitionId not implemented")
 }
-func (UnimplementedPetitionServiceServer) CreateVote(context.Context, *CreateVoteRequest) (*empty.Empty, error) {
+func (UnimplementedPetitionServiceServer) CreateVote(context.Context, *CreateVoteRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateVote not implemented")
 }
 func (UnimplementedPetitionServiceServer) GetUserPetitions(context.Context, *GetUserPetitionsRequest) (*GetUserPetitionsResponse, error) {
@@ -212,7 +205,7 @@ func (UnimplementedPetitionServiceServer) GetUserPetitions(context.Context, *Get
 func (UnimplementedPetitionServiceServer) GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserVotedPetitions not implemented")
 }
-func (UnimplementedPetitionServiceServer) CheckIfPetitionsExpired(context.Context, *Petition) (*empty.Empty, error) {
+func (UnimplementedPetitionServiceServer) CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckIfPetitionsExpired not implemented")
 }
 func (UnimplementedPetitionServiceServer) GetAllSimilarPetitions(context.Context, *PetitionSuggestionRequest) (*PetitionSuggestionResponse, error) {
