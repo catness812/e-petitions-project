@@ -12,7 +12,7 @@ import (
 )
 
 type IUserService interface {
-	Create(user *models.User) error
+	Create(user *models.User) (error, string)
 	UpdatePasswordByEmail(user *models.User) error
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
@@ -37,14 +37,23 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 	user := &models.User{
 		Email:      req.Email,
 		Password:   req.Password,
-		HasAccount: req.HasAccount,
+		HasAccount: true,
 	}
-	err := ctrl.userservice.Create(user)
+	err, message := ctrl.userservice.Create(user)
+	return &wrapperspb.StringValue{Value: message}, err
+}
 
-	if err != nil {
-		return &wrapperspb.StringValue{Value: "Error adding user"}, err
+func (ctrl *UserController) CreateUserOTP(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+	if req.Email == "" || req.Password == "" {
+		return nil, errors.New("Email and Password cannot be empty")
 	}
-	return &wrapperspb.StringValue{Value: "User added successfully"}, nil
+	user := &models.User{
+		Email:      req.Email,
+		Password:   req.Password,
+		HasAccount: false,
+	}
+	err, message := ctrl.userservice.Create(user)
+	return &wrapperspb.StringValue{Value: message}, err
 }
 
 func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
