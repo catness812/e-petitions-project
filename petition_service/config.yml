@@ -14,5 +14,5 @@ rabbit:
   port: 5672
 
 user_service:
-  port: 50052
-  address: "user-service"
+  port: user-service:50052
+  host: "user-service"

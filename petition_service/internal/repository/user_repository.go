@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/gookit/slog"
 	"google.golang.org/grpc"
@@ -35,7 +36,7 @@ func (userRepo *UserRepository) GetEmailById(id uint) (string, error) {
 // TODO move this
 func NewUserControllerClient() pb.UserControllerClient {
 	slog.Info("Connecting to User Service gRPC Server...")
-	cc, err := grpc.Dial("localhost:50052", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	cc, err := grpc.Dial(config.Cfg.UserService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {
 		slog.Fatal("Could not connect:", err)
