@@ -12,7 +12,7 @@ import (
 )
 
 type IUserService interface {
-	Create(user *models.User) error
+	Create(user *models.User) (error, string)
 	UpdatePasswordByEmail(user *models.User) error
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
@@ -39,12 +39,8 @@ func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest)
 		Password:   req.Password,
 		HasAccount: req.HasAccount,
 	}
-	err := ctrl.userservice.Create(user)
-
-	if err != nil {
-		return &wrapperspb.StringValue{Value: "Error adding user"}, err
-	}
-	return &wrapperspb.StringValue{Value: "User added successfully"}, nil
+	err, message := ctrl.userservice.Create(user)
+	return &wrapperspb.StringValue{Value: message}, err
 }
 
 func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
