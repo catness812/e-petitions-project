@@ -1,7 +1,6 @@
 syntax="proto3";
 package rpctransport;
 
-import "google/protobuf/wrappers.proto";
 option go_package="./pb";
 
 service UserService{
