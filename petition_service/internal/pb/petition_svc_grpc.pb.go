@@ -2,6 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.24.3
+
 // source: petition_svc.proto
 
 package pb

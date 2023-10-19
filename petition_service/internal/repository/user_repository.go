@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/gookit/slog"

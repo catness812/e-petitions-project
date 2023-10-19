@@ -26,7 +26,7 @@ func main() {
 }
 
 func grpcStart(petitionSvc rpc.IPetitionService) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.Cfg.GrpcPort))
 	if err != nil {
 		slog.Error(err)
 		panic(err)

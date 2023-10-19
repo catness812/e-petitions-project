@@ -112,8 +112,8 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-#    ports:
-#      - "50050:50050"
+    ports:
+      - "50050:50050"
 
   mail-service:
     container_name: mail-service
