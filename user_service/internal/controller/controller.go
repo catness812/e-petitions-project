@@ -80,10 +80,11 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 	}
 
 	userResponse := &pb.GetUserByEmailResponse{
-		Email:    req.Email,
-		Id:       user.Id,
-		Password: user.Password,
-		Role:     user.Role,
+		Email:      req.Email,
+		Id:         user.Id,
+		Password:   user.Password,
+		Role:       user.Role,
+		HasAccount: user.HasAccount,
 	}
 	return userResponse, nil
 }
