@@ -20,7 +20,7 @@ func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	petitionController := NewPetitionController(petitionService)
 
 	route := r.Group("/petition")
-	route.POST("/", petitionController.CreatePetition)
+	route.POST("", petitionController.CreatePetition)
 	route.GET("/:pid", petitionController.GetPetitionByID)
 	route.GET("/all/:page/:limit", petitionController.GetPetitions)
 	route.POST("/status/", petitionController.UpdatePetitionStatus)

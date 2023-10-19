@@ -29,6 +29,7 @@ func RegisterUserRoutes(r *gin.Engine, cfg *config.Config, rbacCfg *config.Permi
 	authenticateMiddleware := middleware.NewAuthenticationMiddleware(securityClient)
 	route := r.Group("/user")
 	route.POST("", userctrl.CreateUser)
+	route.POST("/otp", userctrl.OTPCreateUser)
 	route.GET("", authenticateMiddleware.Auth(), userctrl.GetUserByEmail)
 	route.GET("/:uid", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("read", "user"), userctrl.GetUserByID)
 	route.POST("/update", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("write", "user"), userctrl.UpdateUser)

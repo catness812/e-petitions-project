@@ -13,6 +13,7 @@ type IUserController interface {
 	GetUserByID(ctx *gin.Context)
 	UpdateUser(ctx *gin.Context)
 	CreateUser(ctx *gin.Context)
+	OTPCreateUser(ctx *gin.Context)
 	DeleteUser(ctx *gin.Context)
 	AddAdmin(ctx *gin.Context)
 }
@@ -107,6 +108,23 @@ func (c *userController) CreateUser(ctx *gin.Context) {
 
 	slog.Infof("CreateUser request successful")
 	ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+}
+func (c *userController) OTPCreateUser(ctx *gin.Context) {
+	var user model.UserCredentials
+	err := ctx.BindJSON(&user)
+	if err != nil {
+		slog.Errorf("Invalid request format: %v", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	res, err := c.service.Create(user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		return
+	}
+
+	slog.Infof("OTP CreateUser request successful")
+	ctx.JSON(http.StatusOK, gin.H{"message": "OTP User created successfully"})
 }
 
 func (c *userController) UpdateUser(ctx *gin.Context) {
