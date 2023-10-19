@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository struct {
-	rpcClient pb.UserControllerClient
+	rpcClient pb.UserServiceClient
 }
 
 func NewUserRepository() *UserRepository {
@@ -30,11 +30,11 @@ func (userRepo *UserRepository) GetEmailById(id uint) (string, error) {
 		return "", err
 	}
 
-	return res.Value, nil
+	return res.Message, nil
 }
 
 // TODO move this
-func NewUserControllerClient() pb.UserControllerClient {
+func NewUserControllerClient() pb.UserServiceClient {
 	slog.Info("Connecting to User Service gRPC Server...")
 	cc, err := grpc.Dial(config.Cfg.UserService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
@@ -42,7 +42,7 @@ func NewUserControllerClient() pb.UserControllerClient {
 		slog.Fatal("Could not connect:", err)
 	}
 
-	client := pb.NewUserControllerClient(cc)
+	client := pb.NewUserServiceClient(cc)
 
 	return client
 }
