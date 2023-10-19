@@ -67,6 +67,6 @@ permissions:
   - role: anon
     resource: user
     allow:
-      read: true
-      write: true
+      read: false
+      write: false
       delete: false
