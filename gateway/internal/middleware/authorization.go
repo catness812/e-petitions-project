@@ -9,11 +9,11 @@ import (
 )
 
 type AuthMiddleware struct {
-	userClient pb.UserControllerClient
+	userClient pb.UserServiceClient
 	cfg        *config.PermissionsConfig
 }
 
-func NewAuthorizationMiddleware(userClient pb.UserControllerClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
+func NewAuthorizationMiddleware(userClient pb.UserServiceClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
 	return &AuthMiddleware{userClient: userClient, cfg: rbacCfg}
 }
 

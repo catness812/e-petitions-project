@@ -7,10 +7,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type SecurityClient struct {
-	Client pb.SecurityServiceClient
-}
-
 func InitAuthServiceClient(c *config.Config) (pb.SecurityServiceClient, error) {
 	cc, err := grpc.Dial(c.SecurityPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
