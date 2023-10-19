@@ -1,17 +1,18 @@
 syntax = "proto3";
-package rpctransport;
-option go_package = "/pb";
+option go_package = "./pb";
 
-import "google/protobuf/wrappers.proto";
+package proto;
+
 import "user_msg.proto";
 
-service UserController{
-    rpc CreateUser(UserRequest) returns (google.protobuf.StringValue);
-    rpc CreateUserOTP(UserRequest) returns (google.protobuf.StringValue);
-    rpc UpdateUser(UserRequest) returns (google.protobuf.StringValue);
-    rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.StringValue);
+
+service UserService{
+    rpc CreateUser(UserRequest) returns (ResponseMessage);
+    rpc CreateUserOTP(UserRequest) returns (ResponseMessage);
+    rpc UpdateUser(UserRequest) returns (ResponseMessage);
+    rpc DeleteUser(DeleteUserRequest) returns (ResponseMessage);
     rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
-    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (google.protobuf.StringValue);
-    rpc AddAdmin(AddAdminRequest) returns (google.protobuf.StringValue);
+    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (ResponseMessage);
+    rpc AddAdmin(AddAdminRequest) returns (ResponseMessage);
 
 }

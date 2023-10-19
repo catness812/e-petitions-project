@@ -36,7 +36,7 @@ message Tokens {
 ```shell
 grpcurl -plaintext -d '{"email": "example@email.com", "password" : "examplepass"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.Login
+ localhost:50051 proto.SecurityService.Login
 ```
 #### Response
 ```json
@@ -65,7 +65,7 @@ message RefreshResponse{
 ```shell
 grpcurl -plaintext -d '{"token":"put your refresh token here"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.RefreshSession
+ localhost:50051 proto.SecurityService.RefreshSession
 ```
 #### Response
 ```json
@@ -97,7 +97,7 @@ message ValidateTokenResponse {
 ```shell
 grpcurl -plaintext -d '{"token":"put your access token here"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.ValidateToken
+ localhost:50051 proto.SecurityService.ValidateToken
 ```
 #### Response
 ```json
@@ -121,7 +121,7 @@ message OTPInfo{
 ```shell
 grpcurl -plaintext -d '{"email":"example@email.com"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.SendOTP
+ localhost:50051 proto.SecurityService.SendOTP
 ```
 #### Response
 ```json
@@ -151,7 +151,7 @@ message IsOTPValidated{
 ```shell
 grpcurl -plaintext -d '{"email":"example@email.com", "otp" : "12345"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.ValidateOTP
+ localhost:50051 proto.SecurityService.ValidateOTP
 ```
 #### Response
 ```json

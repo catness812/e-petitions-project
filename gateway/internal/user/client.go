@@ -10,11 +10,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type UserClient struct {
-	Client pb.UserControllerClient
-}
-
-func InitUserServiceClient(c *config.Config) pb.UserControllerClient {
+func InitUserServiceClient(c *config.Config) pb.UserServiceClient {
 	fmt.Println(c.UserPort)
 	cc, err := grpc.Dial(c.UserPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
@@ -23,5 +19,5 @@ func InitUserServiceClient(c *config.Config) pb.UserControllerClient {
 		return nil
 	}
 
-	return pb.NewUserControllerClient(cc)
+	return pb.NewUserServiceClient(cc)
 }
