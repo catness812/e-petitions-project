@@ -4,10 +4,14 @@ package rpctransport;
 import "google/protobuf/wrappers.proto";
 option go_package="./pb";
 
-service UserController{
-    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (google.protobuf.StringValue);
+service UserService{
+    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (ResponseMessage);
 }
 
 message GetUserEmailByIdRequest{
     uint32 id = 1;
+}
+
+message ResponseMessage{
+    string message = 1;
 }

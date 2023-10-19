@@ -35,7 +35,7 @@ func RunSecurityService() {
 	sRpcServer := security_controller.NewSecurityRpcServer(sService, rabbitCh, cfg)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", cfg.GrpcPort))
 	if err != nil {
-		slog.Fatalf("Failed to listen to security service on GRPC port 9002: %v", err)
+		slog.Fatalf("Failed to listen to security service on GRPC port %v: %v", cfg.GrpcPort, err)
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterSecurityServiceServer(grpcServer, sRpcServer)
