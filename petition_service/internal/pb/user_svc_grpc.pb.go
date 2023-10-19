@@ -35,7 +35,7 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 
 func (c *userServiceClient) GetUserEmailById(ctx context.Context, in *GetUserEmailByIdRequest, opts ...grpc.CallOption) (*ResponseMessage, error) {
 	out := new(ResponseMessage)
-	err := c.cc.Invoke(ctx, "/rpctransport.UserService/GetUserEmailById", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.UserService/GetUserEmailById", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func _UserService_GetUserEmailById_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/rpctransport.UserService/GetUserEmailById",
+		FullMethod: "/proto.UserService/GetUserEmailById",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceServer).GetUserEmailById(ctx, req.(*GetUserEmailByIdRequest))
@@ -92,7 +92,7 @@ func _UserService_GetUserEmailById_Handler(srv interface{}, ctx context.Context,
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "rpctransport.UserService",
+	ServiceName: "proto.UserService",
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

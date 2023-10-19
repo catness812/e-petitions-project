@@ -148,12 +148,12 @@ func file_user_svc_proto_rawDescGZIP() []byte {
 
 var file_user_svc_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_user_svc_proto_goTypes = []interface{}{
-	(*GetUserEmailByIdRequest)(nil), // 0: rpctransport.GetUserEmailByIdRequest
-	(*ResponseMessage)(nil),         // 1: rpctransport.ResponseMessage
+	(*GetUserEmailByIdRequest)(nil), // 0: proto.GetUserEmailByIdRequest
+	(*ResponseMessage)(nil),         // 1: proto.ResponseMessage
 }
 var file_user_svc_proto_depIdxs = []int32{
-	0, // 0: rpctransport.UserService.GetUserEmailById:input_type -> rpctransport.GetUserEmailByIdRequest
-	1, // 1: rpctransport.UserService.GetUserEmailById:output_type -> rpctransport.ResponseMessage
+	0, // 0: proto.UserService.GetUserEmailById:input_type -> proto.GetUserEmailByIdRequest
+	1, // 1: proto.UserService.GetUserEmailById:output_type -> proto.ResponseMessage
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

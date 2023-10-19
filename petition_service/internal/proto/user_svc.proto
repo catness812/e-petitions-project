@@ -1,5 +1,5 @@
 syntax="proto3";
-package rpctransport;
+package proto;
 
 option go_package="./pb";
 
