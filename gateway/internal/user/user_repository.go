@@ -119,12 +119,12 @@ func (repo *userRepository) OTPCreate(createUser model.UserCredentials) (string,
 		return "", err
 	}
 
-	if res == nil && res.Value == "" {
+	if res == nil && res.Message == "" {
 		slog.Error("CreateUserOTP response is empty")
-		return res.Value, errors.New("CreateUserOTP response is empty")
+		return res.Message, errors.New("CreateUserOTP response is empty")
 	}
 
-	return res.Value, nil
+	return res.Message, nil
 
 }
 

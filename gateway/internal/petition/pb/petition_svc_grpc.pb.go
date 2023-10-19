@@ -33,6 +33,9 @@ type PetitionServiceClient interface {
 	CreateVote(ctx context.Context, in *CreateVoteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetUserPetitions(ctx context.Context, in *GetUserPetitionsRequest, opts ...grpc.CallOption) (*GetUserPetitionsResponse, error)
 	GetUserVotedPetitions(ctx context.Context, in *GetUserVotedPetitionsRequest, opts ...grpc.CallOption) (*GetUserVotedPetitionsResponse, error)
+	CheckIfPetitionsExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetAllSimilarPetitions(ctx context.Context, in *PetitionSuggestionRequest, opts ...grpc.CallOption) (*PetitionSuggestionResponse, error)
+	SearchPetitionsByTitle(ctx context.Context, in *SearchPetitionsByTitRequest, opts ...grpc.CallOption) (*PetitionSuggestionResponse, error)
 }
 
 type petitionServiceClient struct {
@@ -124,6 +127,33 @@ func (c *petitionServiceClient) GetUserVotedPetitions(ctx context.Context, in *G
 	return out, nil
 }
 
+func (c *petitionServiceClient) CheckIfPetitionsExpired(ctx context.Context, in *Petition, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/proto.PetitionService/CheckIfPetitionsExpired", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *petitionServiceClient) GetAllSimilarPetitions(ctx context.Context, in *PetitionSuggestionRequest, opts ...grpc.CallOption) (*PetitionSuggestionResponse, error) {
+	out := new(PetitionSuggestionResponse)
+	err := c.cc.Invoke(ctx, "/proto.PetitionService/GetAllSimilarPetitions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *petitionServiceClient) SearchPetitionsByTitle(ctx context.Context, in *SearchPetitionsByTitRequest, opts ...grpc.CallOption) (*PetitionSuggestionResponse, error) {
+	out := new(PetitionSuggestionResponse)
+	err := c.cc.Invoke(ctx, "/proto.PetitionService/SearchPetitionsByTitle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PetitionServiceServer is the server API for PetitionService service.
 // All implementations must embed UnimplementedPetitionServiceServer
 // for forward compatibility
@@ -138,6 +168,9 @@ type PetitionServiceServer interface {
 	CreateVote(context.Context, *CreateVoteRequest) (*emptypb.Empty, error)
 	GetUserPetitions(context.Context, *GetUserPetitionsRequest) (*GetUserPetitionsResponse, error)
 	GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error)
+	CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error)
+	GetAllSimilarPetitions(context.Context, *PetitionSuggestionRequest) (*PetitionSuggestionResponse, error)
+	SearchPetitionsByTitle(context.Context, *SearchPetitionsByTitRequest) (*PetitionSuggestionResponse, error)
 	mustEmbedUnimplementedPetitionServiceServer()
 }
 
@@ -171,6 +204,15 @@ func (UnimplementedPetitionServiceServer) GetUserPetitions(context.Context, *Get
 }
 func (UnimplementedPetitionServiceServer) GetUserVotedPetitions(context.Context, *GetUserVotedPetitionsRequest) (*GetUserVotedPetitionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserVotedPetitions not implemented")
+}
+func (UnimplementedPetitionServiceServer) CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckIfPetitionsExpired not implemented")
+}
+func (UnimplementedPetitionServiceServer) GetAllSimilarPetitions(context.Context, *PetitionSuggestionRequest) (*PetitionSuggestionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllSimilarPetitions not implemented")
+}
+func (UnimplementedPetitionServiceServer) SearchPetitionsByTitle(context.Context, *SearchPetitionsByTitRequest) (*PetitionSuggestionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchPetitionsByTitle not implemented")
 }
 func (UnimplementedPetitionServiceServer) mustEmbedUnimplementedPetitionServiceServer() {}
 
@@ -347,6 +389,60 @@ func _PetitionService_GetUserVotedPetitions_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PetitionService_CheckIfPetitionsExpired_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Petition)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PetitionServiceServer).CheckIfPetitionsExpired(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.PetitionService/CheckIfPetitionsExpired",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PetitionServiceServer).CheckIfPetitionsExpired(ctx, req.(*Petition))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PetitionService_GetAllSimilarPetitions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PetitionSuggestionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PetitionServiceServer).GetAllSimilarPetitions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.PetitionService/GetAllSimilarPetitions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PetitionServiceServer).GetAllSimilarPetitions(ctx, req.(*PetitionSuggestionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PetitionService_SearchPetitionsByTitle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchPetitionsByTitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PetitionServiceServer).SearchPetitionsByTitle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.PetitionService/SearchPetitionsByTitle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PetitionServiceServer).SearchPetitionsByTitle(ctx, req.(*SearchPetitionsByTitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PetitionService_ServiceDesc is the grpc.ServiceDesc for PetitionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -389,6 +485,18 @@ var PetitionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserVotedPetitions",
 			Handler:    _PetitionService_GetUserVotedPetitions_Handler,
+		},
+		{
+			MethodName: "CheckIfPetitionsExpired",
+			Handler:    _PetitionService_CheckIfPetitionsExpired_Handler,
+		},
+		{
+			MethodName: "GetAllSimilarPetitions",
+			Handler:    _PetitionService_GetAllSimilarPetitions_Handler,
+		},
+		{
+			MethodName: "SearchPetitionsByTitle",
+			Handler:    _PetitionService_SearchPetitionsByTitle_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

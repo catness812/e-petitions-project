@@ -20,6 +20,8 @@ type IPetitionController interface {
 	CreateVote(ctx *gin.Context)
 	GetUserPetitions(ctx *gin.Context)
 	GetUserVotedPetitions(ctx *gin.Context)
+	GetAllSimilarPetitions(ctx *gin.Context)
+	SearchPetitionsByTitle(ctx *gin.Context)
 }
 
 type petitionController struct {
@@ -237,5 +239,60 @@ func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
 
 	slog.Infof("User voted petitions retrieved successfully")
 	ctx.JSON(http.StatusOK, gin.H{"user_voted_petitions": res})
+
+}
+
+func (c *petitionController) GetAllSimilarPetitions(ctx *gin.Context) {
+	var title model.Petition
+	err := ctx.BindJSON(&title)
+	if err != nil {
+		slog.Errorf("Failed to bind title: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	res, err := c.service.GetAllSimilarPetitions(title.Title)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	slog.Infof("Similar petition retrieved successfully")
+	ctx.JSON(http.StatusOK, gin.H{"petitions": res})
+
+}
+
+func (c *petitionController) SearchPetitionsByTitle(ctx *gin.Context) {
+	var title model.Petition
+	err := ctx.BindJSON(&title)
+	if err != nil {
+		slog.Errorf("Failed to bind title: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	page, err := strconv.ParseUint(ctx.Param("page"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the page: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid 'page' parameter", "error": err.Error()})
+		return
+	}
+
+	limit, err := strconv.ParseUint(ctx.Param("limit"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the limit: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' parameter"})
+		return
+	}
+
+	res, err := c.service.SearchPetitionsByTitle(title.Title, uint32(page), uint32(limit))
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	slog.Infof("Search by title successfully")
+	ctx.JSON(http.StatusOK, gin.H{"petitions": res})
 
 }
