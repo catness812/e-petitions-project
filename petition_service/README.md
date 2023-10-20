@@ -149,7 +149,7 @@ grpcurl -plaintext -d '{"limit":limit, "page":page}'\
         "updatedAt": "updated_date",
         "createdAt": "created_date"
     },
-    ...
+    "..."
   ]
 }
 ```
@@ -303,15 +303,15 @@ grpcurl -plaintext -d '{"limit":limit, "page":page, "user_id":user_id}'\
 {
     "petitions": [
         {
-            "id": id,
+            "id": 1,
             "title": "tite",
             "category": "category",
             "description": "description",
             "image": "image",
-            "status": status,
-            "user_id": uer_id,
-            "vote_goal": vote_goal,
-            "current_votes": current_votes,
+            "status": "status",
+            "user_id": 1,
+            "vote_goal": 1000,
+            "current_votes": 0,
             "exp_date": "exp_date",
             "updated_at": "update_date",
             "created_at": "created_date"
