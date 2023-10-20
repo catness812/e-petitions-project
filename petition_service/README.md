@@ -51,7 +51,7 @@ grpcurl -plaintext -d '{"title":"title","description":"desc","image":"image","us
 #### Response
 ```json
 {
-    "id": id
+    "id": 1
 }
 ```
 
@@ -90,17 +90,17 @@ grpcurl -plaintext -d '{"id": id}'\
 #### Response
 ```json
 {
-  "id": petition_id,
+  "id": 1,
   "title": "title",
   "category": "category",
   "description": "description",
   "image": "iamage",
   "status": {
-    "id": status_id,
-    "title": "status title"
+    "id": 1,
+    "title": "status_title"
   },
-  "userId": user_id,
-  "voteGoal": vote_goal,
+  "userId": 1,
+  "voteGoal": 1000,
   "expDate": "exp_date",
   "updatedAt": "updated_date",
   "createdAt": "created_date"
@@ -134,17 +134,17 @@ grpcurl -plaintext -d '{"limit":limit, "page":page}'\
 {
   "petitions": [
     {
-        "id": petition_id,
+        "id": 1,
         "title": "title",
         "category": "category",
         "description": "description",
         "image": "iamage",
         "status": {
-            "id": status_id,
-            "title": "status title"
+            "id": 1,
+            "title": "status_title"
         },
-        "userId": user_id,
-        "voteGoal": vote_goal,
+        "userId": 1,
+        "voteGoal": 1000,
         "expDate": "exp_date",
         "updatedAt": "updated_date",
         "createdAt": "created_date"
@@ -257,15 +257,15 @@ grpcurl -plaintext -d '{"limit":limit, "page":page, "user_id":user_id}'\
 {
     "petitions": [
         {
-            "id": id,
+            "id": 1,
             "title": "tite",
             "category": "category",
             "description": "description",
             "image": "image",
-            "status": status,
-            "user_id": uer_id,
-            "vote_goal": vote_goal,
-            "current_votes": current_votes,
+            "status": "status",
+            "user_id": 1,
+            "vote_goal": 1000,
+            "current_votes": 0,
             "exp_date": "exp_date",
             "updated_at": "update_date",
             "created_at": "created_date"
@@ -381,11 +381,11 @@ grpcurl -plaintext -d '{"title": "title"}'\
 {
     "SuggestedPetitions": [
         {
-            "id": id,
+            "id": 1,
             "title": "title",
-            "user_id": user_id
+            "user_id": 1
         },
-        ...
+        "..."
     ]
 }
 ```
@@ -424,11 +424,11 @@ grpcurl -plaintext -d '{"limit":1, "page": 1, "title": "title"}'\
 {
     "SuggestedPetitions": [
         {
-            "id": id,
+            "id": 1,
             "title": "title",
-            "user_id": user_id
+            "user_id": 1
         },
-        ...
+        "..."
     ]
 }
 ```
