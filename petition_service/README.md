@@ -2,20 +2,20 @@
 Petition is a service created for the e-petitions project to implement their data processing.
 
 ## Contents
-[Coneventions](#coneventions)
-[Rpc Methods](rpc-methods)
-[CreatePetition](#createpetition)
-[GetPetitionById](#getpetitionbyid)
-[GetPetitions](#getpetitions)
-[UpdatePetitionStatus](#updatepetitionstatus)
-[DeletePetition](#deletepetition)
-[ValidatePetitionId](#validatepetitionid)
-[CreateVote](#createvote)
-[GetUserPetitions](#getuserpetitions)
-[GetUserVotedPetitions](#getuservotedpetitions)
-[CheckIfPetitionsExpired](#checkifpetitionsexpired)
-[GetAllSimilarPetitions](#getallsimilarpetitions)
-[SearchByPetitionsTitle](#searchbypetitionstitle)
+- [Coneventions](#coneventions)
+- [Rpc Methods](rpc-methods)
+- [CreatePetition](#createpetition)
+- [GetPetitionById](#getpetitionbyid)
+- [GetPetitions](#getpetitions)
+- [UpdatePetitionStatus](#updatepetitionstatus)
+- [DeletePetition](#deletepetition)
+- [ValidatePetitionId](#validatepetitionid)
+- [CreateVote](#createvote)
+- [GetUserPetitions](#getuserpetitions)
+- [GetUserVotedPetitions](#getuservotedpetitions)
+- [CheckIfPetitionsExpired](#checkifpetitionsexpired)
+- [GetAllSimilarPetitions](#getallsimilarpetitions)
+- [SearchByPetitionsTitle](#searchbypetitionstitle)
 
 ## Coneventions
 Petition is developed to use the gRPC protocol and will use messages from predefined proto files (internal/proto folder).
