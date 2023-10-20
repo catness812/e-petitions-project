@@ -16,6 +16,7 @@ Petition is a service created for the e-petitions project to implement their dat
 - [CheckIfPetitionsExpired](#checkifpetitionsexpired)
 - [GetAllSimilarPetitions](#getallsimilarpetitions)
 - [SearchByPetitionsTitle](#searchbypetitionstitle)
+- [Docker build](#docker-build)
 
 ## Coneventions
 Petition is developed to use the gRPC protocol and will use messages from predefined proto files (internal/proto folder).
@@ -432,3 +433,8 @@ grpcurl -plaintext -d '{"limit":1, "page": 1, "title": "title"}'\
     ]
 }
 ```
+
+## Docker build
+### Command
+In order to build the image necessary for the Docker compose file, run this command:
+```docker build -t e-petitions-petition:1.0 .```
