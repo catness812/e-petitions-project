@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"

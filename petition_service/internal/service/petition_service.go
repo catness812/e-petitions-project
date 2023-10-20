@@ -62,9 +62,6 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 		return 0, err
 	}
 	petition.Status = status
-	if err := svc.petitionRepository.Save(&petition); err != nil {
-		return 0, err
-	}
 
 	// get user's email from User Service
 	email, err := svc.userRepository.GetEmailById(petition.UserID)
@@ -73,6 +70,10 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 	}
 	err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has been successfully created!`, petition.Title))
 	if err != nil {
+		return 0, err
+	}
+
+	if err := svc.petitionRepository.Save(&petition); err != nil {
 		return 0, err
 	}
 

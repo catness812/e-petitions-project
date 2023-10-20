@@ -33,6 +33,7 @@ permissions:
       read: true
       write: true
       delete: true
+      update: true
 
   - role: user
     resource: petition
@@ -40,6 +41,7 @@ permissions:
       read: true
       write: true
       delete: false
+      update: false
 
   - role: anon
     resource: petition
@@ -47,6 +49,7 @@ permissions:
       read: true
       write: false
       delete: false
+      update: false
 
 #Resource: user
 
@@ -56,6 +59,7 @@ permissions:
       read: true
       write: true
       delete: true
+      update: true
 
   - role: user
     resource: user
@@ -63,10 +67,12 @@ permissions:
       read: false
       write: false
       delete: false
+      update: true
 
   - role: anon
     resource: user
     allow:
-      read: true
-      write: true
+      read: false
+      write: false
       delete: false
+      update: false

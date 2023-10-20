@@ -1,11 +1,16 @@
-# Mail service
+# Description
+Mail is a microservice built for the e-petition project in order to send info messages and verification link.
 
-## Overview
+## Contents
+- [Coneventions](#coneventions)
+- [How to Use the Project](#how-to-use-the-project)
+- [Api](#api)
+- [Docker build](#docker-build)
 
-The Mail Service is a powerful and flexible email delivery and management solution designed to simplify your email-related tasks. Whether you're sending notifications, our service is here to streamline the process and ensure your emails reach their destination reliably.
+## Coneventions
+Mail is developed to use the rabbitMQ and will use html templates to send mails.
 
 ## How to Use the Project
-
 - **Step I :** Run an RabbitMQ server.
 - **Step II :** Generate an app password from mail.
 - **Step III :** Configure the `config.yml` file
@@ -27,8 +32,16 @@ The Mail Service is a powerful and flexible email delivery and management soluti
 - **Step V :** Run `main.go` with command `go run main.go`
 
 ## Api
-
 This service use rabbitMQ queues
 - **verify** - this queue is used to send **OTP** to mail
+Should recive in playload message as exemple:
+```example@isa.utm.md https://example.com/otp```
 
 - **notification** - this queue is used to send notification mails
+Should recive in playload message as exemple:
+```example@isa.utm.md message```
+
+## Docker build
+### Command
+In order to build the image necessary for the Docker compose file, run this command:
+- ```docker build -t e-petitions-mail:1.0 .```

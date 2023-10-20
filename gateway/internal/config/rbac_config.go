@@ -26,6 +26,7 @@ type permissions struct {
 		Read   bool `yaml:"read"`
 		Write  bool `yaml:"write"`
 		Delete bool `yaml:"delete"`
+		Update bool `yaml:"update"`
 	} `yaml:"allow"`
 }
 
