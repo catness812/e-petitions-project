@@ -1,7 +1,7 @@
 syntax="proto3";
 package proto;
-option go_package="./pb";
 
+option go_package="./pb";
 
 service UserService{
     rpc GetUserEmailById(GetUserEmailByIdRequest) returns (ResponseMessage);

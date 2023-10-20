@@ -46,7 +46,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 	user, err := svc.userRepo.GetUserByEmail(userLogin.Email)
 	if err != nil {
 		slog.Errorf("invalid credentials: %v", err)
-		return nil, "", err
+		return nil, "", errors.New("invalid credentials")
 	}
 	if err = svc.comparePasswordHash(user.Password, userLogin.Password); err != nil {
 		return nil, "", errors.New("invalid credentials")
@@ -54,10 +54,10 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 	token, err := generateTokenPair(user.Email)
 	if err != nil {
 		slog.Errorf("Could not generate token pair %v", err)
-		return nil, "", err
+		return nil, "", errors.New("could not generate token pair")
 	}
 	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Email, time.Hour*5); err != nil {
-		return nil, "", err
+		return nil, "", errors.New("could not insert refresh token")
 	}
 	return token, strconv.FormatUint(uint64(user.Id), 10), nil
 }
