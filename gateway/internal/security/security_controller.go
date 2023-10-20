@@ -33,7 +33,7 @@ func (ctrl *SecurityController) Login(ctx *gin.Context) {
 	}
 	tokens, err := ctrl.service.Login(user)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": err})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
 		return
 	}
 
