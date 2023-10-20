@@ -40,7 +40,7 @@ func (s *SecurityRpcServer) Login(ctx context.Context, req *pb.UserCredentials) 
 	token, userId, err := s.securitySvc.Login(&userLogin)
 	if err != nil {
 		slog.Errorf("Failed to login login user: %v", err)
-		return nil, status.Error(codes.NotFound, errors.New("failed to login user").Error())
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	return &pb.Tokens{
