@@ -33,7 +33,7 @@ func (ctrl *SecurityController) Login(ctx *gin.Context) {
 	}
 	tokens, err := ctrl.service.Login(user)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Could not login user"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": err})
 		return
 	}
 
@@ -56,7 +56,7 @@ func (ctrl *SecurityController) Refresh(ctx *gin.Context) {
 		slog.Errorf("Invalid request format: %v", err)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error":   true,
-			"message": "Could not refresh user session",
+			"message": "Invalid request format",
 		})
 		return
 	}
