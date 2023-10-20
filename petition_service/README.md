@@ -437,4 +437,4 @@ grpcurl -plaintext -d '{"limit":1, "page": 1, "title": "title"}'\
 ## Docker build
 ### Command
 In order to build the image necessary for the Docker compose file, run this command:
-```docker build -t e-petitions-petition:1.0 .```
+- ```docker build -t e-petitions-petition:1.0 .```
