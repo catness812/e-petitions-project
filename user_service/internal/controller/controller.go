@@ -11,12 +11,13 @@ import (
 )
 
 type IUserService interface {
-	Create(user *models.User) (error, string)
+	Create(user *models.User) (string, error)
 	UpdatePasswordByEmail(user *models.User) error
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdmin(userEmail string) error
 	GetUserEmailById(userID uint) (string, error)
+	CheckUserExistence(userid uint32) (bool, error)
 }
 
 type UserController struct {
@@ -31,33 +32,33 @@ func NewUserController(userService IUserService) *UserController {
 
 func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.ResponseMessage, error) {
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("Email and Password cannot be empty")
+		return nil, errors.New("email and password cannot be empty")
 	}
 	user := &models.User{
 		Email:      req.Email,
 		Password:   req.Password,
 		HasAccount: true,
 	}
-	err, message := ctrl.userservice.Create(user)
+	message, err := ctrl.userservice.Create(user)
 	return &pb.ResponseMessage{Message: message}, err
 }
 
 func (ctrl *UserController) CreateUserOTP(ctx context.Context, req *pb.UserRequest) (*pb.ResponseMessage, error) {
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("Email and Password cannot be empty")
+		return nil, errors.New("email and password cannot be empty")
 	}
 	user := &models.User{
 		Email:      req.Email,
 		Password:   req.Password,
 		HasAccount: false,
 	}
-	err, message := ctrl.userservice.Create(user)
+	message, err := ctrl.userservice.Create(user)
 	return &pb.ResponseMessage{Message: message}, err
 }
 
 func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.ResponseMessage, error) {
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("Email and Password cannot be empty")
+		return nil, errors.New("email and password cannot be empty")
 	}
 	user := &models.User{
 		Email:    req.Email,
@@ -86,6 +87,14 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 		HasAccount: user.HasAccount,
 	}
 	return userResponse, nil
+}
+
+func (ctrl *UserController) CheckUserExistence(ctx context.Context, req *pb.CheckUserExistenceRequest) (*pb.CheckUserExistenceResponse, error) {
+	userExistnce, err := ctrl.userservice.CheckUserExistence(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "User not found")
+	}
+	return &pb.CheckUserExistenceResponse{Message: userExistnce}, nil
 }
 
 func (ctrl *UserController) GetUserEmailById(ctx context.Context, req *pb.GetUserEmailByIdRequest) (*pb.ResponseMessage, error) {

@@ -34,6 +34,17 @@ func (userRepo *UserRepository) GetEmailById(id uint) (string, error) {
 	return res.Message, nil
 }
 
+func (userRepo *UserRepository) CheckUserExistence(id uint) (bool, error) {
+	res, err := userRepo.rpcClient.CheckUserExistence(context.Background(),
+		&pb.CheckUserExistenceRequest{Id: uint32(id)},
+	)
+	if err != nil {
+		slog.Error(err)
+		return false, err
+	}
+	return res.Message, nil
+}
+
 // TODO move this
 func NewUserControllerClient() pb.UserServiceClient {
 	slog.Info("Connecting to User Service gRPC Server...")

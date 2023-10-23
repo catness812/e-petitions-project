@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
 	GetUserEmailById(ctx context.Context, in *GetUserEmailByIdRequest, opts ...grpc.CallOption) (*ResponseMessage, error)
+	CheckUserExistence(ctx context.Context, in *CheckUserExistenceRequest, opts ...grpc.CallOption) (*CheckUserExistenceResponse, error)
 }
 
 type userServiceClient struct {
@@ -42,11 +43,21 @@ func (c *userServiceClient) GetUserEmailById(ctx context.Context, in *GetUserEma
 	return out, nil
 }
 
+func (c *userServiceClient) CheckUserExistence(ctx context.Context, in *CheckUserExistenceRequest, opts ...grpc.CallOption) (*CheckUserExistenceResponse, error) {
+	out := new(CheckUserExistenceResponse)
+	err := c.cc.Invoke(ctx, "/proto.UserService/CheckUserExistence", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
 	GetUserEmailById(context.Context, *GetUserEmailByIdRequest) (*ResponseMessage, error)
+	CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedUserServiceServer struct {
 
 func (UnimplementedUserServiceServer) GetUserEmailById(context.Context, *GetUserEmailByIdRequest) (*ResponseMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserEmailById not implemented")
+}
+func (UnimplementedUserServiceServer) CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckUserExistence not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -88,6 +102,24 @@ func _UserService_GetUserEmailById_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_CheckUserExistence_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserExistenceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).CheckUserExistence(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.UserService/CheckUserExistence",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).CheckUserExistence(ctx, req.(*CheckUserExistenceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUserEmailById",
 			Handler:    _UserService_GetUserEmailById_Handler,
+		},
+		{
+			MethodName: "CheckUserExistence",
+			Handler:    _UserService_CheckUserExistence_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
