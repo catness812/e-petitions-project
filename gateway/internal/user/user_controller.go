@@ -66,7 +66,7 @@ func (c *userController) GetUserByID(ctx *gin.Context) {
 	}
 
 	slog.Info("GetUserByID request successful")
-	ctx.JSON(http.StatusOK, gin.H{"email ": email})
+	ctx.JSON(http.StatusOK, gin.H{"email": email})
 
 }
 
