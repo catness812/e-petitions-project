@@ -24,8 +24,8 @@ type SecurityController struct {
 	userSvc IUserService
 }
 
-func NewSecurityController(service ISecurityService) *SecurityController {
-	return &SecurityController{service: service}
+func NewSecurityController(service ISecurityService, userSvc IUserService) *SecurityController {
+	return &SecurityController{service: service, userSvc: userSvc}
 }
 
 func (ctrl *SecurityController) Login(ctx *gin.Context) {
