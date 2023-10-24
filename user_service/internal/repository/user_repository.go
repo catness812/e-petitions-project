@@ -117,10 +117,13 @@ func (repo *UserRepository) UpdateUser(user *models.User) error {
 	return nil
 }
 
-func (repo *UserRepository) CheckUserExistence(userEmail string) bool {
+func (repo *UserRepository) CheckUserExistence(userid uint32) (bool, error) {
 	var user models.User
-	err := repo.dbClient.Debug().Model(models.User{}).Where("email = ?", userEmail).First(&user).Error
-	return err == nil
+	err := repo.dbClient.Debug().Model(models.User{}).Where("id = ?", userid).First(&user).Error
+	if user.Id == 0 || err != nil {
+		return false, err
+	}
+	return true, err
 }
 
 func (repo *UserRepository) AddAdminRole(userEmail string) error {
