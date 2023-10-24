@@ -15,8 +15,13 @@ type ISecurityService interface {
 	ValidateOTP(otp, mail string) (bool, error)
 }
 
+type IUserService interface {
+	OTPCreate(createUser model.UserCredentials) (string, error)
+}
+
 type SecurityController struct {
 	service ISecurityService
+	userSvc IUserService
 }
 
 func NewSecurityController(service ISecurityService) *SecurityController {
@@ -111,7 +116,14 @@ func (ctrl *SecurityController) ValidateOTP(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
 		return
 	}
-
+	_, err = ctrl.userSvc.OTPCreate(model.UserCredentials{
+		Email:    email,
+		Password: otp,
+	})
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
+		return
+	}
 	slog.Info("OTP successfully validated")
 	ctx.JSON(http.StatusOK, gin.H{
 		"error":     false,
