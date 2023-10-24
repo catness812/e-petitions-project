@@ -70,9 +70,12 @@ func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
 }
 
 func (repo *PetitionRepository) Delete(id uint) error {
-	err := repo.db.Unscoped().Where("id = ?", id).Delete(&models.Petition{}).Error
+	var petition models.Petition
+	err := repo.db.Unscoped().Where("id = ?", id).Delete(&petition).Error
 	if err != nil {
 		return err
+	} else if petition.ID == 0 {
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
