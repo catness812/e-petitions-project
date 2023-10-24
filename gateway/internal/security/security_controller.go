@@ -1,6 +1,8 @@
 package security
 
 import (
+	"context"
+	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/gookit/slog"
 	"net/http"
 
@@ -15,17 +17,13 @@ type ISecurityService interface {
 	ValidateOTP(otp, mail string) (bool, error)
 }
 
-type IUserService interface {
-	OTPCreate(createUser model.UserCredentials) (string, error)
-}
-
 type SecurityController struct {
-	service ISecurityService
-	userSvc IUserService
+	service    ISecurityService
+	userClient pb.UserServiceClient
 }
 
-func NewSecurityController(service ISecurityService, userSvc IUserService) *SecurityController {
-	return &SecurityController{service: service, userSvc: userSvc}
+func NewSecurityController(service ISecurityService, userClient pb.UserServiceClient) *SecurityController {
+	return &SecurityController{service: service, userClient: userClient}
 }
 
 func (ctrl *SecurityController) Login(ctx *gin.Context) {
@@ -116,10 +114,7 @@ func (ctrl *SecurityController) ValidateOTP(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
 		return
 	}
-	_, err = ctrl.userSvc.OTPCreate(model.UserCredentials{
-		Email:    email,
-		Password: otp,
-	})
+	_, err = ctrl.userClient.CreateUserOTP(context.Background(), &pb.UserRequest{Email: email, Password: otp})
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
 		return
