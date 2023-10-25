@@ -1,6 +1,8 @@
 package security
 
 import (
+	"context"
+	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/gookit/slog"
 	"net/http"
 
@@ -16,32 +18,34 @@ type ISecurityService interface {
 }
 
 type SecurityController struct {
-	service ISecurityService
+	service    ISecurityService
+	userClient pb.UserServiceClient
 }
 
-func NewSecurityController(service ISecurityService) *SecurityController {
-	return &SecurityController{service: service}
+func NewSecurityController(service ISecurityService, userClient pb.UserServiceClient) *SecurityController {
+	return &SecurityController{service: service, userClient: userClient}
 }
 
 func (ctrl *SecurityController) Login(ctx *gin.Context) {
 	var user model.UserCredentials
 	err := ctx.BindJSON(&user)
 	if err != nil {
-		slog.Errorf("Could not login user: %v", err)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Could not login user"})
+		slog.Errorf("Invalid request format: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid request format"})
 		return
 	}
 	tokens, err := ctrl.service.Login(user)
 	if err != nil {
-		slog.Errorf("Could not login user: %v", err)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Could not login user"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid credentials"})
 		return
 	}
 
+	slog.Info("Login request successful")
 	ctx.JSON(http.StatusOK, gin.H{
 		"message":       "User successfully logged in",
 		"access-token":  tokens.AccessToken,
 		"refresh-token": tokens.RefreshToken,
+		"userId":        tokens.UserId,
 	})
 }
 
@@ -52,9 +56,10 @@ func (ctrl *SecurityController) Refresh(ctx *gin.Context) {
 	var rt refreshToken
 	err := ctx.BindJSON(&rt)
 	if err != nil {
+		slog.Errorf("Invalid request format: %v", err)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error":   true,
-			"message": "Could not refresh user session",
+			"message": "Invalid request format",
 		})
 		return
 	}
@@ -66,6 +71,8 @@ func (ctrl *SecurityController) Refresh(ctx *gin.Context) {
 		})
 		return
 	}
+
+	slog.Info("Refresh request successful")
 	ctx.JSON(http.StatusOK, gin.H{
 		"message":       "User successfully logged in",
 		"access-token":  tokens.AccessToken,
@@ -80,7 +87,8 @@ func (ctrl *SecurityController) SendOTP(ctx *gin.Context) {
 	var email otpEmail
 	err := ctx.BindJSON(&email)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		slog.Errorf("Invalid request format: %v", err)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid request format"})
 		return
 	}
 	_, err = ctrl.service.SendOTP(email.Email)
@@ -88,6 +96,8 @@ func (ctrl *SecurityController) SendOTP(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to send OTP"})
 		return
 	}
+
+	slog.Info("OTP sent successfully")
 	ctx.JSON(http.StatusOK, gin.H{"error": false, "message": "OTP sent successfully"})
 }
 
@@ -95,6 +105,7 @@ func (ctrl *SecurityController) ValidateOTP(ctx *gin.Context) {
 	otp := ctx.Query("otp")
 	email := ctx.Query("email")
 	if otp == "" || email == "" {
+		slog.Error("Failed to validate OTP")
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
 		return
 	}
@@ -103,6 +114,12 @@ func (ctrl *SecurityController) ValidateOTP(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
 		return
 	}
+	_, err = ctrl.userClient.CreateUserOTP(context.Background(), &pb.UserRequest{Email: email, Password: otp})
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
+		return
+	}
+	slog.Info("OTP successfully validated")
 	ctx.JSON(http.StatusOK, gin.H{
 		"error":     false,
 		"message":   "OTP successfully validated",

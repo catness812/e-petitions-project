@@ -7,6 +7,7 @@ import (
 	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
 	"math/rand"
+	"strconv"
 	"strings"
 	"time"
 
@@ -41,24 +42,24 @@ func NewSecurityService(userRepo IUserRepository, redisRepo IRedisRepository) *S
 	}
 }
 
-func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, error) {
+func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[string]string, string, error) {
 	user, err := svc.userRepo.GetUserByEmail(userLogin.Email)
 	if err != nil {
-		slog.Info("invalid credentials: %v", err)
-		return nil, err
+		slog.Errorf("invalid credentials: %v", err)
+		return nil, "", errors.New("invalid credentials")
 	}
 	if err = svc.comparePasswordHash(user.Password, userLogin.Password); err != nil {
-		return nil, errors.New("invalid credentials")
+		return nil, "", errors.New("invalid credentials")
 	}
 	token, err := generateTokenPair(user.Email)
 	if err != nil {
-		slog.Info("Could not generate token pair %v", err)
-		return nil, err
+		slog.Errorf("Could not generate token pair %v", err)
+		return nil, "", errors.New("could not generate token pair")
 	}
 	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Email, time.Hour*5); err != nil {
-		return nil, err
+		return nil, "", errors.New("could not insert refresh token")
 	}
-	return token, nil
+	return token, strconv.FormatUint(uint64(user.Id), 10), nil
 }
 
 func (svc *SecurityService) RefreshUserToken(token string, email string) (map[string]string, error) {
@@ -125,7 +126,7 @@ func (svc *SecurityService) generatePasswordHash(pass string) (string, error) {
 	const salt = 14
 	hash, err := bcrypt.GenerateFromPassword([]byte(pass), salt)
 	if err != nil {
-		slog.Errorf("ERR: %v\n", err)
+		slog.Errorf("Failed to generate password hash: %v\n", err)
 		return "", err
 	}
 	return string(hash), nil
@@ -134,7 +135,7 @@ func (svc *SecurityService) generatePasswordHash(pass string) (string, error) {
 func (svc *SecurityService) comparePasswordHash(hash, pass string) error {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pass))
 	if err != nil {
-		slog.Errorf("ERR: %v\n", err)
+		slog.Errorf("Failed to compare password and hash: %v\n", err)
 		return err
 	}
 	return nil

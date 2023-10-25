@@ -37,7 +37,7 @@ func startGRPCServer(userService *service.UserService) error {
 
 	UserController := controller.NewUserController(userService)
 
-	pb.RegisterUserControllerServer(grpcServer, UserController)
+	pb.RegisterUserServiceServer(grpcServer, UserController)
 
 	slog.Info("gRPC server listening on port %d", config.Cfg.GrpcPort)
 	if err := grpcServer.Serve(lis); err != nil {

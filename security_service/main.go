@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/catness812/e-petitions-project/security_service/internal/config"
 	"github.com/catness812/e-petitions-project/security_service/internal/controller"
 	"github.com/catness812/e-petitions-project/security_service/internal/pb"
-	security_repository2 "github.com/catness812/e-petitions-project/security_service/internal/repository"
+	security_repository "github.com/catness812/e-petitions-project/security_service/internal/repository"
 	"github.com/catness812/e-petitions-project/security_service/internal/service"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/postgres"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/rabbitmq"
@@ -28,20 +29,20 @@ func main() {
 func RunSecurityService() {
 	cfg := config.LoadConfig()
 	redisDB, rabbitCh, postgresDB := dbConnection(cfg)
-	userRepo := security_repository2.NewUserRepository(postgresDB)
-	redisRepo := security_repository2.NewRedisRepository(redisDB)
+	userRepo := security_repository.NewUserRepository(postgresDB)
+	redisRepo := security_repository.NewRedisRepository(redisDB)
 	sService := security_service.NewSecurityService(userRepo, redisRepo)
 	sRpcServer := security_controller.NewSecurityRpcServer(sService, rabbitCh, cfg)
-	lis, err := net.Listen("tcp", "localhost:9002")
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", cfg.GrpcPort))
 	if err != nil {
-		slog.Fatalf("Failed to listen to security service on GRPC port 9002: %v", err)
+		slog.Fatalf("Failed to listen to security service on GRPC port %v: %v", cfg.GrpcPort, err)
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterSecurityServiceServer(grpcServer, sRpcServer)
 
-	slog.Println("Listening security on 9002")
+	slog.Infof("Listening security on %v", cfg.GrpcPort)
 	if err := grpcServer.Serve(lis); err != nil {
-		slog.Fatalf("failed to serve security service on 9002: %v", err)
+		slog.Fatalf("failed to serve security service on %v: %v", cfg.GrpcPort, err)
 	}
 }
 

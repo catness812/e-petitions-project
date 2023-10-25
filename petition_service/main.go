@@ -19,23 +19,25 @@ func main() {
 	db := postgres.LoadDatabase()
 	petitionRepo := repository.NewPetitionRepository(db)
 	publisherRepo := repository.NewPublisherRepository()
-	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo)
+	userRepo := repository.NewUserRepository()
+	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo, userRepo)
 
-	//publisherSvc := service.InitNotificationService(publisherRepo)
 	grpcStart(petitionSvc)
 }
 
 func grpcStart(petitionSvc rpc.IPetitionService) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", config.Cfg.GrpcPort))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.Cfg.GrpcPort))
 	if err != nil {
 		slog.Error(err)
 		panic(err)
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterPetitionServiceServer(s, &rpc.Server{
+	server := &rpc.Server{
 		PetitionService: petitionSvc,
-	})
+	}
+
+	pb.RegisterPetitionServiceServer(s, server)
 
 	slog.Infof("gRPC Server listening at %v\n", lis.Addr())
 

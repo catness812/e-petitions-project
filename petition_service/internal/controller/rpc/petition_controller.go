@@ -3,6 +3,9 @@ package rpc
 import (
 	"context"
 	"errors"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -22,6 +25,10 @@ type IPetitionService interface {
 	CreateVote(vote models.Vote) error
 	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
 	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	CheckPetitionExpiration(petition models.Petition) (string, error)
+	GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error)
+	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
+	ScheduleDailyCheck()
 }
 
 type Server struct {
@@ -50,8 +57,12 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 			Id:    uint32(petition.Status.ID),
 			Title: petition.Status.Title,
 		},
-		UserId:   uint32(petition.UserID),
-		VoteGoal: uint32(petition.VoteGoal),
+		UserId:       uint32(petition.UserID),
+		VoteGoal:     uint32(petition.VoteGoal),
+		CreatedAt:    timestamppb.New(petition.CreatedAt),
+		UpdatedAt:    timestamppb.New(petition.UpdatedAt),
+		CurrentVotes: uint32(petition.CurrVotes),
+		ExpDate:      timestamppb.New(petition.ExpDate),
 	}, nil
 }
 
@@ -77,6 +88,7 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 		UserID:      uint(req.UserId),
 		Category:    req.Category,
 		VoteGoal:    uint(req.VoteGoal),
+		ExpDate:     req.ExpDate.AsTime(),
 	}
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
@@ -125,12 +137,17 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 			Category:    p.Category,
 			Description: p.Description,
 			Image:       p.Image,
+
 			Status: &pb.Status{
 				Id:    uint32(p.Status.ID),
 				Title: p.Status.Title,
 			},
-			UserId:   uint32(p.UserID),
-			VoteGoal: uint32(p.VoteGoal),
+			UserId:       uint32(p.UserID),
+			VoteGoal:     uint32(p.VoteGoal),
+			CreatedAt:    timestamppb.New(p.CreatedAt),
+			UpdatedAt:    timestamppb.New(p.UpdatedAt),
+			CurrentVotes: uint32(p.CurrVotes),
+			ExpDate:      timestamppb.New(p.ExpDate),
 		}
 	}
 
@@ -185,11 +202,15 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
 		getUserPetitionsResponse[i] = &pb.Petition{
-			Id:          uint32(p.ID),
-			Title:       p.Title,
-			Category:    p.Category,
-			Description: p.Description,
-			VoteGoal:    uint32(p.VoteGoal),
+			Id:           uint32(p.ID),
+			Title:        p.Title,
+			Category:     p.Category,
+			Description:  p.Description,
+			VoteGoal:     uint32(p.VoteGoal),
+			CreatedAt:    timestamppb.New(p.CreatedAt),
+			UpdatedAt:    timestamppb.New(p.UpdatedAt),
+			CurrentVotes: uint32(p.CurrVotes),
+			ExpDate:      timestamppb.New(p.ExpDate),
 		}
 	}
 
@@ -215,11 +236,15 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
 		getUserPetitionsResponse[i] = &pb.Petition{
-			Id:          uint32(p.ID),
-			Title:       p.Title,
-			Category:    p.Category,
-			Description: p.Description,
-			VoteGoal:    uint32(p.VoteGoal),
+			Id:           uint32(p.ID),
+			Title:        p.Title,
+			Category:     p.Category,
+			Description:  p.Description,
+			VoteGoal:     uint32(p.VoteGoal),
+			CreatedAt:    timestamppb.New(p.CreatedAt),
+			UpdatedAt:    timestamppb.New(p.UpdatedAt),
+			CurrentVotes: uint32(p.CurrVotes),
+			ExpDate:      timestamppb.New(p.ExpDate),
 		}
 	}
 
@@ -227,4 +252,76 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	return &pb.GetUserVotedPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
+}
+
+func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*empty.Empty, error) {
+	petition, err := s.PetitionService.GetByID(uint(req.Id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			slog.Errorf("Petition %v not found", req.Id)
+			return nil, status.Error(codes.NotFound, "petition not found")
+		}
+		return nil, err
+	}
+	slog.Info("Petition %v successfully found", req.Id)
+
+	if _, err := s.PetitionService.CheckPetitionExpiration(petition); err != nil {
+		return nil, err
+	}
+
+	slog.Info("Petition %v expiration date successfully checked", req.Id)
+	return &empty.Empty{}, nil
+}
+
+func (s *Server) ScheduleDailyCheck() {
+	s.PetitionService.ScheduleDailyCheck()
+}
+
+func (s *Server) GetAllSimilarPetitions(_ context.Context, req *pb.PetitionSuggestionRequest) (*pb.PetitionSuggestionResponse, error) {
+	petitions, err := s.PetitionService.GetAllSimilarPetitions(req.Title)
+
+	if err != nil {
+		return nil, err
+	}
+
+	getAllSimilarPetitionsResponse := make([]*pb.PetitionInfo, len(petitions))
+
+	for i := range getAllSimilarPetitionsResponse {
+		p := petitions[i]
+		getAllSimilarPetitionsResponse[i] = &pb.PetitionInfo{
+			Id:     uint32(p.ID),
+			Title:  p.Title,
+			UserId: uint32(p.UserID),
+		}
+	}
+	return &pb.PetitionSuggestionResponse{
+		SuggestedPetitions: getAllSimilarPetitionsResponse,
+	}, nil
+
+}
+
+func (s *Server) SearchPetitionsByTitle(_ context.Context, req *pb.SearchPetitionsByTitRequest) (*pb.PetitionSuggestionResponse, error) {
+	pag := util.Pagination{
+		Page:  int(req.Page),
+		Limit: int(req.Limit),
+	}
+	petitions, err := s.PetitionService.SearchPetitionsByTitle(req.Title, pag)
+	if err != nil {
+		return nil, err
+	}
+
+	SearchPetitionsByTitleResponse := make([]*pb.PetitionInfo, len(petitions))
+
+	for i := range SearchPetitionsByTitleResponse {
+		p := petitions[i]
+		SearchPetitionsByTitleResponse[i] = &pb.PetitionInfo{
+			Id:     uint32(p.ID),
+			Title:  p.Title,
+			UserId: uint32(p.UserID),
+		}
+	}
+	return &pb.PetitionSuggestionResponse{
+		SuggestedPetitions: SearchPetitionsByTitleResponse,
+	}, nil
+
 }

@@ -1,0 +1,26 @@
+syntax="proto3";
+package proto;
+
+option go_package="./pb";
+
+service UserService{
+    rpc GetUserEmailById(GetUserEmailByIdRequest) returns (ResponseMessage);
+    rpc CheckUserExistence(CheckUserExistenceRequest) returns (CheckUserExistenceResponse);
+}
+
+
+message GetUserEmailByIdRequest{
+    uint32 id = 1;
+}
+
+message ResponseMessage{
+    string message = 1;
+}
+
+message CheckUserExistenceRequest{
+    uint32 id = 1;
+}
+
+message  CheckUserExistenceResponse{
+    bool message = 1;
+}

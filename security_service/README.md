@@ -9,6 +9,7 @@ Security is a microservice built for the e-petitions project in order to provide
 - [ValidateToken](#validatetoken)
 - [SendOTP](#sendotp)
 - [ValidateOTP](#validateotp)
+- [Docker Image Creation](#docker-image-creation)
 
 ## Conventions
 Security is developed to use the gRPC protocol and will use messages from predefined proto files (internal/proto folder).
@@ -35,7 +36,7 @@ message Tokens {
 ```shell
 grpcurl -plaintext -d '{"email": "example@email.com", "password" : "examplepass"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.Login
+ localhost:50051 proto.SecurityService.Login
 ```
 #### Response
 ```json
@@ -64,7 +65,7 @@ message RefreshResponse{
 ```shell
 grpcurl -plaintext -d '{"token":"put your refresh token here"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.RefreshSession
+ localhost:50051 proto.SecurityService.RefreshSession
 ```
 #### Response
 ```json
@@ -96,7 +97,7 @@ message ValidateTokenResponse {
 ```shell
 grpcurl -plaintext -d '{"token":"put your access token here"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.ValidateToken
+ localhost:50051 proto.SecurityService.ValidateToken
 ```
 #### Response
 ```json
@@ -120,7 +121,7 @@ message OTPInfo{
 ```shell
 grpcurl -plaintext -d '{"email":"example@email.com"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.SendOTP
+ localhost:50051 proto.SecurityService.SendOTP
 ```
 #### Response
 ```json
@@ -150,11 +151,176 @@ message IsOTPValidated{
 ```shell
 grpcurl -plaintext -d '{"email":"example@email.com", "otp" : "12345"}'\
  -import-path internal/proto   -proto internal/proto/security_svc.proto \
- localhost:9002 proto.SecurityService.ValidateOTP
+ localhost:50051 proto.SecurityService.ValidateOTP
 ```
 #### Response
 ```json
 {
   "validated": true
 }
+```
+## Test Cases
+### Login: Successful
+In order for a login request to return the expected data, the request should include an **_email_** and a **_password_** of a currently registered user. A registered user is considered the one present in the database.
+Suppose we have a user registered with the **_email_** set to _**example@email.com**_ and the **_password_** set to **_examplepass_**. If sent, this request would return a set of tokens: access and refresh:
+
+#### Request Message
+```json
+{
+  "email": "example@email.com",
+  "password" : "examplepass"
+}
+```
+#### Expected Response Message
+```json
+{
+  "accessToken": "access token here",
+  "refreshToken": "refresh token here"
+}
+```
+
+### Login: Failed
+A login request will return an error from the gRPC method with a status _**"NotFound"**_ error and a _**"failed to login user"**_ error.
+
+#### Request Message
+```json
+{
+  "email": "failexample@email.com",
+  "password" : "failexamplepass"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: NotFound
+Message: failed to login user
+```
+
+### Refresh: Successful
+In order for a refresh request to return the expected data, the request should include a correctly generated **_refresh token_** that was returned after a **_successful login_**.
+Suppose the request contains a correctly generated refresh token with a valid signature. If sent, this request would return a new set of tokens: access and refresh:
+
+#### Request Message
+```json
+{
+  "token": "correctly generated with a valid signature refresh token here"
+}
+```
+#### Expected Response Message
+```json
+{
+  "tokens": {
+    "access_token": "access token here",
+    "refresh_token": "refresh token here"
+  }
+}
+```
+
+### Refresh: Failed
+A refresh request will return an error from the gRPC method with a status _**"Unauthenticated"**_ error and a _**"failed to refresh user session"**_ error.
+
+#### Request Message
+```json
+{
+  "token": "incorrectly generated with a invalid signature refresh token here"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: Unauthenticated
+Message: failed to refresh user session
+```
+
+### ValidateToken: Successful
+In order for a validate request to return the expected data, the request should include a correctly generated **_token_** that was returned after a **_successful login_**.
+Suppose the request contains a correctly generated token with a valid signature. If sent, this request would return the token and the subject included in the claims of this token:
+
+#### Request Message
+```json
+{
+  "token": "correctly generated with a valid signature token here"
+}
+```
+#### Expected Response Message
+```json
+{
+  "token": "correctly generated with a valid signature token here",
+  "email": "example@email.com"
+}
+```
+
+### ValidateToken: Failed
+A validate request will return an error from the gRPC method with a status _**"Unauthenticated"**_ error and a _**"failed to validate token"**_ error.
+
+#### Request Message
+```json
+{
+  "token": "incorrectly generated with a invalid signature token here"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: Unauthenticated
+Message: failed to validate token
+```
+
+### SendOTP: Successful
+In order for a send OTP request to return the expected data, the request should include an **_email_**.
+Suppose the request contains an email. If sent, this request would return the sent otp and the recipient.
+
+#### Request Message
+```json
+{
+  "email": "example@email.com"
+}
+```
+#### Expected Response Message
+```json
+{
+  "OTP": "12345",
+  "email": "example@email.com"
+}
+```
+
+### ValidateOTP: Successful
+In order for a send OTP request to return the expected data, the request should include an **_email_**.
+Suppose the request contains an email. If sent, this request would return the otp sent and the recipient.
+
+#### Request Message
+```json
+{
+  "email": "example@email.com",
+  "OTP": "12345"
+}
+```
+#### Expected Response Message
+```json
+{
+  "validated": true
+}
+```
+### ValidateOTP: Failed
+A validate OTP request will return an error from the gRPC method with a status _**"InvalidArgument"**_ error and a _**"failed to validate otp"**_ error, if the otp sent in the request is not present in the Redis Database.
+
+
+#### Request Message
+```json
+{
+  "email": "example@email.com",
+  "OTP": "12345"
+}
+```
+#### Expected Response Message
+```grpc
+ERROR:
+Code: InvalidArgument
+Message: failed to validate otp
+```
+## Docker Image Creation
+### Command
+In order to build the image necessary for the Docker compose file, run this command:
+```shell
+docker build -t e-petitions-security:1.0 .
 ```

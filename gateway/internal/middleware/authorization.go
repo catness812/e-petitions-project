@@ -9,11 +9,11 @@ import (
 )
 
 type AuthMiddleware struct {
-	userClient pb.UserControllerClient
+	userClient pb.UserServiceClient
 	cfg        *config.PermissionsConfig
 }
 
-func NewAuthorizationMiddleware(userClient pb.UserControllerClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
+func NewAuthorizationMiddleware(userClient pb.UserServiceClient, rbacCfg *config.PermissionsConfig) *AuthMiddleware {
 	return &AuthMiddleware{userClient: userClient, cfg: rbacCfg}
 }
 
@@ -50,7 +50,8 @@ func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFu
 			if perm.Resource == resourceCode && perm.Role == user.Role {
 				if (action == "read" && perm.Allow.Read) ||
 					(action == "write" && perm.Allow.Write) ||
-					(action == "delete" && perm.Allow.Delete) {
+					(action == "delete" && perm.Allow.Delete) ||
+					(action == "update" && perm.Allow.Update) {
 					authorized = true
 					break
 				}
