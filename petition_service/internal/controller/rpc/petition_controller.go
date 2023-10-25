@@ -201,6 +201,10 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
+		pStatus := &pb.Status{
+			Id:    uint32(p.StatusID),
+			Title: p.Status.Title,
+		}
 		getUserPetitionsResponse[i] = &pb.Petition{
 			Id:           uint32(p.ID),
 			Title:        p.Title,
@@ -212,7 +216,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 			CurrentVotes: uint32(p.CurrVotes),
 			ExpDate:      timestamppb.New(p.ExpDate),
 			UserId:       uint32(p.UserID),
-			Status:       &pb.Status{Id: uint32(p.Status.ID), Title: p.Status.Title},
+			Status:       pStatus,
 		}
 	}
 

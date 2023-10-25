@@ -120,7 +120,7 @@ func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
 }
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+	if err := repo.db.Scopes(postgres.Paginate(pagination)).Model(models.Petition{}).Where("user_id = ?", userID).Preload("Status").Find(&petitions).Error; err != nil {
 		return nil, err
 	}
 	return petitions, nil
@@ -140,6 +140,7 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination
 		slog.Errorf("can't execute the query: %v", err)
 		return nil, err
 	}
+	slog.Info(petitions)
 
 	return petitions, nil
 }
