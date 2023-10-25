@@ -128,14 +128,16 @@ func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util
 
 func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.
-		Debug().Scopes(postgres.Paginate(pagination)).
-		Table("petitions").
-		Select("petitions.*, votes.*").
-		Joins("JOIN votes ON petitions.id = votes.petition_id").
-		Where("votes.user_id = ?", userID).Find(&petitions).
-		Error; err != nil {
-		slog.Errorf("can't access tables %v", err.Error())
+
+	query := `
+        SELECT petitions.*
+        FROM petitions
+        JOIN votes ON petitions.id = votes.petition_id
+        WHERE votes.user_id = ?
+        LIMIT ? OFFSET ?
+    `
+	if err := repo.db.Raw(query, userID, pagination.Limit, pagination.Page).Scan(&petitions).Error; err != nil {
+		slog.Errorf("can't execute the query: %v", err)
 		return nil, err
 	}
 
