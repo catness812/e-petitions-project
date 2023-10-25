@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-
+	RunFileService()
 }
 
 func RunFileService() {
@@ -24,20 +24,24 @@ func RunFileService() {
 	fileSvc := service.NewFileService(fileRepo)
 	fileRPCServer := controller.NewFileRPCServer(fileSvc)
 
-	lis, err := net.Listen("tcp", "localhost:9002")
+	lis, err := net.Listen("tcp", "localhost:50055")
 	if err != nil {
-		slog.Fatalf("Failed to listen to file service on GRPC port 9009: %v", err)
+		slog.Fatalf("Failed to listen to file service on GRPC port 50055: %v", err)
 	}
-
-	grpcServer := grpc.NewServer()
+	maxMsgSize := 1024 * 1024 * 1000 // 10MB, adjust the size as needed
+	opts := []grpc.ServerOption{
+		grpc.MaxRecvMsgSize(maxMsgSize),
+		grpc.MaxSendMsgSize(maxMsgSize),
+	}
+	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterFileServiceServer(grpcServer, fileRPCServer)
 	if err := grpcServer.Serve(lis); err != nil {
-		slog.Fatalf("failed to serve security service on 9002: %v", err)
+		slog.Fatalf("failed to serve security service on 50055: %v", err)
 	}
-	slog.Info("Listening file on 9009")
+	slog.Info("Listening file on 50055")
 }
 
 func dbConnection(cfg *config.Config) *gorm.DB {
-	postgresDB := postgres.Connect()
+	postgresDB := postgres.Connect(cfg)
 	return postgresDB
 }

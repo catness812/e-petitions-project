@@ -6,7 +6,7 @@ import (
 )
 
 type IFileService interface {
-	UploadFile(fileID int, data []byte) error
+	UploadFile(data []byte) error
 }
 
 type FileRPCServer struct {
@@ -18,5 +18,8 @@ func NewFileRPCServer(fileSvc IFileService) *FileRPCServer {
 }
 
 func (s *FileRPCServer) UploadFile(ctx context.Context, req *pb.FileRequest) (*pb.FileResponse, error) {
-	return nil, nil
+	if err := s.fileSvc.UploadFile(req.FileData); err != nil {
+		return nil, err
+	}
+	return &pb.FileResponse{Message: "Successfully uploaded file"}, nil
 }

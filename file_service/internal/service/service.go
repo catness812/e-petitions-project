@@ -6,7 +6,8 @@ import (
 )
 
 type IFileRepository interface {
-	ProcessAndStoreChunk(fileID, sequenceNumber int, chunk []byte) error
+	ProcessAndStoreChunk(fileID uint, sequenceNumber int, chunk []byte) error
+	CreateFile() (uint, error)
 }
 
 type FileService struct {
@@ -17,11 +18,13 @@ func NewFileService(repo IFileRepository) *FileService {
 	return &FileService{repo: repo}
 }
 
-func (fileSvc *FileService) UploadFile(fileID int, data []byte) error {
+func (fileSvc *FileService) UploadFile(data []byte) error {
 	chunkSize := calculateChunkSize(len(data)) // Implement a function to determine chunk size.
-
+	fileID, err := fileSvc.repo.CreateFile()
+	if err != nil {
+		return err
+	}
 	var wg sync.WaitGroup
-	// Iterate through chunks and create Goroutines.
 	for i, chunk := range splitIntoChunks(data, chunkSize) {
 		wg.Add(1)
 		go func(chunk []byte, sequenceNumber int) {
