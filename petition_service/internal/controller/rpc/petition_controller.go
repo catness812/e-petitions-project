@@ -211,6 +211,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 			UpdatedAt:    timestamppb.New(p.UpdatedAt),
 			CurrentVotes: uint32(p.CurrVotes),
 			ExpDate:      timestamppb.New(p.ExpDate),
+			UserId:       uint32(p.UserID),
 		}
 	}
 
@@ -245,6 +246,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 			UpdatedAt:    timestamppb.New(p.UpdatedAt),
 			CurrentVotes: uint32(p.CurrVotes),
 			ExpDate:      timestamppb.New(p.ExpDate),
+			UserId:       uint32(p.UserID),
 		}
 	}
 
