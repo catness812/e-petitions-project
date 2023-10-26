@@ -20,7 +20,6 @@ git clone https://github.com/catness812/e-petitions-project.git
 ```shell
 docker compose up
 ```
-3. Note: Every microservice has a README. This means you can access the directory for an independent microservice and see how is it developed.
 
 ## How to use (for regular users):
 Still in development (currently finishing the front)
@@ -38,3 +37,17 @@ We are using Docker (by the way don't worry about launching every db, our global
 
 ### Protocols and Communication
 Gateway is communicating with our Web Client (frontend) via a classic REST API, however the rest of services are communicating with each other and with gateway inclusively via gRPC (much faster that REST API).
+
+
+## Microservices Involved
+As seen in the repo, there are 6 main services:
+1. [Gateway](gateway) - for external communication
+2. [Mail Service](mail_service) - for notifying users and admin about changes involving petitions and personal information.
+3. [Petition Service](petition_service) - a service for managing all information referring to petitions.
+4. [User Service](user_service) - same as the last one, but about users.
+5. [Security Service](security_service) - this service is a middleware, responsible for secure registering and logging the user and other aspects.
+6. [OTP Service](security_service) - OTP service is a part of security service, but it is responsible for signing a petition.
+7. [Spam Filter](https://github.com/grumpycatyo-collab/spam_filter_epetitions.git) - yeah, there are 7 of them, not 6, because spam filer service is a middleware, from an external repo, that manages the censoring and grammar correction of information inputted by the user (it works in Python and communicating with the front via web-sockets).
+   
+NOTE: every microservice has its documentation so don't hesitate to click on it and see how it's working.
+
