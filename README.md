@@ -1,5 +1,15 @@
 # E-Petitions Microservice Architecture
 
+[![GoLang](https://img.shields.io/badge/Programming%20Language-GoLang-blue)](https://golang.org/)
+[![Gin-Gonic](https://img.shields.io/badge/Framework-Gin--Gonic-green)](https://github.com/gin-gonic/gin)
+[![PostgreSQL](https://img.shields.io/badge/Data%20Storage-PostgreSQL-blue)](https://www.postgresql.org/)
+[![GORM](https://img.shields.io/badge/ORM-GORM-red)](https://gorm.io/)
+[![Redis](https://img.shields.io/badge/Cache-Redis-red)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Deployment-Docker-blue)](https://www.docker.com/)
+[![Cloud Deployment](https://img.shields.io/badge/Deployment-Cloud%20(in%20progress)-blue)](https://cloud.google.com/)
+[![Domain](https://img.shields.io/badge/Domain-epetitii.co-lightgrey)](https://epetitii.co/)
+[![REST API](https://img.shields.io/badge/Communication-REST%20API-orange)](https://en.wikipedia.org/wiki/Representational_state_transfer)
+
 # Description
 A modern solution to make users' voices matter!
 
@@ -26,18 +36,15 @@ Still in development (currently finishing the front)
 
 ## Tech Stack
 
-### Programming Language
-All the stuff here is done using GoLang (except Spam Filter Service), specifically Gin-Gonic framework. Why? Go as a language is pretty fast, offers a mass of features and clean code.
+This project leverages the following technologies and frameworks:
 
-### Data Storage and Querying
-The information about users and petitions is currently stored in PostgreSQL, using ORM (GORM for Go). We use Redis for our OTP & Security Services for faster work and time dependent variables.
+- **Programming Language**: [GoLang](https://golang.org/) with [Gin-Gonic framework](https://github.com/gin-gonic/gin) for fast, feature-rich, and clean code.
 
-### Deployment 
-We are using Docker (by the way don't worry about launching every db, our global docker file is already doing that) for deployment. Currently working on launching the app on the cloud and using our domain from porkbun.com (epetitii.co).
+- **Data Storage and Querying**: [PostgreSQL](https://www.postgresql.org/) with [GORM](https://gorm.io/) for Go (ORM) for efficient data management. [Redis](https://redis.io/) is used for OTP & Security Services, providing faster response times and time-dependent variables.
 
-### Protocols and Communication
-Gateway is communicating with our Web Client (frontend) via a classic REST API, however the rest of services are communicating with each other and with gateway inclusively via gRPC (much faster that REST API).
+- **Deployment**: Utilizes [Docker](https://www.docker.com/) for seamless deployment. Ongoing work on cloud deployment with a domain registered at [epetitii.co](https://epetitii.co/) via [porkbun.com](https://porkbun.com/).
 
+- **Protocols and Communication**: The gateway communicates with the web client (frontend) through a classic [REST API](https://en.wikipedia.org/wiki/Representational_state_transfer). Other services, including internal communication with the gateway, employ [gRPC](https://grpc.io/) for superior performance.
 
 ## Microservices Involved
 As seen in the repo, there are 6 main services:
@@ -62,3 +69,5 @@ Please note that not all contributors are active, some of them have left the tea
 All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
 
 We don't have a contributing guide or a issues Git page, but we are on the way to make them.
+
+
