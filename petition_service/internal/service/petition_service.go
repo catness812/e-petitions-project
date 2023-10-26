@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
@@ -69,7 +70,9 @@ func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
 	if err != nil {
 		return 0, err
 	}
-	petition.AuthorName = email
+	parts := strings.Split(email, "@")
+	nameParts := strings.Split(parts[0], ".")
+	petition.AuthorName = strings.Join(nameParts, " ")
 	err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has been successfully created!`, petition.Title))
 	if err != nil {
 		return 0, err
