@@ -51,3 +51,14 @@ As seen in the repo, there are 6 main services:
    
 NOTE: every microservice has its documentation so don't hesitate to click on it and see how it's working.
 
+### Front Development
+Frontend has a different repository developed in React TS, with Chakra UI. [Here](https://github.com/valeis/e_petitions_project_front.git) you can see more about it, and even launch a test to see how it's working.
+
+
+### Contributors
+![Contributors](https://img.shields.io/github/contributors/catness812/e-petitions-project)
+
+Please note that not all contributors are active, some of them have left the team.
+All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
+
+We don't have a contributing guide or a issues Git page, but we are on the way to make them.
