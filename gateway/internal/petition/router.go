@@ -28,7 +28,7 @@ func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	//route.GET("/", petitionController.ValidatePetitionID)
 	route.POST("/sign/:uid/:pid", petitionController.CreateVote)
 	route.POST("/search/:page/:limit", petitionController.SearchPetitionsByTitle)
-	route.GET("/similar", petitionController.GetAllSimilarPetitions)
+	route.POST("/similar", petitionController.GetAllSimilarPetitions)
 
 	route = r.Group("/user")
 	route.GET("/petitions/:uid/:page/:limit", petitionController.GetUserPetitions)
