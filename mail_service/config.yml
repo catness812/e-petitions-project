@@ -1,8 +1,8 @@
 smtp:
-  host: "mailcatcher"
-  port: "1025"
+  host: "smtp.gmail.com"
+  port: "587"
 
   
 rabbit:
-  host: "rabbitmq"
+  host: "localhost"
   port: "5672"
