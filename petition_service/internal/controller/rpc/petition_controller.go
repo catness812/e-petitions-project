@@ -165,14 +165,8 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionStatusRequest) (*empty.Empty, error) {
 	err := s.PetitionService.UpdateStatus(uint(req.Id), req.Status)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Errorf("Petition %v not found", req.Id)
-			return nil, status.Error(codes.NotFound, "petition not found")
-		}
 		return nil, err
 	}
-
-	slog.Infof("Petition %v status successfully updated", req.Id)
 	return &empty.Empty{}, nil
 }
 

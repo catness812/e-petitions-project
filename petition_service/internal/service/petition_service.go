@@ -7,6 +7,7 @@ import (
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"gorm.io/gorm"
 
 	"github.com/gookit/slog"
 	"github.com/robfig/cron/v3"
@@ -141,15 +142,28 @@ func (svc *PetitionService) UpdateStatus(id uint, status string) error {
 	// check if status exists first
 	newStatus, err := svc.petitionRepository.GetStatusByTitle(status)
 	if err != nil {
-		return err
+		if err == gorm.ErrRecordNotFound {
+			slog.Errorf("Status %v not found", status)
+			return fmt.Errorf("Status %v not found", status)
+		}
+		slog.Errorf("error getting status %v", err)
+		return fmt.Errorf("error getting status %v", err)
 	}
+	// update status
 	if err := svc.petitionRepository.UpdateStatus(id, newStatus.ID); err != nil {
-		return err
+		if err == gorm.ErrRecordNotFound {
+			slog.Errorf("Petition %v not found", id)
+			return fmt.Errorf("Petition %v not found", id)
+		}
+		slog.Errorf("error updating status %v", err)
+		return fmt.Errorf("error updating status %v", err)
 	}
+	slog.Infof("Petition %v status successfully updated", id)
 	return nil
 }
 
 func (svc *PetitionService) UpdatePetition(petition *models.PetitionUpdate) error {
+
 	if err := svc.petitionRepository.UpdatePetition(petition); err != nil {
 		slog.Errorf("Error updating petition: %v", err)
 		return err
