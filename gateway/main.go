@@ -11,19 +11,35 @@ import (
 )
 
 func main() {
-	cfg := config.LoadConfig()
-	rbacCfg := config.LoadConfigRBAC()
-
 	r := gin.Default()
 	r.Use(corsMiddleware())
-	user.RegisterUserRoutes(r, cfg, rbacCfg)
-	petition.RegisterPetitionRoutes(r, cfg)
-	security.RegisterSecurityRoutes(r, cfg)
-
+	registerRoutes(r)
 	err := r.Run(":1337")
 	if err != nil {
 		slog.Fatalf("Failed to start server: %v", err)
 	}
+}
+
+func registerRoutes(r *gin.Engine) {
+	cfg := config.LoadConfig()
+	rbacCfg := config.LoadConfigRBAC()
+	securityClient, err := security.InitAuthServiceClient(cfg)
+	if err != nil {
+		slog.Fatalf("Failed to connect to security service grpc: %v", err)
+	}
+	userClient := user.InitUserServiceClient(cfg)
+	securityRepo := security.NewSecurityRepository(cfg, securityClient)
+	securitySvc := security.NewSecurityService(securityRepo)
+	securityCtrl := security.NewSecurityController(securitySvc, userClient)
+
+	userRepo := user.NewUserRepository(cfg, userClient)
+	userSvc := user.NewUserService(userRepo)
+	userCtrl := user.NewUserController(userSvc)
+
+	user.RegisterUserRoutes(r, rbacCfg, userCtrl, userClient, securityClient)
+	petition.RegisterPetitionRoutes(r, cfg)
+	security.RegisterSecurityRoutes(r, securityCtrl, securityClient)
+
 }
 
 func corsMiddleware() gin.HandlerFunc {
