@@ -35,6 +35,7 @@ type IPublisherRepository interface {
 
 type IUserRepository interface {
 	GetEmailById(id uint) (string, error)
+	CheckUserExistence(id uint) (bool, error)
 }
 
 type PetitonService struct {
@@ -85,6 +86,15 @@ func (svc *PetitonService) CreateVote(vote models.Vote) error {
 	petition, err := svc.petitionRepository.GetByID(vote.PetitionID)
 	if err != nil {
 		return err
+	}
+
+	// check if user exists
+	exists, err := svc.userRepository.CheckUserExistence(vote.UserID)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("user doesn't exists")
 	}
 
 	if err := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
@@ -277,16 +287,14 @@ func (svc *PetitonService) GetAllSimilarPetitions(title string) ([]models.Petiti
 
 			}
 		}
-
 		offset += limit
 	}
 	return similarPetitions, nil
+
 }
 
 func (svc *PetitonService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
-	similarPetitions := make([]models.PetitionInfo, 0)
-	var err error
-	similarPetitions, err = svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
+	similarPetitions, err := svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
 	if err != nil {
 		return nil, err
 	}

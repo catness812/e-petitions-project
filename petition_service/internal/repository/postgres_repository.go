@@ -70,9 +70,12 @@ func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
 }
 
 func (repo *PetitionRepository) Delete(id uint) error {
-	err := repo.db.Unscoped().Where("id = ?", id).Delete(&models.Petition{}).Error
+	var petition models.Petition
+	err := repo.db.Unscoped().Where("id = ?", id).Delete(&petition).Error
 	if err != nil {
 		return err
+	} else if petition.ID == 0 {
+		return gorm.ErrRecordNotFound
 	}
 	return nil
 }
@@ -117,7 +120,7 @@ func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
 }
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+	if err := repo.db.Scopes(postgres.Paginate(pagination)).Model(models.Petition{}).Where("user_id = ?", userID).Preload("Status").Find(&petitions).Error; err != nil {
 		return nil, err
 	}
 	return petitions, nil
@@ -125,16 +128,19 @@ func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util
 
 func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.
-		Debug().Scopes(postgres.Paginate(pagination)).
-		Table("petitions").
-		Select("petitions.*, votes.*").
-		Joins("JOIN votes ON petitions.id = votes.petition_id").
-		Where("votes.user_id = ?", userID).Find(&petitions).
-		Error; err != nil {
-		slog.Errorf("can't access tables %v", err.Error())
+
+	query := `
+        SELECT petitions.*
+        FROM petitions
+        JOIN votes ON petitions.id = votes.petition_id
+        WHERE votes.user_id = ?
+        LIMIT ? OFFSET ?
+    `
+	if err := repo.db.Raw(query, userID, pagination.Limit, pagination.Page).Scan(&petitions).Error; err != nil {
+		slog.Errorf("can't execute the query: %v", err)
 		return nil, err
 	}
+	slog.Info(petitions)
 
 	return petitions, nil
 }

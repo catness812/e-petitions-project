@@ -35,3 +35,11 @@ message GetUserEmailByIdRequest{
 message ResponseMessage{
     string message = 1;
 }
+
+message CheckUserExistenceRequest{
+    uint32 id = 1;
+}
+
+message  CheckUserExistenceResponse{
+    bool message = 1;
+}

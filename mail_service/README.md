@@ -44,4 +44,4 @@ Should recive in playload message as exemple:
 ## Docker build
 ### Command
 In order to build the image necessary for the Docker compose file, run this command:
-```docker build -t e-petitions-mail:1.0 .```
+- ```docker build -t e-petitions-mail:1.0 .```

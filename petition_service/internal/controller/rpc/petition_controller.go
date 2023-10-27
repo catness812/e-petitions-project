@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
@@ -200,12 +201,22 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
+		pStatus := &pb.Status{
+			Id:    uint32(p.StatusID),
+			Title: p.Status.Title,
+		}
 		getUserPetitionsResponse[i] = &pb.Petition{
-			Id:          uint32(p.ID),
-			Title:       p.Title,
-			Category:    p.Category,
-			Description: p.Description,
-			VoteGoal:    uint32(p.VoteGoal),
+			Id:           uint32(p.ID),
+			Title:        p.Title,
+			Category:     p.Category,
+			Description:  p.Description,
+			VoteGoal:     uint32(p.VoteGoal),
+			CreatedAt:    timestamppb.New(p.CreatedAt),
+			UpdatedAt:    timestamppb.New(p.UpdatedAt),
+			CurrentVotes: uint32(p.CurrVotes),
+			ExpDate:      timestamppb.New(p.ExpDate),
+			UserId:       uint32(p.UserID),
+			Status:       pStatus,
 		}
 	}
 
@@ -231,11 +242,17 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
 		getUserPetitionsResponse[i] = &pb.Petition{
-			Id:          uint32(p.ID),
-			Title:       p.Title,
-			Category:    p.Category,
-			Description: p.Description,
-			VoteGoal:    uint32(p.VoteGoal),
+			Id:           uint32(p.ID),
+			Title:        p.Title,
+			Category:     p.Category,
+			Description:  p.Description,
+			VoteGoal:     uint32(p.VoteGoal),
+			CreatedAt:    timestamppb.New(p.CreatedAt),
+			UpdatedAt:    timestamppb.New(p.UpdatedAt),
+			CurrentVotes: uint32(p.CurrVotes),
+			ExpDate:      timestamppb.New(p.ExpDate),
+			UserId:       uint32(p.UserID),
+			Status:       &pb.Status{Id: uint32(p.Status.ID), Title: p.Status.Title},
 		}
 	}
 
@@ -265,7 +282,7 @@ func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*
 }
 
 func (s *Server) ScheduleDailyCheck() {
-	s.ScheduleDailyCheck()
+	s.PetitionService.ScheduleDailyCheck()
 }
 
 func (s *Server) GetAllSimilarPetitions(_ context.Context, req *pb.PetitionSuggestionRequest) (*pb.PetitionSuggestionResponse, error) {

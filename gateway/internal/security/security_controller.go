@@ -1,6 +1,8 @@
 package security
 
 import (
+	"context"
+	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 	"github.com/gookit/slog"
 	"net/http"
 
@@ -16,11 +18,12 @@ type ISecurityService interface {
 }
 
 type SecurityController struct {
-	service ISecurityService
+	service    ISecurityService
+	userClient pb.UserServiceClient
 }
 
-func NewSecurityController(service ISecurityService) *SecurityController {
-	return &SecurityController{service: service}
+func NewSecurityController(service ISecurityService, userClient pb.UserServiceClient) *SecurityController {
+	return &SecurityController{service: service, userClient: userClient}
 }
 
 func (ctrl *SecurityController) Login(ctx *gin.Context) {
@@ -33,7 +36,7 @@ func (ctrl *SecurityController) Login(ctx *gin.Context) {
 	}
 	tokens, err := ctrl.service.Login(user)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Could not login user"})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid credentials"})
 		return
 	}
 
@@ -56,7 +59,7 @@ func (ctrl *SecurityController) Refresh(ctx *gin.Context) {
 		slog.Errorf("Invalid request format: %v", err)
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error":   true,
-			"message": "Could not refresh user session",
+			"message": "Invalid request format",
 		})
 		return
 	}
@@ -111,7 +114,11 @@ func (ctrl *SecurityController) ValidateOTP(ctx *gin.Context) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
 		return
 	}
-
+	_, err = ctrl.userClient.CreateUserOTP(context.Background(), &pb.UserRequest{Email: email, Password: otp})
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
+		return
+	}
 	slog.Info("OTP successfully validated")
 	ctx.JSON(http.StatusOK, gin.H{
 		"error":     false,
