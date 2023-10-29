@@ -6,6 +6,7 @@ import (
 	"github.com/gookit/slog"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type IUserService interface {
@@ -39,7 +40,7 @@ func (c *UserController) GetUserByEmail(ctx *gin.Context) {
 
 	res, err := c.service.GetByEmail(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -58,7 +59,7 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 	email, err := c.service.GetByID(uint32(pid))
 
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -80,7 +81,7 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 
 	_, err := c.service.Delete(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -99,7 +100,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	}
 	_, err = c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -116,7 +117,7 @@ func (c *UserController) OTPCreateUser(ctx *gin.Context) {
 	}
 	_, err = c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -133,7 +134,7 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	}
 	_, err = c.service.Update(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "User updated successfully", "error": false})
@@ -152,7 +153,7 @@ func (c *UserController) AddAdmin(ctx *gin.Context) {
 
 	_, err := c.service.AddAdmin(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 

@@ -3,6 +3,7 @@ package petition
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gookit/slog"
@@ -39,13 +40,13 @@ func (c *petitionController) CreatePetition(ctx *gin.Context) {
 	err := ctx.BindJSON(&petition)
 	if err != nil {
 		slog.Errorf("Failed to bind petition: ", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
 	resp, err := c.service.CreatePetition(petition)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -90,7 +91,7 @@ func (c *petitionController) GetPetitions(ctx *gin.Context) {
 
 	petitions, err := c.service.GetPetitions(uint32(page), uint32(limit))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -109,7 +110,7 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 	err = c.service.UpdatePetitionStatus(status.ID, status.Status)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -128,7 +129,7 @@ func (c *petitionController) DeletePetition(ctx *gin.Context) {
 	err = c.service.DeletePetition(id)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -147,7 +148,7 @@ func (c *petitionController) ValidatePetitionID(ctx *gin.Context) {
 	err := c.service.ValidatePetitionID(pid.PetitionID)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 	}
 	ctx.JSON(http.StatusOK, "Petition validation is successful")
 
@@ -169,7 +170,7 @@ func (c *petitionController) CreateVote(ctx *gin.Context) {
 
 	err = c.service.CreateVote(uint32(uid), uint32(pid))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -203,7 +204,7 @@ func (c *petitionController) GetUserPetitions(ctx *gin.Context) {
 	res, err := c.service.GetUserPetitions(uint32(uid), uint32(page), uint32(limit))
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 	}
 
 	slog.Infof("User created petitions retrieved successfully")
@@ -234,14 +235,13 @@ func (c *petitionController) GetUserVotedPetitions(ctx *gin.Context) {
 	res, err := c.service.GetUserVotedPetitions(uint32(uid), uint32(page), uint32(limit))
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 	}
 
 	slog.Infof("User voted petitions retrieved successfully")
 	ctx.JSON(http.StatusOK, gin.H{"user_voted_petitions": res, "error": false, "message": "User voted petitions retrieved successfully"})
 
 }
-
 func (c *petitionController) GetAllSimilarPetitions(ctx *gin.Context) {
 	var title model.Petition
 	err := ctx.BindJSON(&title)
@@ -253,7 +253,7 @@ func (c *petitionController) GetAllSimilarPetitions(ctx *gin.Context) {
 	res, err := c.service.GetAllSimilarPetitions(title.Title)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
@@ -261,7 +261,6 @@ func (c *petitionController) GetAllSimilarPetitions(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"petitions": res, "error": false, "message": "Similar petition retrieved successfully"})
 
 }
-
 func (c *petitionController) SearchPetitionsByTitle(ctx *gin.Context) {
 	var title model.Petition
 	err := ctx.BindJSON(&title)
@@ -288,7 +287,7 @@ func (c *petitionController) SearchPetitionsByTitle(ctx *gin.Context) {
 	res, err := c.service.SearchPetitionsByTitle(title.Title, uint32(page), uint32(limit))
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error(), "error": true})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
 		return
 	}
 
