@@ -33,18 +33,18 @@ func (c *UserController) GetUserByEmail(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&request); err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request format", "error": true})
 		return
 	}
 
 	res, err := c.service.GetByEmail(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	slog.Info("GetUserByEmail request successful")
-	ctx.JSON(http.StatusOK, gin.H{"user": res})
+	ctx.JSON(http.StatusOK, gin.H{"user": res, "error": false, "message": "User found"})
 
 }
 
@@ -58,12 +58,12 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 	email, err := c.service.GetByID(uint32(pid))
 
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	slog.Info("GetUserByID request successful")
-	ctx.JSON(http.StatusOK, gin.H{"email": email})
+	ctx.JSON(http.StatusOK, gin.H{"email ": email, "error": false, "message": "User found"})
 
 }
 
@@ -74,18 +74,18 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&request); err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request format", "error": true})
 		return
 	}
 
-	res, err := c.service.Delete(request.Email)
+	_, err := c.service.Delete(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	slog.Infof("DeleteUser request successful")
-	ctx.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "User deleted successfully", "error": false})
 
 }
 
@@ -94,49 +94,49 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	err := ctx.BindJSON(&user)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
-	res, err := c.service.Create(user)
+	_, err = c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	slog.Infof("CreateUser request successful")
-	ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "User created successfully", "error": false})
 }
 func (c *UserController) OTPCreateUser(ctx *gin.Context) {
 	var user model.UserCredentials
 	err := ctx.BindJSON(&user)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
-	res, err := c.service.Create(user)
+	_, err = c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	slog.Infof("OTP CreateUser request successful")
-	ctx.JSON(http.StatusOK, gin.H{"message": "OTP User created successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "OTP User created successfully", "error": false})
 }
 
 func (c *UserController) UpdateUser(ctx *gin.Context) {
 	var user model.UserCredentials
 	err := ctx.BindJSON(&user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
-	res, err := c.service.Update(user)
+	_, err = c.service.Update(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "User updated successfully", "error": false})
 }
 
 func (c *UserController) AddAdmin(ctx *gin.Context) {
@@ -146,16 +146,16 @@ func (c *UserController) AddAdmin(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&request); err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request format", "error": true})
 		return
 	}
 
-	res, err := c.service.AddAdmin(request.Email)
+	_, err := c.service.AddAdmin(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	slog.Errorf("AddAdmin request successful")
-	ctx.JSON(http.StatusOK, gin.H{"message": "Admin added successfully"})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Admin added successfully", "error": false})
 }
