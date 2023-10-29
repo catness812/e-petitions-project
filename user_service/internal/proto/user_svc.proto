@@ -14,5 +14,5 @@ service UserService{
     rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);
     rpc GetUserEmailById(GetUserEmailByIdRequest) returns (ResponseMessage);
     rpc AddAdmin(AddAdminRequest) returns (ResponseMessage);
-
+    rpc CheckUserExistence(CheckUserExistenceRequest) returns (CheckUserExistenceResponse);
 }

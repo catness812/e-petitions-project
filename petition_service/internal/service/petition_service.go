@@ -2,10 +2,12 @@ package service
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
+	"gorm.io/gorm"
 
 	"github.com/gookit/slog"
 	"github.com/robfig/cron/v3"
@@ -27,6 +29,7 @@ type IPetitionRepository interface {
 	HasUserVoted(userID, petitionID uint) error
 	GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error)
 	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
+	UpdatePetition(petition *models.PetitionUpdate) error
 }
 
 type IPublisherRepository interface {
@@ -35,9 +38,10 @@ type IPublisherRepository interface {
 
 type IUserRepository interface {
 	GetEmailById(id uint) (string, error)
+	CheckUserExistence(id uint) (bool, error)
 }
 
-type PetitonService struct {
+type PetitionService struct {
 	petitionRepository  IPetitionRepository
 	publisherRepository IPublisherRepository
 	userRepository      IUserRepository
@@ -47,27 +51,29 @@ func NewPetitionService(
 	petRepo IPetitionRepository,
 	pubRepo IPublisherRepository,
 	userRepo IUserRepository,
-) *PetitonService {
-	return &PetitonService{
+) *PetitionService {
+	return &PetitionService{
 		petitionRepository:  petRepo,
 		publisherRepository: pubRepo,
 		userRepository:      userRepo,
 	}
 }
 
-func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
+func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
 	// save with draft status when created
 	status, err := svc.petitionRepository.GetStatusByTitle(models.DRAFT)
 	if err != nil {
 		return 0, err
 	}
 	petition.Status = status
-
 	// get user's email from User Service
 	email, err := svc.userRepository.GetEmailById(petition.UserID)
 	if err != nil {
 		return 0, err
 	}
+	parts := strings.Split(email, "@")
+	nameParts := strings.Split(parts[0], ".")
+	petition.AuthorName = strings.Join(nameParts, " ")
 	err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has been successfully created!`, petition.Title))
 	if err != nil {
 		return 0, err
@@ -80,11 +86,20 @@ func (svc *PetitonService) CreateNew(petition models.Petition) (uint, error) {
 	return petition.ID, nil
 }
 
-func (svc *PetitonService) CreateVote(vote models.Vote) error {
+func (svc *PetitionService) CreateVote(vote models.Vote) error {
 	// see if petition exists
 	petition, err := svc.petitionRepository.GetByID(vote.PetitionID)
 	if err != nil {
 		return err
+	}
+
+	// check if user exists
+	exists, err := svc.userRepository.CheckUserExistence(vote.UserID)
+	if err != nil {
+		return err
+	}
+	if !exists {
+		return fmt.Errorf("user doesn't exists")
 	}
 
 	if err := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
@@ -119,23 +134,45 @@ func (svc *PetitonService) CreateVote(vote models.Vote) error {
 	return nil
 }
 
-func (svc *PetitonService) GetAll(pagination util.Pagination) []models.Petition {
+func (svc *PetitionService) GetAll(pagination util.Pagination) []models.Petition {
 	return svc.petitionRepository.GetAll(pagination)
 }
 
-func (svc *PetitonService) UpdateStatus(id uint, status string) error {
+func (svc *PetitionService) UpdateStatus(id uint, status string) error {
 	// check if status exists first
 	newStatus, err := svc.petitionRepository.GetStatusByTitle(status)
 	if err != nil {
-		return err
+		if err == gorm.ErrRecordNotFound {
+			slog.Errorf("Status %v not found", status)
+			return fmt.Errorf("Status %v not found", status)
+		}
+		slog.Errorf("error getting status %v", err)
+		return fmt.Errorf("error getting status %v", err)
 	}
+	// update status
 	if err := svc.petitionRepository.UpdateStatus(id, newStatus.ID); err != nil {
-		return err
+		if err == gorm.ErrRecordNotFound {
+			slog.Errorf("Petition %v not found", id)
+			return fmt.Errorf("Petition %v not found", id)
+		}
+		slog.Errorf("error updating status %v", err)
+		return fmt.Errorf("error updating status %v", err)
 	}
+	slog.Infof("Petition %v status successfully updated", id)
 	return nil
 }
 
-func (svc *PetitonService) Delete(id uint) error {
+func (svc *PetitionService) UpdatePetition(petition *models.PetitionUpdate) error {
+
+	if err := svc.petitionRepository.UpdatePetition(petition); err != nil {
+		slog.Errorf("Error updating petition: %v", err)
+		return err
+	}
+	slog.Info("Petition updated successfully")
+	return nil
+}
+
+func (svc *PetitionService) Delete(id uint) error {
 	err := svc.petitionRepository.Delete(id)
 	if err != nil {
 		return err
@@ -143,7 +180,7 @@ func (svc *PetitonService) Delete(id uint) error {
 	return nil
 }
 
-func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
+func (svc *PetitionService) GetByID(id uint) (models.Petition, error) {
 	petition, err := svc.petitionRepository.GetByID(id)
 	if err != nil {
 		return petition, err
@@ -151,15 +188,15 @@ func (svc *PetitonService) GetByID(id uint) (models.Petition, error) {
 	return petition, nil
 }
 
-func (svc *PetitonService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+func (svc *PetitionService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	return svc.petitionRepository.GetAllUserPetitions(userID, pagination)
 }
 
-func (svc *PetitonService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+func (svc *PetitionService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
 }
 
-func (svc *PetitonService) CheckPetitionExpiration(petition models.Petition) (string, error) {
+func (svc *PetitionService) CheckPetitionExpiration(petition models.Petition) (string, error) {
 	if time.Now().After(petition.ExpDate) {
 		email, err := svc.userRepository.GetEmailById(petition.UserID)
 		if err != nil {
@@ -179,7 +216,7 @@ func (svc *PetitonService) CheckPetitionExpiration(petition models.Petition) (st
 	return "", nil
 }
 
-func (svc *PetitonService) ScheduleDailyCheck() {
+func (svc *PetitionService) ScheduleDailyCheck() {
 	c := cron.New()
 	slog.Info("Scheduled Expiration Checker successfully started...")
 	_, err := c.AddFunc("0 0 * * *", func() {
@@ -240,7 +277,7 @@ func (svc *PetitonService) ScheduleDailyCheck() {
 	select {}
 }
 
-func (svc *PetitonService) GetAllActive(pagination util.Pagination) ([]models.Petition, error) {
+func (svc *PetitionService) GetAllActive(pagination util.Pagination) ([]models.Petition, error) {
 	status, err := svc.petitionRepository.GetStatusByTitle("PUBLIC")
 	if err != nil {
 		return nil, err
@@ -252,7 +289,7 @@ func (svc *PetitonService) GetAllActive(pagination util.Pagination) ([]models.Pe
 	return petitions, nil
 }
 
-func (svc *PetitonService) GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error) {
+func (svc *PetitionService) GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error) {
 	offset := 0
 	limit := 100
 	similarPetitions := make([]models.PetitionInfo, 0)
@@ -277,16 +314,14 @@ func (svc *PetitonService) GetAllSimilarPetitions(title string) ([]models.Petiti
 
 			}
 		}
-
 		offset += limit
 	}
 	return similarPetitions, nil
+
 }
 
-func (svc *PetitonService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
-	similarPetitions := make([]models.PetitionInfo, 0)
-	var err error
-	similarPetitions, err = svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
+func (svc *PetitionService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
+	similarPetitions, err := svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
 	if err != nil {
 		return nil, err
 	}
