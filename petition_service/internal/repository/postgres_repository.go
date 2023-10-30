@@ -61,10 +61,12 @@ func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
 	if err != nil {
 		return err
 	}
-	petition.StatusID = statusID
+	petition.Status.ID = statusID
 	petition.UpdatedAt = time.Now()
 
-	repo.db.Save(&petition)
+	if err := repo.db.Save(&petition).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
