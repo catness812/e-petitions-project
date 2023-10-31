@@ -2,12 +2,12 @@ package repository
 
 import (
 	"errors"
+	"github.com/gookit/slog"
 	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
-	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +16,7 @@ type PetitionRepository struct {
 }
 
 func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
+	slog.Info("Creating new Petition Repository...")
 	return &PetitionRepository{
 		db: db,
 	}
@@ -47,17 +48,8 @@ func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagin
 	return petitions, nil
 }
 
-func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
-	err := repo.db.Create(Vote).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
-	var petition models.Petition
-	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
+func (repo *PetitionRepository) Save(petition *models.Petition) error {
+	err := repo.db.Create(petition).Error
 	if err != nil {
 		return err
 	}
@@ -138,21 +130,17 @@ func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
 func (repo *PetitionRepository) CheckIfExists(id uint) error {
 	var petitions models.Petition
 	if err := repo.db.Where("id = ?", id).First(&petitions).Error; err != nil {
-		slog.Errorf("Couldn't find petition: %v", err.Error())
 		return err
 	}
 
-	slog.Infof("petition found")
 	return nil
 }
 
 func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
 	var vote models.Vote
 	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
-		slog.Info("Couldn't find vote")
 		return nil
 	}
-	slog.Error("Vote found")
 	return errors.New("user has already voted")
 }
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
@@ -174,10 +162,8 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination
         LIMIT ? OFFSET ?
     `
 	if err := repo.db.Raw(query, userID, pagination.Limit, pagination.Page).Scan(&petitions).Error; err != nil {
-		slog.Errorf("can't execute the query: %v", err)
 		return nil, err
 	}
-	slog.Info(petitions)
 
 	return petitions, nil
 }

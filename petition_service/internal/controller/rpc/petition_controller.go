@@ -10,7 +10,6 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/gookit/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -43,13 +42,11 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 	petition, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
 
-	slog.Infof("Petition %v successfully retrieved", petition.ID)
 	return &pb.Petition{
 		Id:          uint32(petition.ID),
 		Title:       petition.Title,
@@ -74,13 +71,11 @@ func (s *Server) ValidatePetitionId(_ context.Context, req *pb.PetitionId) (*emp
 	_, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
 
-	slog.Info("Petition %v successfully found", req.Id)
 	return &empty.Empty{}, nil
 }
 
@@ -97,11 +92,9 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
 	if err != nil {
-		slog.Errorf("Error creating new petition: %v", err)
 		return nil, err
 	}
 
-	slog.Infof("Petition %v successfully created", savedPetitionID)
 	return &pb.PetitionId{
 		Id: uint32(savedPetitionID),
 	}, nil
@@ -115,7 +108,6 @@ func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empt
 
 	err := s.PetitionService.CreateVote(newVote)
 	if err != nil {
-		slog.Errorf("Error voting for petition %v by user %v: %v", newVote.PetitionID, newVote.UserID, err)
 		return nil, err
 	}
 
@@ -156,7 +148,6 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 		}
 	}
 
-	slog.Info("Petitions successfully retrieved")
 	return &pb.GetPetitionsResponse{
 		Petitions: getPetitionsResponse,
 	}, nil
@@ -184,12 +175,11 @@ func (s *Server) UpdatePetition(_ context.Context, req *pb.UpdatePetitionRequest
 	err := s.PetitionService.UpdatePetition(&newPetition)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
-
+  
 	slog.Infof("Petition %v successfully updated", req.Id)
 	return &empty.Empty{}, nil
 }
@@ -198,13 +188,11 @@ func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.E
 	err := s.PetitionService.Delete(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
 
-	slog.Infof("Petition %v successfully deleted", req.Id)
 	return &empty.Empty{}, nil
 }
 
@@ -217,7 +205,6 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 
 	petitions, err := s.PetitionService.GetAllUserPetitions(uint(userID), pag)
 	if err != nil {
-		slog.Errorf("Error retrieving petitions for user %v: %v", userID, err)
 		return nil, err
 	}
 	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
@@ -244,7 +231,6 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 		}
 	}
 
-	slog.Infof("Successfully retrieved petitions of UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
 	return &pb.GetUserPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
@@ -258,7 +244,6 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	}
 	petitions, err := s.PetitionService.GetAllUserVotedPetitions(uint(userID), pag)
 	if err != nil {
-		slog.Errorf("Error retrieving voted petitions by user %v: %v", userID, err)
 		return nil, err
 	}
 	getUserPetitionsResponse := make([]*pb.Petition, len(petitions))
@@ -281,7 +266,6 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 		}
 	}
 
-	slog.Infof("Successfully retrieved voted petitions by UserID: %d, Page: %d, Limit: %d", userID, pag.Page, pag.Limit)
 	return &pb.GetUserVotedPetitionsResponse{
 		Petitions: getUserPetitionsResponse,
 	}, nil
@@ -291,18 +275,15 @@ func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*
 	petition, err := s.PetitionService.GetByID(uint(req.Id))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			slog.Errorf("Petition %v not found", req.Id)
 			return nil, status.Error(codes.NotFound, "petition not found")
 		}
 		return nil, err
 	}
-	slog.Info("Petition %v successfully found", req.Id)
 
 	if _, err := s.PetitionService.CheckPetitionExpiration(petition); err != nil {
 		return nil, err
 	}
 
-	slog.Info("Petition %v expiration date successfully checked", req.Id)
 	return &empty.Empty{}, nil
 }
 
@@ -360,5 +341,4 @@ func (s *Server) SearchPetitionsByTitle(_ context.Context, req *pb.SearchPetitio
 	return &pb.PetitionSuggestionResponse{
 		SuggestedPetitions: SearchPetitionsByTitleResponse,
 	}, nil
-
 }
