@@ -10,6 +10,7 @@ import (
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/gookit/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -179,7 +180,7 @@ func (s *Server) UpdatePetition(_ context.Context, req *pb.UpdatePetitionRequest
 		}
 		return nil, err
 	}
-  
+
 	slog.Infof("Petition %v successfully updated", req.Id)
 	return &empty.Empty{}, nil
 }

@@ -2,8 +2,9 @@ package repository
 
 import (
 	"errors"
-	"github.com/gookit/slog"
 	"time"
+
+	"github.com/gookit/slog"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
@@ -48,8 +49,9 @@ func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagin
 	return petitions, nil
 }
 
-func (repo *PetitionRepository) Save(petition *models.Petition) error {
-	err := repo.db.Create(petition).Error
+func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
+	var petition models.Petition
+	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
 	if err != nil {
 		return err
 	}
@@ -57,6 +59,14 @@ func (repo *PetitionRepository) Save(petition *models.Petition) error {
 	petition.UpdatedAt = time.Now()
 
 	if err := repo.db.Save(&petition).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
+	err := repo.db.Create(Vote).Error
+	if err != nil {
 		return err
 	}
 	return nil
