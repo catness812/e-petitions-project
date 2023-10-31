@@ -16,6 +16,7 @@ type IPetitionController interface {
 	GetPetitionByID(ctx *gin.Context)
 	GetPetitions(ctx *gin.Context)
 	UpdatePetitionStatus(ctx *gin.Context)
+	UpdatePetition(ctx *gin.Context)
 	DeletePetition(ctx *gin.Context)
 	ValidatePetitionID(ctx *gin.Context)
 	CreateVote(ctx *gin.Context)
@@ -116,6 +117,24 @@ func (c *petitionController) UpdatePetitionStatus(ctx *gin.Context) {
 
 	slog.Infof("Petition status updated successfully")
 	ctx.JSON(http.StatusOK, gin.H{"message": "Petition status updated successfully", "error": false})
+}
+func (c *petitionController) UpdatePetition(ctx *gin.Context) {
+	var petition model.UpdatePetition
+	err := ctx.BindJSON(&petition)
+	if err != nil {
+		slog.Errorf("Failed to bind petition: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
+		return
+	}
+
+	err = c.service.UpdatePetition(petition)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "="), "error": true})
+		return
+	}
+
+	slog.Info("Petition created successfully")
+	ctx.JSON(http.StatusCreated, gin.H{"error": false, "message": "Petition updated successfully"})
 }
 func (c *petitionController) DeletePetition(ctx *gin.Context) {
 	idParam, err := strconv.ParseUint(ctx.Param("pid"), 10, 32)
