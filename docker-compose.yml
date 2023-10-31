@@ -33,15 +33,6 @@ services:
     ports:
       - "6379:6379"
 
-  mailcatcher:
-    image: dockage/mailcatcher:0.9.0
-    networks:
-      - e-petitions-network
-    container_name: e-petitions-project-mailcatcher
-    ports:
-      - "1080:1080"
-      - "1025:1025"
-
   rabbitmq:
     image: rabbitmq:3.13-rc-management
     networks:
@@ -124,8 +115,6 @@ services:
     networks:
       - e-petitions-network
     depends_on:
-      mailcatcher:
-        condition: service_started
       rabbitmq:
         condition: service_healthy
 
