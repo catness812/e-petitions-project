@@ -141,7 +141,7 @@ func (svc *PetitionService) CreateVote(vote models.Vote) error {
 			`Petition "%s" has been reached its goal of %d votes! Congrats!`,
 			petition.Title, petition.VoteGoal))
 		if err != nil {
-			slog.Errorf("Could not publish message: %s", err)
+			slog.Errorf("could not publish message: %s", err)
 			return err
 		}
 	}
