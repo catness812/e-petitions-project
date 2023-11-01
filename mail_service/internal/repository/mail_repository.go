@@ -9,7 +9,7 @@ import (
 	"github.com/gookit/slog"
 )
 
-func SendMail(to []string, msg []byte) {
+func SendMail(to []string, msg []byte) error {
 	s := config.LoadConfig().Smtp
 	auth := sm.SmtpAuth(os.Getenv("MAIL"), os.Getenv("PASS"))
 	addr := s.Host + ":" + s.Port
@@ -18,7 +18,8 @@ func SendMail(to []string, msg []byte) {
 
 	if err != nil {
 		slog.Fatalf("failed to send message: \t%v", err)
-		return
+		return err
 	}
-	slog.Printf("successfully sent message")
+	slog.Infof("successfully sent message")
+	return nil
 }

@@ -8,16 +8,21 @@ import (
 	"github.com/gookit/slog"
 )
 
-func SendVerificationMail(msg string) {
+func SendVerificationMail(msg string) error {
 	var to []string
 
 	to = append(to, strings.Split(string(msg), " ")[0])
 	link := strings.Split(string(msg), " ")[1]
 
-	repository.SendMail(to, formatMailMessage(link, "user-register.html"))
+	err := repository.SendMail(to, formatMailMessage(link, "user-register.html"))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func SendNotificationMail(msg string) {
+func SendNotificationMail(msg string) error {
 	var (
 		to      []string
 		message string
@@ -31,7 +36,12 @@ func SendNotificationMail(msg string) {
 		message = message + buf + " "
 	}
 
-	repository.SendMail(to, formatMailMessage(message, "notification.html"))
+	err := repository.SendMail(to, formatMailMessage(message, "notification.html"))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func formatMailMessage(data string, path string) []byte {
