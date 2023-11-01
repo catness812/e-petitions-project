@@ -60,15 +60,18 @@ func NewPetitionService(
 }
 
 func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
+	slog.Infof("Creating petition %s", petition.Title)
 	// save with draft status when created
 	status, err := svc.petitionRepository.GetStatusByTitle(models.DRAFT)
 	if err != nil {
+		slog.Errorf("Could not retrieve the DRAFT status: %s", err)
 		return 0, err
 	}
 	petition.Status = status
 	// get user's email from User Service
 	email, err := svc.userRepository.GetEmailById(petition.UserID)
 	if err != nil {
+		slog.Errorf("Could not retrieve the email from User Service: %s", err)
 		return 0, err
 	}
 	parts := strings.Split(email, "@")
@@ -76,48 +79,59 @@ func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
 	petition.AuthorName = strings.Join(nameParts, " ")
 	err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has been successfully created!`, petition.Title))
 	if err != nil {
+		slog.Errorf("Could not publish message: %s", err)
 		return 0, err
 	}
 
 	if err := svc.petitionRepository.Save(&petition); err != nil {
+		slog.Errorf("Could not create the petition: %s", err)
 		return 0, err
 	}
 
+	slog.Infof("Petition %s created successfully", petition.Title)
 	return petition.ID, nil
 }
 
 func (svc *PetitionService) CreateVote(vote models.Vote) error {
+	slog.Infof("Creating vote, user %d, petition %d", vote.UserID, vote.PetitionID)
 	// see if petition exists
 	petition, err := svc.petitionRepository.GetByID(vote.PetitionID)
 	if err != nil {
+		slog.Errorf("Could not create vote: %s", err)
 		return err
 	}
 
 	// check if user exists
 	exists, err := svc.userRepository.CheckUserExistence(vote.UserID)
 	if err != nil {
+		slog.Errorf("Could not check if user exists: %s", err)
 		return err
 	}
 	if !exists {
+		slog.Errorf("Could not create vote - user %d does not exist: %s", vote.UserID, err)
 		return fmt.Errorf("user doesn't exists")
 	}
 
 	if err := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
+		slog.Errorf("Could not check if user %d has voted petition %d: %s", vote.UserID, vote.PetitionID, err)
 		return err
 	}
 
 	petition.CurrVotes++
 	if err := svc.petitionRepository.UpdateCurrVotes(petition); err != nil {
+		slog.Errorf("Could not update current votes for petition %d: %s", petition.ID, err)
 		return err
 	}
 
 	if err := svc.petitionRepository.SaveVote(&vote); err != nil {
+		slog.Errorf("Could not save vote: %s", err)
 		return err
 	}
 
 	// get user's email from User Service
 	email, err := svc.userRepository.GetEmailById(petition.UserID)
 	if err != nil {
+		slog.Errorf("Could not retrieve the email from User Service: %s", err)
 		return err
 	}
 
@@ -127,14 +141,17 @@ func (svc *PetitionService) CreateVote(vote models.Vote) error {
 			`Petition "%s" has been reached its goal of %d votes! Congrats!`,
 			petition.Title, petition.VoteGoal))
 		if err != nil {
+			slog.Errorf("could not publish message: %s", err)
 			return err
 		}
 	}
 
+	slog.Info("Vote for user %d, petition %d successfully created", vote.UserID, vote.PetitionID)
 	return nil
 }
 
 func (svc *PetitionService) GetAll(pagination util.Pagination) []models.Petition {
+	slog.Info("Geting all petitions")
 	return svc.petitionRepository.GetAll(pagination)
 }
 
@@ -144,7 +161,7 @@ func (svc *PetitionService) UpdateStatus(id uint, status string) error {
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			slog.Errorf("Status %v not found", status)
-			return fmt.Errorf("Status %v not found", status)
+			return fmt.Errorf("status %v not found", status)
 		}
 		slog.Errorf("error getting status %v", err)
 		return fmt.Errorf("error getting status %v", err)
@@ -153,7 +170,7 @@ func (svc *PetitionService) UpdateStatus(id uint, status string) error {
 	if err := svc.petitionRepository.UpdateStatus(id, newStatus.ID); err != nil {
 		if err == gorm.ErrRecordNotFound {
 			slog.Errorf("Petition %v not found", id)
-			return fmt.Errorf("Petition %v not found", id)
+			return fmt.Errorf("petition %v not found", id)
 		}
 		slog.Errorf("error updating status %v", err)
 		return fmt.Errorf("error updating status %v", err)
@@ -173,46 +190,62 @@ func (svc *PetitionService) UpdatePetition(petition *models.PetitionUpdate) erro
 }
 
 func (svc *PetitionService) Delete(id uint) error {
+	slog.Infof("Deleting petition %d", id)
 	err := svc.petitionRepository.Delete(id)
 	if err != nil {
+		slog.Errorf("Error deleting petition: %s", err)
 		return err
 	}
+
+	slog.Infof("Successfully deleted petition %d", id)
 	return nil
 }
 
 func (svc *PetitionService) GetByID(id uint) (models.Petition, error) {
+	slog.Infof("Getting petition %d", id)
 	petition, err := svc.petitionRepository.GetByID(id)
 	if err != nil {
+		slog.Errorf("Error getting petition: %s", err)
 		return petition, err
 	}
+
+	slog.Infof("Successfully retrieved petition %d", id)
 	return petition, nil
 }
 
 func (svc *PetitionService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	slog.Info("Geting all petitions for user %d", userID)
 	return svc.petitionRepository.GetAllUserPetitions(userID, pagination)
 }
 
 func (svc *PetitionService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+	slog.Info("Geting all voted petitions for user %d", userID)
 	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
 }
 
 func (svc *PetitionService) CheckPetitionExpiration(petition models.Petition) (string, error) {
+	slog.Info("Checking if petition %d has expired", petition.ID)
 	if time.Now().After(petition.ExpDate) {
+		slog.Info("Petition %d has expired", petition.ID)
 		email, err := svc.userRepository.GetEmailById(petition.UserID)
 		if err != nil {
+			slog.Errorf("Could not retrieve email: %s", err)
 			return "", err
 		}
 
 		err = svc.UpdateStatus(petition.ID, "ARCHIVE")
 		if err != nil {
+			slog.Errorf("Could not update status: %s", err)
 			return "", err
 		}
 
 		err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has expired! It's been moved to your archived petitions.`, petition.Title))
 		if err != nil {
+			slog.Errorf("Could not publish email: %s", err)
 			return "", err
 		}
 	}
+	slog.Info("Petition %d has NOT expired", petition.ID)
 	return "", nil
 }
 
@@ -238,7 +271,7 @@ func (svc *PetitionService) ScheduleDailyCheck() {
 			}
 
 			if len(petitions) == 0 {
-				slog.Println("No active petitions found for now...")
+				slog.Info("No active petitions found for now...")
 			}
 
 			for _, petition := range petitions {
@@ -257,7 +290,7 @@ func (svc *PetitionService) ScheduleDailyCheck() {
 			for range petitions {
 				result := <-resultChan
 				if result.Error != nil {
-					slog.Printf("Error checking expiration for petition %v: %v", result.ID, result.Error)
+					slog.Infof("Error checking expiration for petition %v: %v", result.ID, result.Error)
 				}
 			}
 
@@ -278,29 +311,36 @@ func (svc *PetitionService) ScheduleDailyCheck() {
 }
 
 func (svc *PetitionService) GetAllActive(pagination util.Pagination) ([]models.Petition, error) {
-	status, err := svc.petitionRepository.GetStatusByTitle("PUBLIC")
+	slog.Infof("Getting all active petitions")
+	status, err := svc.petitionRepository.GetStatusByTitle(models.PUBLIC)
 	if err != nil {
+		slog.Errorf("Could not retrieve status: %s", err)
 		return nil, err
 	}
 	petitions, err := svc.petitionRepository.GetPetitionsByStatus(status, pagination)
 	if err != nil {
+		slog.Errorf("Could not retrieve petitions: %s", err)
 		return nil, err
 	}
+
+	slog.Info("Successfully got active petitions")
 	return petitions, nil
 }
 
 func (svc *PetitionService) GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error) {
+	slog.Infof("Getting all similar petitions to %s", title)
 	offset := 0
 	limit := 100
 	similarPetitions := make([]models.PetitionInfo, 0)
 	for {
 		pag := util.Pagination{
-			Page:  int(offset),
-			Limit: int(limit),
+			Page:  offset,
+			Limit: limit,
 		}
 
 		petitions, err := svc.petitionRepository.GetPetitionsTitles(pag)
 		if err != nil {
+			slog.Errorf("Error getting petitions title: %s", err)
 			return nil, err
 		}
 		if len(petitions) == 0 {
@@ -321,8 +361,10 @@ func (svc *PetitionService) GetAllSimilarPetitions(title string) ([]models.Petit
 }
 
 func (svc *PetitionService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
+	slog.Infof("Searching petitions with term %s", searchTerm)
 	similarPetitions, err := svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
 	if err != nil {
+		slog.Errorf("Error searching petitions: %s", err)
 		return nil, err
 	}
 	return similarPetitions, nil

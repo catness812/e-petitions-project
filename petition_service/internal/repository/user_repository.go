@@ -27,7 +27,6 @@ func (userRepo *UserRepository) GetEmailById(id uint) (string, error) {
 	)
 
 	if err != nil {
-		slog.Error(err)
 		return "", err
 	}
 
@@ -39,15 +38,12 @@ func (userRepo *UserRepository) CheckUserExistence(id uint) (bool, error) {
 		&pb.CheckUserExistenceRequest{Id: uint32(id)},
 	)
 	if err != nil {
-		slog.Error(err)
 		return false, err
 	}
 	return res.Message, nil
 }
 
-// TODO move this
 func NewUserControllerClient() pb.UserServiceClient {
-	slog.Info("Connecting to User Service gRPC Server...")
 	cc, err := grpc.Dial(config.Cfg.UserService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	if err != nil {

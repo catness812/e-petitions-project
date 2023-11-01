@@ -124,7 +124,6 @@ type UserServiceServer interface {
 	GetUserEmailById(context.Context, *GetUserEmailByIdRequest) (*ResponseMessage, error)
 	AddAdmin(context.Context, *AddAdminRequest) (*ResponseMessage, error)
 	CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error)
-	// mustEmbedUnimplementedUserServiceServer()
 }
 
 // UnimplementedUserServiceServer must be embedded to have forward compatible implementations.

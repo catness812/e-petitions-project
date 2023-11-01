@@ -44,16 +44,20 @@ func registerRoutes(r *gin.Engine) {
 
 func corsMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		//origin := c.Request.Header.Get("Origin")
+		//if origin == "https://epetitii.co" {
+		//	c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		//}
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization,Access-Control-Allow-Origin")
-		c.Writer.Header().Set("Content-Type", "application/json")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Max-Age", "3600")
 
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusOK)
-			return
+			c.AbortWithStatus(http.StatusNoContent)
+		} else {
+			c.Next()
 		}
-
-		c.Next()
 	}
 }
