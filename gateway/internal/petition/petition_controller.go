@@ -1,11 +1,10 @@
 package petition
 
 import (
-	"net/http"
-	"strconv"
-
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gookit/slog"
+	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -122,13 +121,13 @@ func (c *petitionController) UpdatePetition(ctx *gin.Context) {
 	err := ctx.BindJSON(&petition)
 	if err != nil {
 		slog.Errorf("Failed to bind petition: ", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "=")[2], "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 
 	err = c.service.UpdatePetition(petition)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": strings.Split(err.Error(), "="), "error": true})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
 		return
 	}
 

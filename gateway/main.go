@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
+	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition"
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
@@ -12,8 +13,14 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.Use(middleware.RateLimiterMiddleware())
 	r.Use(corsMiddleware())
 	registerRoutes(r)
+	r.GET("/example", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Success",
+		})
+	})
 	err := r.Run(":1337")
 	if err != nil {
 		slog.Fatalf("Failed to start server: %v", err)
