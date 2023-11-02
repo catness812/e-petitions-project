@@ -124,7 +124,6 @@ func (c *petitionController) DeletePetition(ctx *gin.Context) {
 	id := uint32(idParam)
 
 	err = c.service.DeletePetition(id)
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
