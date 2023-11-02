@@ -2,11 +2,9 @@ package security
 
 import (
 	"context"
-	"net/http"
 
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
 
-	"github.com/gookit/slog"
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/slog"
@@ -91,7 +89,7 @@ func (ctrl *SecurityController) SendOTP(ctx *fiber.Ctx) error {
 	}
 
 	slog.Info("OTP sent successfully")
-	return ctx.JSON(fiber.Map{"error": false, "message": "OTP sent successfully"})
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "OTP sent successfully"})
 }
 
 func (ctrl *SecurityController) ValidateOTP(ctx *fiber.Ctx) error {
@@ -110,9 +108,6 @@ func (ctrl *SecurityController) ValidateOTP(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Failed to validate OTP"})
 	}
 	slog.Info("OTP successfully validated")
-	return ctx.JSON(fiber.Map{
-		"message":   "OTP successfully validated",
-		"validated": validated,
-	})
+	return ctx.JSON(validated)
 
 }

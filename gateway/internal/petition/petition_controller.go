@@ -55,7 +55,7 @@ func (c *petitionController) GetPetitionByID(ctx *fiber.Ctx) error {
 	if err != nil {
 
 		slog.Errorf("Failed to get the id: %v", err)
-    return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
 	id := uint32(pid)
 
@@ -76,7 +76,7 @@ func (c *petitionController) GetPetitions(ctx *fiber.Ctx) error {
 	if err != nil {
 
 		slog.Errorf("Failed to get the page: %v", err)
-    return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 
 	}
 
@@ -126,12 +126,10 @@ func (c *petitionController) DeletePetition(ctx *fiber.Ctx) error {
 	if err != nil {
 
 		slog.Errorf("Failed to get the id: %s", err)
-    return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
-
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 
 	}
 	idUint32 := uint32(id)
-
 
 	err = c.service.DeletePetition(idUint32)
 
@@ -280,7 +278,7 @@ func (c *petitionController) SearchPetitionsByTitle(ctx *fiber.Ctx) error {
 	if err != nil {
 		slog.Errorf("Failed to get the page: %s", err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message":   err.Error(),
+			"message": err.Error(),
 		})
 
 	}
