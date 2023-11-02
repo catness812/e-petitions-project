@@ -147,7 +147,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 	})
 
 	if err != nil {
-		// slog.Errorf("Failed to create petition: ", err)
+		slog.Errorf("Failed to create petition: ", err)
 		return 0, err
 	}
 	return resp.Id, nil
