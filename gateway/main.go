@@ -12,7 +12,7 @@ import (
 
 func main() {
 	r := fiber.New()
-  r.Use(middleware.RateLimiterMiddleware())
+	r.Use(middleware.RateLimiterMiddleware())
 	//r.Use(corsMiddleware())
 	registerRoutes(r)
 	err := r.Listen(":1337")

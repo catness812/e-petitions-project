@@ -1,22 +1,19 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"golang.org/x/time/rate"
 	"net/http"
 )
 
-func RateLimiterMiddleware() gin.HandlerFunc {
+func RateLimiterMiddleware() fiber.Handler {
 	limiter := rate.NewLimiter(2, 5)
-	return func(c *gin.Context) {
+	return func(c *fiber.Ctx) error {
 		if !limiter.Allow() {
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"status": "Request Failed",
-				"error":  "The API is at capacity, try again later.",
+			return c.Status(http.StatusTooManyRequests).JSON(fiber.Map{
+				"message": "The API is at capacity, try again later.",
 			})
-			c.Abort()
-			return
 		}
-		c.Next()
+		return c.Next()
 	}
 }

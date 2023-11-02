@@ -16,6 +16,7 @@ type IPetitionController interface {
 	DeletePetition(ctx *fiber.Ctx) error
 	ValidatePetitionID(ctx *fiber.Ctx) error
 	CreateVote(ctx *fiber.Ctx) error
+	UpdatePetition(ctx *fiber.Ctx) error
 	GetUserPetitions(ctx *fiber.Ctx) error
 	GetUserVotedPetitions(ctx *fiber.Ctx) error
 	GetAllSimilarPetitions(ctx *fiber.Ctx) error
@@ -120,23 +121,22 @@ func (c *petitionController) UpdatePetitionStatus(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Petition status updated successfully"})
 }
 
-func (c *petitionController) UpdatePetition(ctx *gin.Context) {
+func (c *petitionController) UpdatePetition(ctx *fiber.Ctx) error {
 	var petition model.UpdatePetition
-	err := ctx.BindJSON(&petition)
+	err := ctx.BodyParser(&petition)
 	if err != nil {
 		slog.Errorf("Failed to bind petition: ", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
+
 	}
 
 	err = c.service.UpdatePetition(petition)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	slog.Info("Petition created successfully")
-	ctx.JSON(http.StatusCreated, gin.H{"error": false, "message": "Petition updated successfully"})
+	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Petition updated successfully"})
 }
 
 func (c *petitionController) DeletePetition(ctx *fiber.Ctx) error {
