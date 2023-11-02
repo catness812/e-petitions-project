@@ -20,11 +20,14 @@ func RegisterPetitionRoutes(r *fiber.App, c *config.Config) {
 	petitionController := NewPetitionController(petitionService)
 
 	route := r.Group("/petition")
+
+  route.Post("/update", petitionController.UpdatePetition)
 	route.Post("", petitionController.CreatePetition)
 	route.Get("/:pid", petitionController.GetPetitionByID)
 	route.Get("/all/:page/:limit", petitionController.GetPetitions)
 	route.Post("/status", petitionController.UpdatePetitionStatus)
 	route.Delete("/:pid", petitionController.DeletePetition)
+
 	//route.GET("/", petitionController.ValidatePetitionID)
 	route.Post("/sign/:uid/:pid", petitionController.CreateVote)
 	route.Post("/search/:page/:limit", petitionController.SearchPetitionsByTitle)

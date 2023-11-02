@@ -120,6 +120,25 @@ func (c *petitionController) UpdatePetitionStatus(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Petition status updated successfully"})
 }
 
+func (c *petitionController) UpdatePetition(ctx *gin.Context) {
+	var petition model.UpdatePetition
+	err := ctx.BindJSON(&petition)
+	if err != nil {
+		slog.Errorf("Failed to bind petition: ", err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		return
+	}
+
+	err = c.service.UpdatePetition(petition)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error(), "error": true})
+		return
+	}
+
+	slog.Info("Petition created successfully")
+	ctx.JSON(http.StatusCreated, gin.H{"error": false, "message": "Petition updated successfully"})
+}
+
 func (c *petitionController) DeletePetition(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("pid")
 	id, err := strconv.ParseUint(idParam, 10, 32)

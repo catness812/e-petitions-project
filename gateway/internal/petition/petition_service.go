@@ -7,6 +7,7 @@ type IPetitionService interface {
 	GetPetitionByID(petitionID uint32) (model.Petition, error)
 	GetPetitions(page uint32, limit uint32) ([]model.Petition, error)
 	UpdatePetitionStatus(id uint32, status string) error
+	UpdatePetition(petition model.UpdatePetition) error
 	DeletePetition(petitionID uint32) error
 	ValidatePetitionID(petitionID uint32) error
 	CreateVote(userID uint32, petitionID uint32) error
@@ -40,6 +41,9 @@ func (svc *petitionService) GetPetitionByID(petitionID uint32) (model.Petition, 
 
 func (svc *petitionService) UpdatePetitionStatus(id uint32, status string) error {
 	return svc.repo.UpdatePetitionStatus(id, status)
+}
+func (svc *petitionService) UpdatePetition(petition model.UpdatePetition) error {
+	return svc.repo.UpdatePetition(petition)
 }
 
 func (svc *petitionService) DeletePetition(petitionID uint32) error {
