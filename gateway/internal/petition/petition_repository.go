@@ -8,7 +8,6 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
-	"github.com/golang/protobuf/ptypes"
 	"github.com/gookit/slog"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -87,26 +86,14 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 	petition.VoteGoal = pbPetition.VoteGoal
 	petition.CurrentVotes = pbPetition.CurrentVotes
 
-	expDate, err := ptypes.Timestamp(pbPetition.ExpDate)
-	if err != nil {
-		slog.Printf("Failed to convert ExpDate to string: %v", err)
-	} else {
-		petition.ExpDate = expDate.Format(time.DateTime)
-	}
+	expDate := pbPetition.ExpDate.AsTime()
+	petition.ExpDate = time.Time.Format(expDate, time.RFC3339) // Format as RFC3339 or your desired format
 
-	updDate, err := ptypes.Timestamp(pbPetition.UpdatedAt)
-	if err != nil {
-		slog.Printf("Failed to convert ExpDate to string: %v", err)
-	} else {
-		petition.UpdatedAt = updDate.Format(time.DateTime)
-	}
+	updDate := pbPetition.UpdatedAt.AsTime()
+	petition.UpdatedAt = time.Time.Format(updDate, time.RFC3339) // Format as RFC3339 or your desired format
 
-	crtDate, err := ptypes.Timestamp(pbPetition.CreatedAt)
-	if err != nil {
-		slog.Printf("Failed to convert ExpDate to string: %v", err)
-	} else {
-		petition.CreatedAt = crtDate.Format(time.DateTime)
-	}
+	crtDate := pbPetition.CreatedAt.AsTime()
+	petition.CreatedAt = time.Time.Format(crtDate, time.RFC3339) // Format as RFC3339 or your desired format
 
 	return petition
 }
@@ -141,7 +128,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 	expDateTimestamp := timestamppb.New(expDate)
 	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
 		slog.Errorf("Failed to convert time to Timestamp")
-		return 0, errors.New("Failed to convert time to Timestamp ")
+		return 0, errors.New("failed to convert time to Timestamp ")
 	}
 	resp, err := repo.client.CreatePetition(context.Background(), &pb.CreatePetitionRequest{
 		Title:       petition.Title,
@@ -171,6 +158,8 @@ func (repo *petitionRepository) GetPetitionByID(petitionID uint32) (model.Petiti
 		slog.Infof("Failed to get petition: ", err)
 		return petition, err
 	}
+
+	slog.Info("GetPetitionById: \t%v", resp)
 
 	petition = mapPetition(resp)
 
@@ -217,7 +206,7 @@ func (repo *petitionRepository) UpdatePetition(petition model.UpdatePetition) er
 	expDateTimestamp := timestamppb.New(expDate)
 	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
 		slog.Errorf("Failed to convert time to Timestamp")
-		return errors.New("Failed to convert time to Timestamp ")
+		return errors.New("failed to convert time to Timestamp ")
 	}
 
 	_, err = repo.client.UpdatePetition(context.Background(), &pb.UpdatePetitionRequest{

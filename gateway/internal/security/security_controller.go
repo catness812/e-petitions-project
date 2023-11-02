@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
-
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/slog"

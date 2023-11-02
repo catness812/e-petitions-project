@@ -2,10 +2,12 @@ package middleware
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
+
 	"github.com/gofiber/fiber/v2"
-	"net/http"
 )
 
 type AuthMiddleware struct {
