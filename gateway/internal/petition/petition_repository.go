@@ -3,13 +3,14 @@ package petition
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/gookit/slog"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 type IPetitionRepository interface {
@@ -154,7 +155,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 
 	if err != nil {
 		slog.Errorf("Failed to create petition: ", err)
-		return 0, nil
+		return 0, err
 	}
 	return resp.Id, nil
 

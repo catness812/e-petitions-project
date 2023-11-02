@@ -2,11 +2,11 @@ package petition
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/slog"
 )
 
-func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
+func RegisterPetitionRoutes(r *fiber.App, c *config.Config) {
 	svc := InitPetitonServiceClient(c)
 	petitionrepo, err := NewPetitionRepository(c, svc)
 	if err != nil {
@@ -20,18 +20,20 @@ func RegisterPetitionRoutes(r *gin.Engine, c *config.Config) {
 	petitionController := NewPetitionController(petitionService)
 
 	route := r.Group("/petition")
-	route.POST("", petitionController.CreatePetition)
-	route.GET("/:pid", petitionController.GetPetitionByID)
-	route.GET("/all/:page/:limit", petitionController.GetPetitions)
-	route.POST("/status", petitionController.UpdatePetitionStatus)
-	route.POST("/update", petitionController.UpdatePetition)
-	route.DELETE("/:pid", petitionController.DeletePetition)
+
+  route.Post("/update", petitionController.UpdatePetition)
+	route.Post("", petitionController.CreatePetition)
+	route.Get("/:pid", petitionController.GetPetitionByID)
+	route.Get("/all/:page/:limit", petitionController.GetPetitions)
+	route.Post("/status", petitionController.UpdatePetitionStatus)
+	route.Delete("/:pid", petitionController.DeletePetition)
+
 	//route.GET("/", petitionController.ValidatePetitionID)
-	route.POST("/sign/:uid/:pid", petitionController.CreateVote)
-	route.POST("/search/:page/:limit", petitionController.SearchPetitionsByTitle)
-	route.POST("/similar", petitionController.GetAllSimilarPetitions)
+	route.Post("/sign/:uid/:pid", petitionController.CreateVote)
+	route.Post("/search/:page/:limit", petitionController.SearchPetitionsByTitle)
+	route.Post("/similar", petitionController.GetAllSimilarPetitions)
 
 	route = r.Group("/user")
-	route.GET("/petitions/:uid/:page/:limit", petitionController.GetUserPetitions)
-	route.GET("/voted/:uid/:page/:limit", petitionController.GetUserVotedPetitions)
+	route.Get("/petitions/:uid/:page/:limit", petitionController.GetUserPetitions)
+	route.Get("/voted/:uid/:page/:limit", petitionController.GetUserVotedPetitions)
 }
