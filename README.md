@@ -1,7 +1,7 @@
 # E-Petitions Microservice Architecture
 
 [![GoLang](https://img.shields.io/badge/Programming%20Language-GoLang-blue)](https://golang.org/)
-[![Gin-Gonic](https://img.shields.io/badge/Framework-Gin--Gonic-green)](https://github.com/gin-gonic/gin)
+[![Gin-Gonic](https://img.shields.io/badge/Framework-Fiber-green)](https://github.com/gofiber/fiber)
 [![PostgreSQL](https://img.shields.io/badge/Data%20Storage-PostgreSQL-blue)](https://www.postgresql.org/)
 [![GORM](https://img.shields.io/badge/ORM-GORM-red)](https://gorm.io/)
 [![Redis](https://img.shields.io/badge/Cache-Redis-red)](https://redis.io/)
@@ -38,7 +38,7 @@ Still in development (currently finishing the front)
 
 This project leverages the following technologies and frameworks:
 
-- **Programming Language**: [GoLang](https://golang.org/) with [Gin-Gonic framework](https://github.com/gin-gonic/gin) for fast, feature-rich, and clean code.
+- **Programming Language**: [GoLang](https://golang.org/) with [Fiber Framework](https://github.com/gofiber/fiber) for fast, feature-rich, and clean code.
 
 - **Data Storage and Querying**: [PostgreSQL](https://www.postgresql.org/) with [GORM](https://gorm.io/) for Go (ORM) for efficient data management. [Redis](https://redis.io/) is used for OTP & Security Services, providing faster response times and time-dependent variables.
 
