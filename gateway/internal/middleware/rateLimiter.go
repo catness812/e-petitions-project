@@ -11,7 +11,7 @@ func RateLimiterMiddleware() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		if !limiter.Allow() {
 			return c.Status(http.StatusTooManyRequests).JSON(fiber.Map{
-				"message": "The API is at capacity, try again later.",
+				"error": "The API is at capacity, try again later.",
 			})
 		}
 		return c.Next()
