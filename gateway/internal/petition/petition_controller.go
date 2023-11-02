@@ -84,7 +84,7 @@ func (c *petitionController) GetPetitions(ctx *fiber.Ctx) error {
 	if err != nil {
 
 		slog.Errorf("Failed to get the limit: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Invalid 'limit' parameter"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 
 	}
 
@@ -286,7 +286,7 @@ func (c *petitionController) SearchPetitionsByTitle(ctx *fiber.Ctx) error {
 	limit, err := strconv.ParseUint(ctx.Params("limit"), 10, 32)
 	if err != nil {
 		slog.Errorf("Failed to get the limit: %s", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Invalid 'limit' parameter"})
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": err.Error()})
 	}
 
 	res, err := c.service.SearchPetitionsByTitle(title.Title, uint32(page), uint32(limit))
