@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/catness812/e-petitions-project/mail_service/internal/service"
 	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
@@ -32,6 +34,7 @@ func (c *Consumer) ConfirmationMail(name string) {
 	go func() {
 		for msg := range msgs {
 			if err := service.SendVerificationMail(string(msg.Body)); err != nil {
+				time.Sleep(time.Minute)
 				c.channel.Publish("",
 					q.Name,
 					false,
@@ -64,6 +67,7 @@ func (c *Consumer) NotificationMail(name string) {
 	go func() {
 		for msg := range msgs {
 			if err := service.SendNotificationMail(string(msg.Body)); err != nil {
+				time.Sleep(time.Minute)
 				c.channel.Publish("",
 					q.Name,
 					false,
