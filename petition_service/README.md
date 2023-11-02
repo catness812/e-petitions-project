@@ -2,7 +2,7 @@
 Petition is a service created for the e-petitions project to implement their data processing.
 
 ## Contents
-- [Coneventions](#coneventions)
+- [Conventions](#conventions)
 - [Rpc Methods](rpc-methods)
 - [CreatePetition](#createpetition)
 - [GetPetitionById](#getpetitionbyid)
@@ -18,7 +18,7 @@ Petition is a service created for the e-petitions project to implement their dat
 - [SearchByPetitionsTitle](#searchbypetitionstitle)
 - [Docker build](#docker-build)
 
-## Coneventions
+## Conventions
 Petition is developed to use the gRPC protocol and will use messages from predefined proto files (internal/proto folder).
 
 ## Rpc Methods
