@@ -3,11 +3,9 @@ package security
 import (
 	"context"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
-	"github.com/gookit/slog"
-	"net/http"
-
 	"github.com/catness812/e-petitions-project/gateway/model"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gookit/slog"
 )
 
 type ISecurityService interface {
@@ -26,22 +24,20 @@ func NewSecurityController(service ISecurityService, userClient pb.UserServiceCl
 	return &SecurityController{service: service, userClient: userClient}
 }
 
-func (ctrl *SecurityController) Login(ctx *gin.Context) {
+func (ctrl *SecurityController) Login(ctx *fiber.Ctx) error {
 	var user model.UserCredentials
-	err := ctx.BindJSON(&user)
+	err := ctx.BodyParser(&user)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid request format"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Invalid request format"})
 	}
 	tokens, err := ctrl.service.Login(user)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid credentials"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Invalid credentials"})
 	}
 
 	slog.Info("Login request successful")
-	ctx.JSON(http.StatusOK, gin.H{
+	return ctx.JSON(fiber.Map{
 		"message":       "User successfully logged in",
 		"access-token":  tokens.AccessToken,
 		"refresh-token": tokens.RefreshToken,
@@ -49,78 +45,71 @@ func (ctrl *SecurityController) Login(ctx *gin.Context) {
 	})
 }
 
-func (ctrl *SecurityController) Refresh(ctx *gin.Context) {
+func (ctrl *SecurityController) Refresh(ctx *fiber.Ctx) error {
 	type refreshToken struct {
 		Token string `json:"refreshToken"`
 	}
 	var rt refreshToken
-	err := ctx.BindJSON(&rt)
+	err := ctx.BodyParser(&rt)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   true,
 			"message": "Invalid request format",
 		})
-		return
 	}
 	tokens, err := ctrl.service.Refresh(rt.Token)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":   true,
 			"message": "Could not refresh user session",
 		})
-		return
 	}
 
 	slog.Info("Refresh request successful")
-	ctx.JSON(http.StatusOK, gin.H{
+	return ctx.JSON(fiber.Map{
 		"message":       "User successfully logged in",
 		"access-token":  tokens.AccessToken,
 		"refresh-token": tokens.RefreshToken,
 	})
 }
 
-func (ctrl *SecurityController) SendOTP(ctx *gin.Context) {
+func (ctrl *SecurityController) SendOTP(ctx *fiber.Ctx) error {
 	type otpEmail struct {
 		Email string `json:"email"`
 	}
 	var email otpEmail
-	err := ctx.BindJSON(&email)
+	err := ctx.BodyParser(&email)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Invalid request format"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Invalid request format"})
 	}
 	_, err = ctrl.service.SendOTP(email.Email)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to send OTP"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Failed to send OTP"})
 	}
 
 	slog.Info("OTP sent successfully")
-	ctx.JSON(http.StatusOK, gin.H{"error": false, "message": "OTP sent successfully"})
+	return ctx.JSON(fiber.Map{"error": false, "message": "OTP sent successfully"})
 }
 
-func (ctrl *SecurityController) ValidateOTP(ctx *gin.Context) {
+func (ctrl *SecurityController) ValidateOTP(ctx *fiber.Ctx) error {
 	otp := ctx.Query("otp")
 	email := ctx.Query("email")
 	if otp == "" || email == "" {
 		slog.Error("Failed to validate OTP")
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Failed to validate OTP"})
 	}
 	validated, err := ctrl.service.ValidateOTP(otp, email)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Failed to validate OTP"})
 	}
 	_, err = ctrl.userClient.CreateUserOTP(context.Background(), &pb.UserRequest{Email: email, Password: otp})
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": true, "message": "Failed to validate OTP"})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": true, "message": "Failed to validate OTP"})
 	}
 	slog.Info("OTP successfully validated")
-	ctx.JSON(http.StatusOK, gin.H{
+	return ctx.JSON(fiber.Map{
 		"error":     false,
 		"message":   "OTP successfully validated",
 		"validated": validated,
