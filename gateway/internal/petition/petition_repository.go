@@ -5,8 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"time"
-
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
@@ -208,7 +206,7 @@ func (repo *petitionRepository) UpdatePetition(petition model.UpdatePetition) er
 	expDateTimestamp := timestamppb.New(expDate)
 	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
 		slog.Errorf("Failed to convert time to Timestamp")
-		return errors.New("Failed to convert time to Timestamp ")
+		return errors.New("failed to convert time to Timestamp ")
 	}
 
 	_, err = repo.client.UpdatePetition(context.Background(), &pb.UpdatePetitionRequest{
