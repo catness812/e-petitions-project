@@ -33,18 +33,18 @@ func (c *UserController) GetUserByEmail(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&request); err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request format"})
 		return
 	}
 
 	res, err := c.service.GetByEmail(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 
 	slog.Info("GetUserByEmail request successful")
-	ctx.JSON(http.StatusOK, gin.H{"user": res})
+	ctx.JSON(http.StatusOK, res)
 
 }
 
@@ -58,12 +58,12 @@ func (c *UserController) GetUserByID(ctx *gin.Context) {
 	email, err := c.service.GetByID(uint32(pid))
 
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 
 	slog.Info("GetUserByID request successful")
-	ctx.JSON(http.StatusOK, gin.H{"email": email})
+	ctx.JSON(http.StatusOK, email)
 
 }
 
@@ -74,13 +74,13 @@ func (c *UserController) DeleteUser(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&request); err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request format"})
 		return
 	}
 
-	res, err := c.service.Delete(request.Email)
+	_, err := c.service.Delete(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -94,12 +94,12 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	err := ctx.BindJSON(&user)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	res, err := c.service.Create(user)
+	_, err = c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -111,12 +111,12 @@ func (c *UserController) OTPCreateUser(ctx *gin.Context) {
 	err := ctx.BindJSON(&user)
 	if err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	res, err := c.service.Create(user)
+	_, err = c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
@@ -128,12 +128,12 @@ func (c *UserController) UpdateUser(ctx *gin.Context) {
 	var user model.UserCredentials
 	err := ctx.BindJSON(&user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
-	res, err := c.service.Update(user)
+	_, err = c.service.Update(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "User updated successfully"})
@@ -146,13 +146,13 @@ func (c *UserController) AddAdmin(ctx *gin.Context) {
 
 	if err := ctx.BindJSON(&request); err != nil {
 		slog.Errorf("Invalid request format: %v", err)
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request format"})
 		return
 	}
 
-	res, err := c.service.AddAdmin(request.Email)
+	_, err := c.service.AddAdmin(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"message": res, "error": err.Error()})
+		ctx.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
 
