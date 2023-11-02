@@ -3,13 +3,14 @@ package petition
 import (
 	"context"
 	"errors"
+	"time"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/gookit/slog"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"time"
 )
 
 type IPetitionRepository interface {
@@ -17,6 +18,7 @@ type IPetitionRepository interface {
 	GetPetitionByID(petitionID uint32) (model.Petition, error)
 	GetPetitions(page uint32, limit uint32) ([]model.Petition, error)
 	UpdatePetitionStatus(id uint32, status string) error
+	UpdatePetition(petition model.UpdatePetition) error
 	DeletePetition(petitionID uint32) error
 	ValidatePetitionID(petitionID uint32) error
 	CreateVote(userID uint32, petitionID uint32) error
@@ -66,9 +68,15 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 	}
 	petition.Image = pbPetition.Image
 	if pbPetition.UserId == 0 {
-		slog.Printf("Failed to get status value ", pbPetition.UserId)
+		slog.Printf("Failed to get status value %v", pbPetition.UserId)
 	} else {
 		petition.UserID = pbPetition.UserId
+	}
+	if pbPetition.AuthorName == "" {
+		slog.Printf("Failed to get author name %v", pbPetition.UserId)
+
+	} else {
+		petition.AuthorName = pbPetition.AuthorName
 	}
 	if pbPetition.Status == nil {
 		slog.Printf("Failed to get status value ", pbPetition.Status)
@@ -83,21 +91,21 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 	if err != nil {
 		slog.Printf("Failed to convert ExpDate to string: %v", err)
 	} else {
-		petition.ExpDate = expDate.Format(time.DateTime) // Format as RFC3339 or your desired format
+		petition.ExpDate = expDate.Format(time.DateTime)
 	}
 
 	updDate, err := ptypes.Timestamp(pbPetition.UpdatedAt)
 	if err != nil {
 		slog.Printf("Failed to convert ExpDate to string: %v", err)
 	} else {
-		petition.UpdatedAt = updDate.Format(time.DateTime) // Format as RFC3339 or your desired format
+		petition.UpdatedAt = updDate.Format(time.DateTime)
 	}
 
 	crtDate, err := ptypes.Timestamp(pbPetition.CreatedAt)
 	if err != nil {
 		slog.Printf("Failed to convert ExpDate to string: %v", err)
 	} else {
-		petition.CreatedAt = crtDate.Format(time.DateTime) // Format as RFC3339 or your desired format
+		petition.CreatedAt = crtDate.Format(time.DateTime)
 	}
 
 	return petition
@@ -147,7 +155,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 
 	if err != nil {
 		slog.Errorf("Failed to create petition: ", err)
-		return 0, nil
+		return 0, err
 	}
 	return resp.Id, nil
 
@@ -195,6 +203,34 @@ func (repo *petitionRepository) UpdatePetitionStatus(id uint32, status string) e
 	})
 	if err != nil {
 		slog.Errorf("Failed to update petition status: ", err)
+		return err
+	}
+	return nil
+}
+
+func (repo *petitionRepository) UpdatePetition(petition model.UpdatePetition) error {
+	expDate, err := time.Parse(time.RFC3339, petition.ExpDate)
+	if err != nil {
+		slog.Errorf("Failed to parse expDate: %v", err)
+		return err
+	}
+	expDateTimestamp := timestamppb.New(expDate)
+	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
+		slog.Errorf("Failed to convert time to Timestamp")
+		return errors.New("Failed to convert time to Timestamp ")
+	}
+
+	_, err = repo.client.UpdatePetition(context.Background(), &pb.UpdatePetitionRequest{
+		Id:          petition.ID,
+		Title:       petition.Title,
+		Description: petition.Description,
+		Image:       petition.Image,
+		Category:    petition.Category,
+		VoteGoal:    petition.VoteGoal,
+		ExpDate:     expDateTimestamp,
+	})
+	if err != nil {
+		slog.Errorf("Failed to update petition: ", err)
 		return err
 	}
 	return nil

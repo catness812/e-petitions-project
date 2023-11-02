@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
+	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition"
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
@@ -11,6 +12,7 @@ import (
 
 func main() {
 	r := fiber.New()
+	r.Use(middleware.RateLimiterMiddleware())
 	//r.Use(corsMiddleware())
 	registerRoutes(r)
 	err := r.Listen(":1337")
