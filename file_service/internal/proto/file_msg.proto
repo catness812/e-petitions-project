@@ -8,6 +8,8 @@ message Empty {
 
 message FileRequest{
   bytes file_data = 1;
+  string type = 2;
+  string uid = 3;
 }
 
 message FileResponse{

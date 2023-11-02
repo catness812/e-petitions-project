@@ -23,11 +23,25 @@ func (fileRepo *FileRepository) ProcessAndStoreChunk(fileID uint, sequenceNumber
 	return nil
 }
 
-func (fileRepo *FileRepository) CreateFile() (uint, error) {
-	file := &model.File{}
+//func (fileRepo *FileRepository) CreateFile() (uint, error) {
+//	file := &model.File{}
+//	if err := fileRepo.dbClient.Debug().Model(model.File{}).Create(file).Error; err != nil {
+//		slog.Errorf("failed to insert file: %v", err)
+//		return 0, err
+//	}
+//	return file.ID, nil
+//}
+
+func (fileRepo *FileRepository) StoreFileData(uid, fileType string) (uint, error) {
+	file := &model.File{
+		UserID:   uid,
+		FileType: fileType,
+	}
 	if err := fileRepo.dbClient.Debug().Model(model.File{}).Create(file).Error; err != nil {
 		slog.Errorf("failed to insert file: %v", err)
 		return 0, err
 	}
 	return file.ID, nil
 }
+
+func (fileRepo *FileRepository) FetchFileData()

@@ -5,22 +5,21 @@ import (
 	"github.com/catness812/e-petitions-project/gateway/internal/petition"
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/slog"
-	"net/http"
 )
 
 func main() {
-	r := gin.Default()
-	r.Use(corsMiddleware())
+	r := fiber.New()
+	//r.Use(corsMiddleware())
 	registerRoutes(r)
-	err := r.Run(":1337")
+	err := r.Listen(":1337")
 	if err != nil {
 		slog.Fatalf("Failed to start server: %v", err)
 	}
 }
 
-func registerRoutes(r *gin.Engine) {
+func registerRoutes(r *fiber.App) {
 	cfg := config.LoadConfig()
 	rbacCfg := config.LoadConfigRBAC()
 	securityClient, err := security.InitAuthServiceClient(cfg)
@@ -42,18 +41,22 @@ func registerRoutes(r *gin.Engine) {
 
 }
 
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization,Access-Control-Allow-Origin")
-		c.Writer.Header().Set("Content-Type", "application/json")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusOK)
-			return
-		}
-
-		c.Next()
-	}
-}
+//func corsMiddleware() fiber.Handler {
+//	return func(c *gin.Context) {
+//		//origin := c.Request.Header.Get("Origin")
+//		//if origin == "https://epetitii.co" {
+//		//	c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+//		//}
+//		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+//		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+//		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+//		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+//		c.Writer.Header().Set("Access-Control-Max-Age", "3600")
+//
+//		if c.Request.Method == "OPTIONS" {
+//			c.AbortWithStatus(http.StatusNoContent)
+//		} else {
+//			c.Next()
+//		}
+//	}
+//}

@@ -28,7 +28,7 @@ func RunFileService() {
 	if err != nil {
 		slog.Fatalf("Failed to listen to file service on GRPC port 50055: %v", err)
 	}
-	maxMsgSize := 1024 * 1024 * 1000 // 10MB, adjust the size as needed
+	maxMsgSize := 1024 * 1024 * 1000 // 10000MB, adjust the size as needed
 	opts := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(maxMsgSize),
 		grpc.MaxSendMsgSize(maxMsgSize),

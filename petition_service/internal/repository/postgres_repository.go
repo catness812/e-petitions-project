@@ -4,15 +4,31 @@ import (
 	"errors"
 	"time"
 
+	"github.com/gookit/slog"
+
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
 	"github.com/catness812/e-petitions-project/petition_service/internal/util"
 	"github.com/catness812/e-petitions-project/petition_service/pkg/database/postgres"
-	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 
 type PetitionRepository struct {
 	db *gorm.DB
+}
+
+func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
+	slog.Info("Creating new Petition Repository...")
+	return &PetitionRepository{
+		db: db,
+	}
+}
+
+func (repo *PetitionRepository) Save(petition *models.Petition) error {
+	err := repo.db.Create(petition).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Petition {
@@ -33,15 +49,16 @@ func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagin
 	return petitions, nil
 }
 
-func NewPetitionRepository(db *gorm.DB) *PetitionRepository {
-	return &PetitionRepository{
-		db: db,
-	}
-}
-
-func (repo *PetitionRepository) Save(petition *models.Petition) error {
-	err := repo.db.Create(petition).Error
+func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
+	var petition models.Petition
+	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
 	if err != nil {
+		return err
+	}
+	petition.Status.ID = statusID
+	petition.UpdatedAt = time.Now()
+
+	if err := repo.db.Save(&petition).Error; err != nil {
 		return err
 	}
 	return nil
@@ -55,17 +72,39 @@ func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
 	return nil
 }
 
-func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
-	var petition models.Petition
-	// first query to see if this petition exists
-	result := repo.db.Where("id = ?", id).First(&petition)
-	if result.Error != nil {
-		return result.Error
+func (repo *PetitionRepository) UpdatePetition(petition *models.PetitionUpdate) error {
+	existingPetition := &models.Petition{}
+	slog.Info("petition.id:", petition.ID)
+	err := repo.db.Where("id = ?", petition.ID).First(&existingPetition).Error
+	if err != nil {
+		return err
 	}
-	petition.StatusID = statusID
-	petition.UpdatedAt = time.Now()
 
-	repo.db.Save(&petition)
+	// Update only non-null fields
+	if petition.Title != "" {
+		existingPetition.Title = petition.Title
+	}
+	if petition.Category != "" {
+		existingPetition.Category = petition.Category
+	}
+	if petition.Description != "" {
+		existingPetition.Description = petition.Description
+	}
+	if petition.Image != "" {
+		existingPetition.Image = petition.Image
+	}
+	if petition.VoteGoal != 0 {
+		existingPetition.VoteGoal = petition.VoteGoal
+	}
+	if petition.ExpDate.IsZero() {
+		existingPetition.ExpDate = petition.ExpDate
+	}
+
+	existingPetition.UpdatedAt = time.Now()
+	if err := repo.db.Save(existingPetition).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -101,26 +140,22 @@ func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
 func (repo *PetitionRepository) CheckIfExists(id uint) error {
 	var petitions models.Petition
 	if err := repo.db.Where("id = ?", id).First(&petitions).Error; err != nil {
-		slog.Errorf("Couldn't find petition: %v", err.Error())
 		return err
 	}
 
-	slog.Infof("petition found")
 	return nil
 }
 
 func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
 	var vote models.Vote
 	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
-		slog.Info("Couldn't find vote")
 		return nil
 	}
-	slog.Error("Vote found")
 	return errors.New("user has already voted")
 }
 func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.Scopes(postgres.Paginate(pagination)).Where("user_id = ?", userID).Find(&petitions).Error; err != nil {
+	if err := repo.db.Scopes(postgres.Paginate(pagination)).Model(models.Petition{}).Where("user_id = ?", userID).Preload("Status").Find(&petitions).Error; err != nil {
 		return nil, err
 	}
 	return petitions, nil
@@ -128,14 +163,15 @@ func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util
 
 func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
-	if err := repo.db.
-		Debug().Scopes(postgres.Paginate(pagination)).
-		Table("petitions").
-		Select("petitions.*, votes.*").
-		Joins("JOIN votes ON petitions.id = votes.petition_id").
-		Where("votes.user_id = ?", userID).Find(&petitions).
-		Error; err != nil {
-		slog.Errorf("can't access tables %v", err.Error())
+
+	query := `
+        SELECT petitions.*
+        FROM petitions
+        JOIN votes ON petitions.id = votes.petition_id
+        WHERE votes.user_id = ?
+        LIMIT ? OFFSET ?
+    `
+	if err := repo.db.Raw(query, userID, pagination.Limit, pagination.Page).Scan(&petitions).Error; err != nil {
 		return nil, err
 	}
 
@@ -152,7 +188,7 @@ func (r *PetitionRepository) UpdateCurrVotes(petition models.Petition) error {
 func (repo *PetitionRepository) GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error) {
 	var petitionInfo []models.PetitionInfo
 
-	err := repo.db.Debug().Scopes(postgres.Paginate(pagination)).Table("petitions").Select("id, user_id, title").Find(&petitionInfo).Error
+	err := repo.db.Debug().Scopes(postgres.Paginate(pagination)).Table("petitions").Select("id, user_id, title,  description,  author_name").Find(&petitionInfo).Error
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +200,7 @@ func (repo *PetitionRepository) SearchPetitionsByTitle(searchTerm string, pagina
 	var petitions []models.PetitionInfo
 	searchTerm = "%" + searchTerm + "%"
 	err := repo.db.Where("lower(title) LIKE lower(?)", searchTerm).Table("petitions").Scopes(postgres.Paginate(pagination)).
-		Select("id, user_id, title").Find(&petitions).Error
+		Select("id, user_id, title,  description,  author_name").Find(&petitions).Error
 	if err != nil {
 		return nil, err
 	}

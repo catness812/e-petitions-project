@@ -4,7 +4,9 @@ import "gorm.io/gorm"
 
 type File struct {
 	gorm.Model
-	Chunks []Chunk
+	UserID   string
+	FileType string
+	Chunks   []Chunk
 }
 
 type Chunk struct {

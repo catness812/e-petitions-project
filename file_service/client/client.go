@@ -29,13 +29,13 @@ func main() {
 	// Create a gRPC client
 	client := pb.NewFileServiceClient(conn)
 
-	imageData, err := ioutil.ReadFile("alo.mp4")
+	imageData, err := ioutil.ReadFile("/home/ktruedat/GolandProjects/e-petitions-project/file_service/client/JOTARO.jpg")
 	if err != nil {
 		slog.Fatalf("failed to read file: %v", err)
 	}
 
 	// Make a gRPC request
-	response, err := client.UploadFile(context.Background(), &pb.FileRequest{FileData: imageData})
+	response, err := client.UploadFile(context.Background(), &pb.FileRequest{FileData: imageData, Type: "mp4"})
 	if err != nil {
 		log.Fatalf("Error: %v", err)
 	}
