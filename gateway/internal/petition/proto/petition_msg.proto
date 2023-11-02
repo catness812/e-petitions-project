@@ -21,6 +21,16 @@ message Petition {
     google.protobuf.Timestamp created_at = 13;
 }
 
+message UpdatePetitionRequest {
+    uint32 id = 1;
+    string title = 2;
+    string category = 3;
+    string description = 4;
+    string image = 5;
+    uint32 vote_goal = 6;
+    google.protobuf.Timestamp exp_date = 7;
+}
+
 message Status {
     uint32 id = 1;
     string title = 2;
@@ -87,7 +97,9 @@ message PetitionSuggestionRequest {
 message PetitionInfo {
     uint32 id = 1;
     string title = 2;
-    uint32 user_id = 3;
+    string description = 3;
+    uint32 user_id = 4;
+    string author_name = 5;
 }
 
 message PetitionSuggestionResponse {
