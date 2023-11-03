@@ -3,6 +3,7 @@ module github.com/catness812/e-petitions-project/petition_service
 go 1.21.0
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/gookit/slog v0.5.4
 	github.com/kljensen/snowball v0.8.0
 	github.com/pemistahl/lingua-go v1.4.0

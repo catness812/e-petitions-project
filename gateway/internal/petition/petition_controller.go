@@ -58,7 +58,7 @@ func (c *petitionController) GetPetitionByID(ctx *fiber.Ctx) error {
 		slog.Errorf("Failed to get the id: %v", err)
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	id := uint32(pid)
+	id := string(pid)
 
 	petition, err := c.service.GetPetitionByID(id)
 	if err != nil {
@@ -109,7 +109,7 @@ func (c *petitionController) UpdatePetitionStatus(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 
 	}
-	err = c.service.UpdatePetitionStatus(status.ID, status.Status)
+	err = c.service.UpdatePetitionStatus(status.UUID, status.Status)
 
 	if err != nil {
 
@@ -141,17 +141,8 @@ func (c *petitionController) UpdatePetition(ctx *fiber.Ctx) error {
 
 func (c *petitionController) DeletePetition(ctx *fiber.Ctx) error {
 	idParam := ctx.Params("pid")
-	id, err := strconv.ParseUint(idParam, 10, 32)
-	if err != nil {
 
-		slog.Errorf("Failed to get the id: %s", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-
-	}
-	idUint32 := uint32(id)
-
-	err = c.service.DeletePetition(idUint32)
-
+	err := c.service.DeletePetition(idParam)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 
@@ -163,7 +154,7 @@ func (c *petitionController) DeletePetition(ctx *fiber.Ctx) error {
 
 func (c *petitionController) ValidatePetitionID(ctx *fiber.Ctx) error {
 	var pid struct {
-		PetitionID uint32 `json:"petition_id"`
+		PetitionID string `json:"petition_id"`
 	}
 
 	if err := ctx.BodyParser(&pid); err != nil {
@@ -182,20 +173,11 @@ func (c *petitionController) ValidatePetitionID(ctx *fiber.Ctx) error {
 }
 
 func (c *petitionController) CreateVote(ctx *fiber.Ctx) error {
-	uid, err := strconv.ParseUint(ctx.Params("uid"), 10, 32)
-	if err != nil {
-		slog.Errorf("Failed to get the user id: ", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
+	uid := ctx.Params("uid")
 
-	pid, err := strconv.ParseUint(ctx.Params("pid"), 10, 32)
-	if err != nil {
-		slog.Errorf("Failed to get the petition id: ", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	pid := ctx.Params("pid")
 
-	}
-
-	err = c.service.CreateVote(uint32(uid), uint32(pid))
+	err := c.service.CreateVote(uid, pid)
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -204,11 +186,7 @@ func (c *petitionController) CreateVote(ctx *fiber.Ctx) error {
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Vote created successfully"})
 }
 func (c *petitionController) GetUserPetitions(ctx *fiber.Ctx) error {
-	uid, err := strconv.ParseUint(ctx.Params("uid"), 10, 32)
-	if err != nil {
-		slog.Errorf("Failed to get the user id: ", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
+	uid := ctx.Params("uid")
 
 	page, err := strconv.ParseUint(ctx.Params("page"), 10, 32)
 	if err != nil {
@@ -222,7 +200,7 @@ func (c *petitionController) GetUserPetitions(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	res, err := c.service.GetUserPetitions(uint32(uid), uint32(page), uint32(limit))
+	res, err := c.service.GetUserPetitions(uid, uint32(page), uint32(limit))
 
 	if err != nil {
 
@@ -235,12 +213,8 @@ func (c *petitionController) GetUserPetitions(ctx *fiber.Ctx) error {
 }
 
 func (c *petitionController) GetUserVotedPetitions(ctx *fiber.Ctx) error {
-	uid, err := strconv.ParseUint(ctx.Params("uid"), 10, 32)
-	if err != nil {
-		slog.Errorf("Failed to get the user id: ", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	uid := ctx.Params("uid")
 
-	}
 	page, err := strconv.ParseUint(ctx.Params("page"), 10, 32)
 	if err != nil {
 		slog.Errorf("Failed to get the page: ", err)
@@ -254,7 +228,7 @@ func (c *petitionController) GetUserVotedPetitions(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	res, err := c.service.GetUserVotedPetitions(uint32(uid), uint32(page), uint32(limit))
+	res, err := c.service.GetUserVotedPetitions(uid, uint32(page), uint32(limit))
 
 	if err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})

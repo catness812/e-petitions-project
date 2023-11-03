@@ -7,7 +7,6 @@ import (
 	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
 	"math/rand"
-	"strconv"
 	"strings"
 	"time"
 
@@ -59,7 +58,7 @@ func (svc *SecurityService) Login(userLogin *models.UserCredentialsModel) (map[s
 	if err = svc.redisRepo.InsertUserToken(token["refresh_token"], user.Email, time.Hour*5); err != nil {
 		return nil, "", errors.New("could not insert refresh token")
 	}
-	return token, strconv.FormatUint(uint64(user.Id), 10), nil
+	return token, user.UUID, nil
 }
 
 func (svc *SecurityService) RefreshUserToken(token string, email string) (map[string]string, error) {
