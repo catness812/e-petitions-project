@@ -20,14 +20,13 @@ type Petition struct {
 	VoteGoal    uint      `gorm:"not null;default:1000" json:"vote_goal"`
 	CurrVotes   uint      `gorm:"not null;default:0" json:"curr_votes"`
 	ExpDate     time.Time `gorm:"not null;" json:"exp_date"`
-	Votes       []Vote    `gorm:"foreignKey:PetitionUUID" json:"votes"`
+	Votes       []Vote    `gorm:"foreignKey:ID"`
 }
 
 type Vote struct {
-	ID           uint     `gorm:"primaryKey;autoIncrement:true"`
-	UserID       string   `gorm:"not null" json:"user_id"`
-	PetitionUUID string   `gorm:"not null" json:"petition_uuid"`
-	Petition     Petition `gorm:"foreignKey:PetitionUUID" json:"petition"`
+	ID           uint   `gorm:"primaryKey"`
+	UserID       string `gorm:"not null" json:"user_id"`
+	PetitionUUID string `gorm:"not null" json:"petition_uuid"`
 }
 
 type PetitionInfo struct {

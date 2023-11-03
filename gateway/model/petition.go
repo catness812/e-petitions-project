@@ -8,6 +8,7 @@ type Petition struct {
 	Image        string `gorm:"not null;" json:"image"`
 	Status       Status `gorm:"not null;" json:"status"`
 	UserUUID     string `gorm:"not null;" json:"user_id"`
+	AuthorName   string `gorm:"not null;" json:"author_name"`
 	VoteGoal     uint32 `gorm:"not null;" json:"vote_goal"`
 	CurrentVotes uint32 `gorm:"not null;" json:"current_votes"`
 	ExpDate      string `gorm:"not null;" json:"exp_date"`

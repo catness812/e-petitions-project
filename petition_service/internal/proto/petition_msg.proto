@@ -32,7 +32,7 @@ message UpdatePetitionRequest {
 }
 
 message Status {
-    string uuid = 1;
+    uint32 id = 1;
     string title = 2;
 }
 

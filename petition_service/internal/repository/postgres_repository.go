@@ -42,20 +42,20 @@ func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagin
 	var petitions []models.Petition
 
 	err := repo.db.Preload("Status").Scopes(postgres.Paginate(pagination)).
-		Where("status_id = ?", status.UUID).Limit(50).Find(&petitions).Error
+		Where("status_id = ?", status.ID).Limit(50).Find(&petitions).Error
 	if err != nil {
 		return nil, err
 	}
 	return petitions, nil
 }
 
-func (repo *PetitionRepository) UpdateStatus(id string, statusID string) error {
+func (repo *PetitionRepository) UpdateStatus(id string, statusID uint) error {
 	var petition models.Petition
 	err := repo.db.Where("uuid = ?", id).Preload("Status").First(&petition).Error
 	if err != nil {
 		return err
 	}
-	petition.Status.UUID = statusID
+	petition.Status.ID = statusID
 	petition.UpdatedAt = time.Now()
 
 	if err := repo.db.Save(&petition).Error; err != nil {
@@ -148,11 +148,17 @@ func (repo *PetitionRepository) CheckIfExists(uuid string) error {
 
 func (repo *PetitionRepository) HasUserVoted(userID, petitionID string) error {
 	var vote models.Vote
-	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
+	if err := repo.db.Where("petition_id = ?", petitionID).First(&vote).Error; err != nil {
 		return nil
 	}
+
+	if vote.UserID == userID {
+		return nil
+	}
+
 	return errors.New("user has already voted")
 }
+
 func (repo *PetitionRepository) GetAllUserPetitions(userID string, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
 	if err := repo.db.Scopes(postgres.Paginate(pagination)).Model(models.Petition{}).Where("user_id = ?", userID).Preload("Status").Find(&petitions).Error; err != nil {
@@ -167,7 +173,7 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID string, paginati
 	query := `
         SELECT petitions.*
         FROM petitions
-        JOIN votes ON petitions.uuid = votes.petition_id
+        JOIN votes ON petitions.uuid = votes.petition_uuid
         WHERE votes.user_id = ?
         LIMIT ? OFFSET ?
     `

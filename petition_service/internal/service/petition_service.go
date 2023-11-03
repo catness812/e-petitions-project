@@ -17,7 +17,7 @@ type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
 	GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error)
-	UpdateStatus(uuid string, statusID string) error
+	UpdateStatus(uuid string, statusID uint) error
 	Delete(uuid string) error
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(uuid string) (models.Petition, error)
@@ -167,7 +167,7 @@ func (svc *PetitionService) UpdateStatus(uuid string, status string) error {
 		return fmt.Errorf("error getting status %v", err)
 	}
 	// update status
-	if err := svc.petitionRepository.UpdateStatus(uuid, newStatus.UUID); err != nil {
+	if err := svc.petitionRepository.UpdateStatus(uuid, newStatus.ID); err != nil {
 		if err == gorm.ErrRecordNotFound {
 			slog.Errorf("Petition %v not found", uuid)
 			return fmt.Errorf("petition %v not found", uuid)

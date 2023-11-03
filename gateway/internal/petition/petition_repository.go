@@ -127,7 +127,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (s
 	expDateTimestamp := timestamppb.New(expDate)
 	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
 		slog.Errorf("Failed to convert time to Timestamp")
-		return "", errors.New("Failed to convert time to Timestamp ")
+		return "", errors.New("failed to convert time to Timestamp ")
 	}
 	resp, err := repo.client.CreatePetition(context.Background(), &pb.CreatePetitionRequest{
 		Title:       petition.Title,

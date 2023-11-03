@@ -1,8 +1,9 @@
 package petition
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"strconv"
+
+	"github.com/gofiber/fiber/v2"
 
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gookit/slog"
@@ -16,7 +17,6 @@ type IPetitionController interface {
 	DeletePetition(ctx *fiber.Ctx) error
 	ValidatePetitionID(ctx *fiber.Ctx) error
 	CreateVote(ctx *fiber.Ctx) error
-	UpdatePetition(ctx *fiber.Ctx) error
 	GetUserPetitions(ctx *fiber.Ctx) error
 	GetUserVotedPetitions(ctx *fiber.Ctx) error
 	GetAllSimilarPetitions(ctx *fiber.Ctx) error
@@ -52,12 +52,12 @@ func (c *petitionController) CreatePetition(ctx *fiber.Ctx) error {
 }
 
 func (c *petitionController) GetPetitionByID(ctx *fiber.Ctx) error {
-	pid, err := strconv.ParseUint(ctx.Params("pid"), 10, 32)
-	if err != nil {
-
-		slog.Errorf("Failed to get the id: %v", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	pid := ctx.Params("pid")
+	if pid == "" {
+		slog.Errorf("failed to get the id")
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "failed to get pid"})
 	}
+
 	id := string(pid)
 
 	petition, err := c.service.GetPetitionByID(id)
@@ -119,24 +119,6 @@ func (c *petitionController) UpdatePetitionStatus(ctx *fiber.Ctx) error {
 
 	slog.Infof("Petition status updated successfully")
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Petition status updated successfully"})
-}
-
-func (c *petitionController) UpdatePetition(ctx *fiber.Ctx) error {
-	var petition model.UpdatePetition
-	err := ctx.BodyParser(&petition)
-	if err != nil {
-		slog.Errorf("Failed to bind petition: ", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-
-	}
-
-	err = c.service.UpdatePetition(petition)
-	if err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
-	}
-
-	slog.Info("Petition created successfully")
-	return ctx.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "Petition updated successfully"})
 }
 
 func (c *petitionController) DeletePetition(ctx *fiber.Ctx) error {

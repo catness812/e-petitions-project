@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+
 	"github.com/google/uuid"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -56,7 +57,7 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 		Description: petition.Description,
 		Image:       petition.Image,
 		Status: &pb.Status{
-			Uuid:  petition.Status.UUID,
+			Id:    uint32(petition.Status.ID),
 			Title: petition.Status.Title,
 		},
 		UserId:       petition.UserID,
@@ -106,8 +107,8 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 
 func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empty.Empty, error) {
 	newVote := models.Vote{
-		PetitionUUID: req.PetitionId,
 		UserID:       req.UserId,
+		PetitionUUID: req.PetitionId,
 	}
 
 	err := s.PetitionService.CreateVote(newVote)
@@ -139,7 +140,7 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 			Image:       p.Image,
 
 			Status: &pb.Status{
-				Uuid:  p.Status.UUID,
+				Id:    uint32(p.Status.ID),
 				Title: p.Status.Title,
 			},
 			UserId:       p.UserID,
@@ -216,7 +217,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
 		pStatus := &pb.Status{
-			Uuid:  p.Status.UUID,
+			Id:    uint32(p.Status.ID),
 			Title: p.Status.Title,
 		}
 		getUserPetitionsResponse[i] = &pb.Petition{
@@ -266,7 +267,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 			ExpDate:      timestamppb.New(p.ExpDate),
 			UserId:       p.UserID,
 			AuthorName:   p.AuthorName,
-			Status:       &pb.Status{Uuid: p.Status.UUID, Title: p.Status.Title},
+			Status:       &pb.Status{Id: uint32(p.Status.ID), Title: p.Status.Title},
 		}
 	}
 

@@ -25,11 +25,6 @@ func LoadDatabase() *gorm.DB {
 	if err != nil {
 		slog.Error(err)
 	}
-	err = db.Exec("ALTER TABLE votes ALTER COLUMN petition_id TYPE VARCHAR(255)").Error
-	if err != nil {
-		slog.Error("Error altering column type: ", err)
-	}
-
 	seedStatuses(db)
 	return db
 }

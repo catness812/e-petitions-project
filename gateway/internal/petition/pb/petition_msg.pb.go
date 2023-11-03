@@ -129,13 +129,6 @@ func (x *Petition) GetAuthorName() string {
 	return ""
 }
 
-func (x *Petition) GetAuthorName() string {
-	if x != nil {
-		return x.AuthorName
-	}
-	return ""
-}
-
 func (x *Petition) GetVoteGoal() uint32 {
 	if x != nil {
 		return x.VoteGoal
@@ -1021,12 +1014,6 @@ func (x *PetitionInfo) GetAuthorName() string {
 	return ""
 }
 
-func (x *PetitionInfo) GetAuthorName() string {
-	if x != nil {
-		return x.AuthorName
-	}
-	return ""
-}
 
 type PetitionSuggestionResponse struct {
 	state         protoimpl.MessageState

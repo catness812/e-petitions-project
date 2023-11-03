@@ -41,9 +41,6 @@ func (svc *petitionService) GetPetitionByID(petitionID string) (model.Petition, 
 func (svc *petitionService) UpdatePetitionStatus(id string, status string) error {
 	return svc.repo.UpdatePetitionStatus(id, status)
 }
-func (svc *petitionService) UpdatePetition(petition model.UpdatePetition) error {
-	return svc.repo.UpdatePetition(petition)
-}
 
 func (svc *petitionService) DeletePetition(petitionID string) error {
 	return svc.repo.DeletePetition(petitionID)
