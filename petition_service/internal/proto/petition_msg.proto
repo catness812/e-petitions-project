@@ -6,13 +6,13 @@ import "google/protobuf/timestamp.proto";
 package proto;
 
 message Petition {
-    uint32 id = 1;
+    string uuid = 1;
     string title = 2;
     string category = 3;
     string description = 4;
     string image = 5;
     Status status = 6;
-    uint32 user_id = 7;
+    string user_id = 7;
     string author_name = 8;
     uint32 vote_goal = 9;
     uint32 current_votes = 10;
@@ -22,7 +22,7 @@ message Petition {
 }
 
 message UpdatePetitionRequest {
-    uint32 id = 1;
+    string uuid = 1;
     string title = 2;
     string category = 3;
     string description = 4;
@@ -32,27 +32,27 @@ message UpdatePetitionRequest {
 }
 
 message Status {
-    uint32 id = 1;
+    string uuid = 1;
     string title = 2;
 }
 
 message CreateVoteRequest{
-    uint32 user_id = 1;
-    uint32 petition_id = 2;
+    string user_id = 1;
+    string petition_id = 2;
 }
 
 message CreatePetitionRequest {
     string title = 1;
     string description = 2;
     string image = 3;
-    uint32 user_id = 4;
+    string user_id = 4;
     string category = 5;
     uint32 vote_goal = 8;
     google.protobuf.Timestamp exp_date = 9;
 }
 
 message PetitionId {
-    uint32 id = 1;
+    string uuid = 1;
 }
 
 message GetPetitionsRequest {
@@ -65,12 +65,12 @@ message GetPetitionsResponse {
 }
 
 message UpdatePetitionStatusRequest{
-    uint32 id = 1;
+    string uuid = 1;
     string status = 2;
 }
 
 message GetUserPetitionsRequest {
-    uint32 user_id = 1;
+    string user_id = 1;
     uint32 page = 2;
     uint32 limit = 3;
 }
@@ -81,7 +81,7 @@ message GetUserPetitionsResponse {
 
 
 message GetUserVotedPetitionsRequest {
-    uint32 user_id = 1;
+    string user_id = 1;
     uint32 page = 2;
     uint32 limit = 3;
 }
@@ -95,10 +95,10 @@ message PetitionSuggestionRequest {
 }
 
 message PetitionInfo {
-    uint32 id = 1;
+    string uuid = 1;
     string title = 2;
     string description = 3;
-    uint32 user_id = 4;
+    string user_id = 4;
     string author_name = 5;
 }
 

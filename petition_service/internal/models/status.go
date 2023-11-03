@@ -12,6 +12,7 @@ const (
 
 type Status struct {
 	gorm.Model
+	UUID  string `gorm:"not null;"`
 	Title string `gorm:"not null;unique" json:"title"`
 }
 

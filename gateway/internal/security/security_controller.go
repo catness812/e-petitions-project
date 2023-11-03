@@ -41,7 +41,7 @@ func (ctrl *SecurityController) Login(ctx *fiber.Ctx) error {
 		"message":       "User successfully logged in",
 		"access-token":  tokens.AccessToken,
 		"refresh-token": tokens.RefreshToken,
-		"userId":        tokens.UserId,
+		"userId":        tokens.UserUUID,
 	})
 }
 

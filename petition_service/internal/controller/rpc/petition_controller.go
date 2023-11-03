@@ -3,6 +3,7 @@ package rpc
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -17,17 +18,17 @@ import (
 )
 
 type IPetitionService interface {
-	CreateNew(petition models.Petition) (uint, error)
+	CreateNew(petition models.Petition) (string, error)
 	GetAll(pagination util.Pagination) []models.Petition
 
-	UpdateStatus(id uint, status string) error
+	UpdateStatus(uuid string, status string) error
 	UpdatePetition(petition *models.PetitionUpdate) error
 
-	Delete(id uint) error
-	GetByID(id uint) (models.Petition, error)
+	Delete(uuid string) error
+	GetByID(uuid string) (models.Petition, error)
 	CreateVote(vote models.Vote) error
-	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
-	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	GetAllUserPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error)
+	GetAllUserVotedPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error)
 	CheckPetitionExpiration(petition models.Petition) (string, error)
 	GetAllSimilarPetitions(title string) ([]models.PetitionInfo, error)
 	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
@@ -40,7 +41,7 @@ type Server struct {
 }
 
 func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Petition, error) {
-	petition, err := s.PetitionService.GetByID(uint(req.Id))
+	petition, err := s.PetitionService.GetByID(req.Uuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "petition not found")
@@ -49,16 +50,16 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 	}
 
 	return &pb.Petition{
-		Id:          uint32(petition.ID),
+		Uuid:        petition.UUID,
 		Title:       petition.Title,
 		Category:    petition.Category,
 		Description: petition.Description,
 		Image:       petition.Image,
 		Status: &pb.Status{
-			Id:    uint32(petition.Status.ID),
+			Uuid:  petition.Status.UUID,
 			Title: petition.Status.Title,
 		},
-		UserId:       uint32(petition.UserID),
+		UserId:       petition.UserID,
 		AuthorName:   petition.AuthorName,
 		VoteGoal:     uint32(petition.VoteGoal),
 		CreatedAt:    timestamppb.New(petition.CreatedAt),
@@ -69,7 +70,7 @@ func (s *Server) GetPetitionById(_ context.Context, req *pb.PetitionId) (*pb.Pet
 }
 
 func (s *Server) ValidatePetitionId(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
-	_, err := s.PetitionService.GetByID(uint(req.Id))
+	_, err := s.PetitionService.GetByID(req.Uuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "petition not found")
@@ -85,11 +86,13 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 		Title:       req.Title,
 		Description: req.Description,
 		Image:       req.Image,
-		UserID:      uint(req.UserId),
+		UserID:      req.UserId,
 		Category:    req.Category,
 		VoteGoal:    uint(req.VoteGoal),
 		ExpDate:     req.ExpDate.AsTime(),
 	}
+
+	newPetition.UUID = uuid.New().String()
 
 	savedPetitionID, err := s.PetitionService.CreateNew(newPetition)
 	if err != nil {
@@ -97,14 +100,14 @@ func (s *Server) CreatePetition(_ context.Context, req *pb.CreatePetitionRequest
 	}
 
 	return &pb.PetitionId{
-		Id: uint32(savedPetitionID),
+		Uuid: savedPetitionID,
 	}, nil
 }
 
 func (s *Server) CreateVote(_ context.Context, req *pb.CreateVoteRequest) (*empty.Empty, error) {
 	newVote := models.Vote{
-		PetitionID: uint(req.PetitionId),
-		UserID:     uint(req.UserId),
+		PetitionUUID: req.PetitionId,
+		UserID:       req.UserId,
 	}
 
 	err := s.PetitionService.CreateVote(newVote)
@@ -129,17 +132,17 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 	for i := range getPetitionsResponse {
 		p := petitions[i]
 		getPetitionsResponse[i] = &pb.Petition{
-			Id:          uint32(p.ID),
+			Uuid:        p.UUID,
 			Title:       p.Title,
 			Category:    p.Category,
 			Description: p.Description,
 			Image:       p.Image,
 
 			Status: &pb.Status{
-				Id:    uint32(p.Status.ID),
+				Uuid:  p.Status.UUID,
 				Title: p.Status.Title,
 			},
-			UserId:       uint32(p.UserID),
+			UserId:       p.UserID,
 			AuthorName:   p.AuthorName,
 			VoteGoal:     uint32(p.VoteGoal),
 			CreatedAt:    timestamppb.New(p.CreatedAt),
@@ -155,7 +158,7 @@ func (s *Server) GetPetitions(_ context.Context, req *pb.GetPetitionsRequest) (*
 }
 
 func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionStatusRequest) (*empty.Empty, error) {
-	err := s.PetitionService.UpdateStatus(uint(req.Id), req.Status)
+	err := s.PetitionService.UpdateStatus(req.Uuid, req.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +167,7 @@ func (s *Server) UpdatePetitionStatus(_ context.Context, req *pb.UpdatePetitionS
 
 func (s *Server) UpdatePetition(_ context.Context, req *pb.UpdatePetitionRequest) (*empty.Empty, error) {
 	newPetition := models.PetitionUpdate{
-		ID:          uint(req.Id),
+		UUID:        req.Uuid,
 		Title:       req.Title,
 		Description: req.Description,
 		Image:       req.Image,
@@ -181,12 +184,12 @@ func (s *Server) UpdatePetition(_ context.Context, req *pb.UpdatePetitionRequest
 		return nil, err
 	}
 
-	slog.Infof("Petition %v successfully updated", req.Id)
+	slog.Infof("Petition %v successfully updated", req.Uuid)
 	return &empty.Empty{}, nil
 }
 
 func (s *Server) DeletePetition(_ context.Context, req *pb.PetitionId) (*empty.Empty, error) {
-	err := s.PetitionService.Delete(uint(req.Id))
+	err := s.PetitionService.Delete(req.Uuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "petition not found")
@@ -204,7 +207,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 		Limit: int(req.Limit),
 	}
 
-	petitions, err := s.PetitionService.GetAllUserPetitions(uint(userID), pag)
+	petitions, err := s.PetitionService.GetAllUserPetitions(userID, pag)
 	if err != nil {
 		return nil, err
 	}
@@ -213,11 +216,11 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
 		pStatus := &pb.Status{
-			Id:    uint32(p.StatusID),
+			Uuid:  p.Status.UUID,
 			Title: p.Status.Title,
 		}
 		getUserPetitionsResponse[i] = &pb.Petition{
-			Id:           uint32(p.ID),
+			Uuid:         p.UUID,
 			Title:        p.Title,
 			Category:     p.Category,
 			Description:  p.Description,
@@ -226,7 +229,7 @@ func (s *Server) GetUserPetitions(_ context.Context, req *pb.GetUserPetitionsReq
 			UpdatedAt:    timestamppb.New(p.UpdatedAt),
 			CurrentVotes: uint32(p.CurrVotes),
 			ExpDate:      timestamppb.New(p.ExpDate),
-			UserId:       uint32(p.UserID),
+			UserId:       p.UserID,
 			AuthorName:   p.AuthorName,
 			Status:       pStatus,
 		}
@@ -243,7 +246,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 		Page:  int(req.Page),
 		Limit: int(req.Limit),
 	}
-	petitions, err := s.PetitionService.GetAllUserVotedPetitions(uint(userID), pag)
+	petitions, err := s.PetitionService.GetAllUserVotedPetitions(userID, pag)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +255,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 	for i := range getUserPetitionsResponse {
 		p := petitions[i]
 		getUserPetitionsResponse[i] = &pb.Petition{
-			Id:           uint32(p.ID),
+			Uuid:         p.UUID,
 			Title:        p.Title,
 			Category:     p.Category,
 			Description:  p.Description,
@@ -261,9 +264,9 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 			UpdatedAt:    timestamppb.New(p.UpdatedAt),
 			CurrentVotes: uint32(p.CurrVotes),
 			ExpDate:      timestamppb.New(p.ExpDate),
-			UserId:       uint32(p.UserID),
+			UserId:       p.UserID,
 			AuthorName:   p.AuthorName,
-			Status:       &pb.Status{Id: uint32(p.Status.ID), Title: p.Status.Title},
+			Status:       &pb.Status{Uuid: p.Status.UUID, Title: p.Status.Title},
 		}
 	}
 
@@ -273,7 +276,7 @@ func (s *Server) GetUserVotedPetitions(_ context.Context, req *pb.GetUserVotedPe
 }
 
 func (s *Server) CheckIfPetitionsExpired(_ context.Context, req *pb.Petition) (*empty.Empty, error) {
-	petition, err := s.PetitionService.GetByID(uint(req.Id))
+	petition, err := s.PetitionService.GetByID(req.Uuid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "petition not found")
@@ -304,10 +307,10 @@ func (s *Server) GetAllSimilarPetitions(_ context.Context, req *pb.PetitionSugge
 	for i := range getAllSimilarPetitionsResponse {
 		p := petitions[i]
 		getAllSimilarPetitionsResponse[i] = &pb.PetitionInfo{
-			Id:          uint32(p.ID),
+			Uuid:        p.UUID,
 			Title:       p.Title,
 			Description: p.Description,
-			UserId:      uint32(p.UserID),
+			UserId:      p.UserID,
 			AuthorName:  p.AuthorName,
 		}
 	}
@@ -332,10 +335,10 @@ func (s *Server) SearchPetitionsByTitle(_ context.Context, req *pb.SearchPetitio
 	for i := range SearchPetitionsByTitleResponse {
 		p := petitions[i]
 		SearchPetitionsByTitleResponse[i] = &pb.PetitionInfo{
-			Id:          uint32(p.ID),
+			Uuid:        p.UUID,
 			Title:       p.Title,
 			Description: p.Description,
-			UserId:      uint32(p.UserID),
+			UserId:      p.UserID,
 			AuthorName:  p.AuthorName,
 		}
 	}

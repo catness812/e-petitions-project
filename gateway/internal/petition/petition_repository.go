@@ -13,15 +13,15 @@ import (
 )
 
 type IPetitionRepository interface {
-	CreatePetition(model.CreatePetition) (uint32, error)
-	GetPetitionByID(petitionID uint32) (model.Petition, error)
+	CreatePetition(model.CreatePetition) (string, error)
+	GetPetitionByID(petitionUUID string) (model.Petition, error)
 	GetPetitions(page uint32, limit uint32) ([]model.Petition, error)
-	UpdatePetitionStatus(id uint32, status string) error
-	DeletePetition(petitionID uint32) error
-	ValidatePetitionID(petitionID uint32) error
-	CreateVote(userID uint32, petitionID uint32) error
-	GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
-	GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
+	UpdatePetitionStatus(uuid string, status string) error
+	DeletePetition(petitionUUID string) error
+	ValidatePetitionID(petitionUUID string) error
+	CreateVote(userUUID string, petitionUUID string) error
+	GetUserPetitions(userUUID string, page uint32, limit uint32) ([]model.Petition, error)
+	GetUserVotedPetitions(userUUID string, page uint32, limit uint32) ([]model.Petition, error)
 	GetAllSimilarPetitions(title string) ([]model.Petition, error)
 	SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error)
 }
@@ -44,10 +44,10 @@ type petitionRepository struct {
 func mapPetition(pbPetition *pb.Petition) model.Petition {
 	var petition model.Petition
 
-	if pbPetition.Id == 0 {
+	if pbPetition.Uuid == "0" {
 		slog.Printf("Failed to get status value ", pbPetition.UserId)
 	} else {
-		petition.PetitionId = pbPetition.Id
+		petition.PetitionUUID = pbPetition.Uuid
 	}
 	if pbPetition.Title == "" {
 		slog.Printf("Failed to get status value ", pbPetition.Title)
@@ -65,15 +65,15 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 		petition.Description = pbPetition.Description
 	}
 	petition.Image = pbPetition.Image
-	if pbPetition.UserId == 0 {
+	if pbPetition.UserId == "0" {
 		slog.Printf("Failed to get status value ", pbPetition.UserId)
 	} else {
-		petition.UserID = pbPetition.UserId
+		petition.UserUUID = pbPetition.UserId
 	}
 	if pbPetition.Status == nil {
 		slog.Printf("Failed to get status value ", pbPetition.Status)
 	} else {
-		petition.Status.ID = pbPetition.Status.Id
+		petition.Status.UUID = pbPetition.Status.Uuid
 		petition.Status.Status = pbPetition.Status.Title
 	}
 	petition.VoteGoal = pbPetition.VoteGoal
@@ -105,41 +105,41 @@ func mapPetition(pbPetition *pb.Petition) model.Petition {
 
 func mapPetitionSuggestion(pbPetition *pb.PetitionInfo) model.Petition {
 	var petition model.Petition
-	if pbPetition.Id == 0 {
-		slog.Printf("Failed to get status value ", pbPetition.Id)
+	if pbPetition.Uuid == "0" {
+		slog.Printf("Failed to get status value ", pbPetition.Uuid)
 	} else {
-		petition.PetitionId = pbPetition.Id
+		petition.PetitionUUID = pbPetition.Uuid
 	}
 	if pbPetition.Title == "" {
 		slog.Printf("Failed to get status value ", pbPetition.Title)
 	} else {
 		petition.Title = pbPetition.Title
 	}
-	if pbPetition.UserId == 0 {
+	if pbPetition.UserId == "0" {
 		slog.Printf("Failed to get status value ", pbPetition.UserId)
 	} else {
-		petition.UserID = pbPetition.UserId
+		petition.UserUUID = pbPetition.UserId
 	}
 
 	return petition
 }
 
-func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (uint32, error) {
+func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (string, error) {
 	expDate, err := time.Parse(time.RFC3339, petition.ExpDate)
 	if err != nil {
 		slog.Errorf("Failed to parse expDate: %v", err)
-		return 0, err
+		return "", err
 	}
 	expDateTimestamp := timestamppb.New(expDate)
 	if expDateTimestamp.Seconds == 0 && expDateTimestamp.Nanos == 0 {
 		slog.Errorf("Failed to convert time to Timestamp")
-		return 0, errors.New("Failed to convert time to Timestamp ")
+		return "", errors.New("Failed to convert time to Timestamp ")
 	}
 	resp, err := repo.client.CreatePetition(context.Background(), &pb.CreatePetitionRequest{
 		Title:       petition.Title,
 		Description: petition.Description,
 		Image:       petition.Image,
-		UserId:      petition.UserID,
+		UserId:      petition.UserUUID,
 		Category:    petition.Category,
 		VoteGoal:    petition.VoteGoal,
 		ExpDate:     expDateTimestamp,
@@ -147,16 +147,16 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (u
 
 	if err != nil {
 		slog.Errorf("Failed to create petition: ", err)
-		return 0, nil
+		return "", nil
 	}
-	return resp.Id, nil
+	return resp.Uuid, nil
 
 }
 
-func (repo *petitionRepository) GetPetitionByID(petitionID uint32) (model.Petition, error) {
+func (repo *petitionRepository) GetPetitionByID(petitionID string) (model.Petition, error) {
 	var petition model.Petition
 	resp, err := repo.client.GetPetitionById(context.Background(), &pb.PetitionId{
-		Id: petitionID,
+		Uuid: petitionID,
 	})
 
 	if err != nil {
@@ -188,9 +188,9 @@ func (repo *petitionRepository) GetPetitions(page uint32, limit uint32) ([]model
 	return petitions, nil
 }
 
-func (repo *petitionRepository) UpdatePetitionStatus(id uint32, status string) error {
+func (repo *petitionRepository) UpdatePetitionStatus(id string, status string) error {
 	_, err := repo.client.UpdatePetitionStatus(context.Background(), &pb.UpdatePetitionStatusRequest{
-		Id:     id,
+		Uuid:   id,
 		Status: status,
 	})
 	if err != nil {
@@ -200,9 +200,9 @@ func (repo *petitionRepository) UpdatePetitionStatus(id uint32, status string) e
 	return nil
 }
 
-func (repo *petitionRepository) DeletePetition(petitionID uint32) error {
+func (repo *petitionRepository) DeletePetition(petitionID string) error {
 	_, err := repo.client.DeletePetition(context.Background(), &pb.PetitionId{
-		Id: petitionID,
+		Uuid: petitionID,
 	})
 	if err != nil {
 		slog.Errorf("Failed to delete petition: ", err)
@@ -212,9 +212,9 @@ func (repo *petitionRepository) DeletePetition(petitionID uint32) error {
 	return nil
 }
 
-func (repo *petitionRepository) ValidatePetitionID(petitionID uint32) error {
+func (repo *petitionRepository) ValidatePetitionID(petitionID string) error {
 	_, err := repo.client.ValidatePetitionId(context.Background(), &pb.PetitionId{
-		Id: petitionID,
+		Uuid: petitionID,
 	})
 
 	if err != nil {
@@ -224,7 +224,7 @@ func (repo *petitionRepository) ValidatePetitionID(petitionID uint32) error {
 	return nil
 }
 
-func (repo *petitionRepository) CreateVote(userID uint32, petitionID uint32) error {
+func (repo *petitionRepository) CreateVote(userID string, petitionID string) error {
 	_, err := repo.client.CreateVote(context.Background(), &pb.CreateVoteRequest{
 		PetitionId: petitionID,
 		UserId:     userID,
@@ -236,7 +236,7 @@ func (repo *petitionRepository) CreateVote(userID uint32, petitionID uint32) err
 	return nil
 }
 
-func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+func (repo *petitionRepository) GetUserPetitions(userID string, page uint32, limit uint32) ([]model.Petition, error) {
 
 	resp, err := repo.client.GetUserPetitions(context.Background(), &pb.GetUserPetitionsRequest{
 		UserId: userID,
@@ -259,7 +259,7 @@ func (repo *petitionRepository) GetUserPetitions(userID uint32, page uint32, lim
 	return petitions, nil
 }
 
-func (repo *petitionRepository) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+func (repo *petitionRepository) GetUserVotedPetitions(userID string, page uint32, limit uint32) ([]model.Petition, error) {
 	resp, err := repo.client.GetUserVotedPetitions(context.Background(), &pb.GetUserVotedPetitionsRequest{
 		UserId: userID,
 		Page:   page,
