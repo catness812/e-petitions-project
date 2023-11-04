@@ -7,4 +7,5 @@ use (
 	./petition_service
 	./security_service
 	./user_service
+	./file_service
 )
