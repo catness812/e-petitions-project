@@ -113,7 +113,7 @@ func (c *userServiceClient) CheckUserExistence(ctx context.Context, in *CheckUse
 }
 
 // UserServiceServer is the server API for UserService service.
-// All implementations must embed UnimplementedUserServiceServer
+// All implementations should embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
 	CreateUser(context.Context, *UserRequest) (*ResponseMessage, error)
@@ -126,7 +126,7 @@ type UserServiceServer interface {
 	CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error)
 }
 
-// UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedUserServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedUserServiceServer struct {
 }
 
@@ -154,7 +154,6 @@ func (UnimplementedUserServiceServer) AddAdmin(context.Context, *AddAdminRequest
 func (UnimplementedUserServiceServer) CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUserExistence not implemented")
 }
-func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
 // UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to UserServiceServer will

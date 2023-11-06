@@ -1,7 +1,7 @@
 package model
 
 type User struct {
-	Id   uint32 `json:"id"`
+	UUID string `json:"id"`
 	Role string `json:"role"`
 	UserCredentials
 }
@@ -14,5 +14,5 @@ type UserCredentials struct {
 type Tokens struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
-	UserId       string `json:"user_id"`
+	UserUUID     string `json:"user_id"`
 }

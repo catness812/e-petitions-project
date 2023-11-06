@@ -165,7 +165,7 @@ func (c *petitionServiceClient) SearchPetitionsByTitle(ctx context.Context, in *
 }
 
 // PetitionServiceServer is the server API for PetitionService service.
-// All implementations must embed UnimplementedPetitionServiceServer
+// All implementations should embed UnimplementedPetitionServiceServer
 // for forward compatibility
 type PetitionServiceServer interface {
 	GetPetitionById(context.Context, *PetitionId) (*Petition, error)
@@ -182,10 +182,9 @@ type PetitionServiceServer interface {
 	CheckIfPetitionsExpired(context.Context, *Petition) (*emptypb.Empty, error)
 	GetAllSimilarPetitions(context.Context, *PetitionSuggestionRequest) (*PetitionSuggestionResponse, error)
 	SearchPetitionsByTitle(context.Context, *SearchPetitionsByTitRequest) (*PetitionSuggestionResponse, error)
-	mustEmbedUnimplementedPetitionServiceServer()
 }
 
-// UnimplementedPetitionServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedPetitionServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedPetitionServiceServer struct {
 }
 
@@ -228,7 +227,6 @@ func (UnimplementedPetitionServiceServer) GetAllSimilarPetitions(context.Context
 func (UnimplementedPetitionServiceServer) SearchPetitionsByTitle(context.Context, *SearchPetitionsByTitRequest) (*PetitionSuggestionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchPetitionsByTitle not implemented")
 }
-func (UnimplementedPetitionServiceServer) mustEmbedUnimplementedPetitionServiceServer() {}
 
 // UnsafePetitionServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to PetitionServiceServer will
