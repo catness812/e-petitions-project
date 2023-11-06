@@ -20,7 +20,8 @@ func main() {
 	petitionRepo := repository.NewPetitionRepository(db)
 	publisherRepo := repository.NewPublisherRepository()
 	userRepo := repository.NewUserRepository()
-	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo, userRepo)
+	elasticSearchRepo := repository.NewElasticRepository()
+	petitionSvc := service.NewPetitionService(petitionRepo, publisherRepo, userRepo, elasticSearchRepo)
 
 	grpcStart(petitionSvc)
 }
