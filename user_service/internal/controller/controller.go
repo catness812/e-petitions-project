@@ -8,16 +8,16 @@ import (
 	"github.com/catness812/e-petitions-project/user_service/internal/pb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 type IUserService interface {
-	Create(user *models.User) (error, string)
+	Create(user *models.User) (string, error)
 	UpdatePasswordByEmail(user *models.User) error
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdmin(userEmail string) error
 	GetUserEmailById(userID uint) (string, error)
+	CheckUserExistence(userid uint32) (bool, error)
 }
 
 type UserController struct {
@@ -30,35 +30,35 @@ func NewUserController(userService IUserService) *UserController {
 	}
 }
 
-func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+func (ctrl *UserController) CreateUser(ctx context.Context, req *pb.UserRequest) (*pb.ResponseMessage, error) {
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("Email and Password cannot be empty")
+		return nil, errors.New("email and password cannot be empty")
 	}
 	user := &models.User{
 		Email:      req.Email,
 		Password:   req.Password,
 		HasAccount: true,
 	}
-	err, message := ctrl.userservice.Create(user)
-	return &wrapperspb.StringValue{Value: message}, err
+	message, err := ctrl.userservice.Create(user)
+	return &pb.ResponseMessage{Message: message}, err
 }
 
-func (ctrl *UserController) CreateUserOTP(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+func (ctrl *UserController) CreateUserOTP(ctx context.Context, req *pb.UserRequest) (*pb.ResponseMessage, error) {
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("Email and Password cannot be empty")
+		return nil, errors.New("email and password cannot be empty")
 	}
 	user := &models.User{
 		Email:      req.Email,
 		Password:   req.Password,
 		HasAccount: false,
 	}
-	err, message := ctrl.userservice.Create(user)
-	return &wrapperspb.StringValue{Value: message}, err
+	message, err := ctrl.userservice.Create(user)
+	return &pb.ResponseMessage{Message: message}, err
 }
 
-func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*wrapperspb.StringValue, error) {
+func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest) (*pb.ResponseMessage, error) {
 	if req.Email == "" || req.Password == "" {
-		return nil, errors.New("Email and Password cannot be empty")
+		return nil, errors.New("email and password cannot be empty")
 	}
 	user := &models.User{
 		Email:    req.Email,
@@ -67,9 +67,9 @@ func (ctrl *UserController) UpdateUser(ctx context.Context, req *pb.UserRequest)
 	err := ctrl.userservice.UpdatePasswordByEmail(user)
 
 	if err != nil {
-		return &wrapperspb.StringValue{Value: "Error updating user"}, err
+		return &pb.ResponseMessage{Message: "Error updating user"}, err
 	}
-	return &wrapperspb.StringValue{Value: "User updated successfully"}, nil
+	return &pb.ResponseMessage{Message: "User updated successfully"}, nil
 }
 
 func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserByEmailRequest) (*pb.GetUserByEmailResponse, error) {
@@ -89,16 +89,24 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 	return userResponse, nil
 }
 
-func (ctrl *UserController) GetUserEmailById(ctx context.Context, req *pb.GetUserEmailByIdRequest) (*wrapperspb.StringValue, error) {
+func (ctrl *UserController) CheckUserExistence(ctx context.Context, req *pb.CheckUserExistenceRequest) (*pb.CheckUserExistenceResponse, error) {
+	userExistnce, err := ctrl.userservice.CheckUserExistence(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.NotFound, "User not found")
+	}
+	return &pb.CheckUserExistenceResponse{Message: userExistnce}, nil
+}
+
+func (ctrl *UserController) GetUserEmailById(ctx context.Context, req *pb.GetUserEmailByIdRequest) (*pb.ResponseMessage, error) {
 	userId := req.Id
 	userEmail, err := ctrl.userservice.GetUserEmailById(uint(userId))
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "User email not found")
 	}
-	return &wrapperspb.StringValue{Value: userEmail}, nil
+	return &pb.ResponseMessage{Message: userEmail}, nil
 }
 
-func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*wrapperspb.StringValue, error) {
+func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.ResponseMessage, error) {
 	userEmail := req.GetEmail()
 
 	if userEmail == "" {
@@ -109,14 +117,14 @@ func (ctrl *UserController) DeleteUser(ctx context.Context, req *pb.DeleteUserRe
 		return nil, status.Error(codes.NotFound, "Couldn't delete")
 	}
 
-	return &wrapperspb.StringValue{Value: "User deleted successfully"}, nil
+	return &pb.ResponseMessage{Message: "User deleted successfully"}, nil
 }
 
-func (ctrl *UserController) AddAdmin(ctx context.Context, req *pb.AddAdminRequest) (*wrapperspb.StringValue, error) {
+func (ctrl *UserController) AddAdmin(ctx context.Context, req *pb.AddAdminRequest) (*pb.ResponseMessage, error) {
 	userEmail := req.GetEmail()
 	err := ctrl.userservice.AddAdmin(userEmail)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "Couldn't update role")
 	}
-	return &wrapperspb.StringValue{Value: "User role updated successfully"}, nil
+	return &pb.ResponseMessage{Message: "User role updated successfully"}, nil
 }

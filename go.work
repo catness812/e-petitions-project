@@ -1,7 +1,9 @@
 go 1.21.0
 
-use gateway/
-use mail_service/
-use petition_service/
-use security_service/
-use user_service/
+use (
+	./gateway
+	./mail_service
+	./petition_service
+	./security_service
+	./user_service
+)

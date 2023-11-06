@@ -3,10 +3,18 @@ package petition
 import "github.com/catness812/e-petitions-project/gateway/model"
 
 type IPetitionService interface {
-	CreatePetition(model.Petition) (uint32, error)
-	GetPetitions(model.PaginationQuery) ([]model.Petition, error)
-	UpdatePetition(id uint32, status string) (string, error)
-	DeletePetition(id uint32) error
+	CreatePetition(model.CreatePetition) (uint32, error)
+	GetPetitionByID(petitionID uint32) (model.Petition, error)
+	GetPetitions(page uint32, limit uint32) ([]model.Petition, error)
+	UpdatePetitionStatus(id uint32, status string) error
+	UpdatePetition(petition model.UpdatePetition) error
+	DeletePetition(petitionID uint32) error
+	ValidatePetitionID(petitionID uint32) error
+	CreateVote(userID uint32, petitionID uint32) error
+	GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
+	GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error)
+	GetAllSimilarPetitions(title string) ([]model.Petition, error)
+	SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error)
 }
 
 func NewPetitionService(repo IPetitionRepository) (IPetitionService, error) {
@@ -19,18 +27,49 @@ type petitionService struct {
 	repo IPetitionRepository
 }
 
-func (svc *petitionService) CreatePetition(petition model.Petition) (uint32, error) {
+func (svc *petitionService) CreatePetition(petition model.CreatePetition) (uint32, error) {
 	return svc.repo.CreatePetition(petition)
 }
 
-func (svc *petitionService) GetPetitions(query model.PaginationQuery) ([]model.Petition, error) {
-	return svc.repo.GetPetitions(query)
+func (svc *petitionService) GetPetitions(page uint32, limit uint32) ([]model.Petition, error) {
+	return svc.repo.GetPetitions(page, limit)
 }
 
-func (svc *petitionService) UpdatePetition(id uint32, status string) (string, error) {
-	return svc.repo.UpdatePetition(id, status)
+func (svc *petitionService) GetPetitionByID(petitionID uint32) (model.Petition, error) {
+	return svc.repo.GetPetitionByID(petitionID)
 }
 
-func (svc *petitionService) DeletePetition(id uint32) error {
-	return svc.repo.DeletePetition(id)
+func (svc *petitionService) UpdatePetitionStatus(id uint32, status string) error {
+	return svc.repo.UpdatePetitionStatus(id, status)
+}
+func (svc *petitionService) UpdatePetition(petition model.UpdatePetition) error {
+	return svc.repo.UpdatePetition(petition)
+}
+
+func (svc *petitionService) DeletePetition(petitionID uint32) error {
+	return svc.repo.DeletePetition(petitionID)
+}
+
+func (svc *petitionService) ValidatePetitionID(petitionID uint32) error {
+	return svc.repo.ValidatePetitionID(petitionID)
+}
+
+func (svc *petitionService) CreateVote(userID uint32, petitionID uint32) error {
+	return svc.repo.CreateVote(userID, petitionID)
+}
+
+func (svc *petitionService) GetUserPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+	return svc.repo.GetUserPetitions(userID, page, limit)
+}
+
+func (svc *petitionService) GetUserVotedPetitions(userID uint32, page uint32, limit uint32) ([]model.Petition, error) {
+	return svc.repo.GetUserVotedPetitions(userID, page, limit)
+}
+
+func (svc *petitionService) GetAllSimilarPetitions(title string) ([]model.Petition, error) {
+	return svc.repo.GetAllSimilarPetitions(title)
+}
+
+func (svc *petitionService) SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error) {
+	return svc.repo.SearchPetitionsByTitle(title, page, limit)
 }

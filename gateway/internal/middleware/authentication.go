@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/security/pb"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
 type AuthenticationMiddleware struct {
@@ -13,24 +13,23 @@ func NewAuthenticationMiddleware(securityClient pb.SecurityServiceClient) *Authe
 	return &AuthenticationMiddleware{securityClient: securityClient}
 }
 
-func (auth *AuthenticationMiddleware) Auth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tokenString := c.GetHeader("Authorization")
-		token := &pb.Token{Token: tokenString}
+func (auth *AuthenticationMiddleware) Auth() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		tokenString := c.Get("Authorization")
 
 		if tokenString == "" {
-			c.AbortWithStatusJSON(401, gin.H{"error": "Request does not contain an access token"})
-			return
+			return c.Status(401).JSON(fiber.Map{"error": "Request does not contain an access token"})
 		}
 
-		response, err := auth.securityClient.ValidateToken(c, token)
+		token := &pb.Token{Token: tokenString}
+
+		response, err := auth.securityClient.ValidateToken(c.Context(), token)
 
 		if err != nil {
-			c.AbortWithStatusJSON(401, gin.H{"error": err.Error()})
-			return
+			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
 
-		c.Set("userEmail", response.Email)
-		c.Next()
+		c.Locals("userEmail", response.Email)
+		return c.Next()
 	}
 }

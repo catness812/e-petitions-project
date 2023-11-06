@@ -2,8 +2,7 @@ package redis_repository
 
 import (
 	"github.com/catness812/e-petitions-project/security_service/internal/config"
-	"log"
-
+	"github.com/gookit/slog"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -15,8 +14,8 @@ func NewRedisDBConnection() *redis.Client {
 		DB:       cfg.Redis.RedisDB,
 	})
 	if client == nil {
-		log.Fatalf("failed to connect to RedisDB")
+		slog.Fatal("failed to connect to RedisDB")
 	}
-	log.Println("Successfully connected to RedisDB")
+	slog.Info("Successfully connected to RedisDB")
 	return client
 }

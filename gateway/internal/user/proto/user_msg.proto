@@ -1,7 +1,6 @@
 syntax = "proto3";
-package rpctransport;
-option go_package = "/pb";
-
+option go_package = "./pb";
+package proto;
 
 message UserRequest{
     string email = 1;
@@ -17,12 +16,21 @@ message GetUserByEmailRequest {
 }
 
 message GetUserByEmailResponse {
-    uint32 id =1;
+    uint32 id = 1;
     string email = 2;
     string password = 3;
     string role = 4;
+    bool hasAccount = 5;
 }
 
 message AddAdminRequest{
     string email = 1;
+}
+
+message GetUserEmailByIdRequest{
+    uint32 id = 1;
+}
+
+message ResponseMessage{
+    string message = 1;
 }

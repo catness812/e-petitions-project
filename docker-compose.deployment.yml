@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  postgres:
+    container_name: e-petitions-project-db
+    image: postgres:16.0
+    networks:
+      - e-petitions-network
+    environment:
+      POSTGRES_DB : e-petitions-project-db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: pass
+      PGDATA: /data/e-petitions-project-db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgres-db:/data/postgres
+    ports:
+      - "5435:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 60s
+
+  redis:
+    image: redis:7.0.13
+    networks:
+      - e-petitions-network
+    container_name: e-petitions-redis-db
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+
+  mailcatcher:
+    image: dockage/mailcatcher:0.9.0
+    networks:
+      - e-petitions-network
+    container_name: e-petitions-project-mailcatcher
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
+  rabbitmq:
+    image: rabbitmq:3.13-rc-management
+    networks:
+      - e-petitions-network
+    container_name: e-petitions-project-rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+
+  front:
+    container_name: front
+    image: ktruedat/e-petitions-front:1.1
+    networks:
+      - e-petitions-network
+    ports:
+      - "8080:8080"
+
+  gateway:
+    container_name: gateway
+    image: ktruedat/e-petitions-gateway:1.0
+    networks:
+      - e-petitions-network
+    ports:
+      - "1337:1337"
+  security-service:
+    container_name: security-service
+    image: ktruedat/e-petitions-security:1.0
+    networks:
+      - e-petitions-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "50051:50051"
+  user-service:
+    container_name: user-service
+    image: ktruedat/e-petitions-user:1.0
+    networks:
+      - e-petitions-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "50052:50052"
+
+  petition-service:
+    container_name: petition-service
+    image: ktruedat/e-petitions-petition:1.0
+    networks:
+      - e-petitions-network
+    depends_on:
+      user-service:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "50050:50050"
+
+  mail-service:
+    container_name: mail-service
+    image: ktruedat/e-petitions-mail:1.0
+    networks:
+      - e-petitions-network
+    depends_on:
+      mailcatcher:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres-db:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  e-petitions-network:
+    driver: bridge

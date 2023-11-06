@@ -2,123 +2,145 @@ package user
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/model"
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gookit/slog"
+	"log"
 	"net/http"
+	"strconv"
 )
 
-type IUserController interface {
-	GetUser(ctx *gin.Context)
-	UpdateUser(ctx *gin.Context)
-	CreateUser(ctx *gin.Context)
-	DeleteUser(ctx *gin.Context)
-	AddAdmin(ctx *gin.Context)
+type IUserService interface {
+	GetByEmail(email string) (model.User, error)
+	GetByID(id uint32) (string, error)
+	Delete(email string) (string, error)
+	Create(createUser model.UserCredentials) (string, error)
+	OTPCreate(createUser model.UserCredentials) (string, error)
+	Update(createUser model.UserCredentials) (string, error)
+	AddAdmin(email string) (string, error)
 }
 
-func NewUserController(service IUserService) IUserController {
-
-	return &userController{
-		service: service,
-	}
-}
-
-type userController struct {
+type UserController struct {
 	service IUserService
 }
 
-func (c *userController) GetUser(ctx *gin.Context) {
-	//email := ctx.Param("email")
-	//res, err := c.service.Get(email)
+func NewUserController(service IUserService) *UserController {
+	return &UserController{service: service}
+}
 
+func (c *UserController) GetUserByEmail(ctx *fiber.Ctx) error {
 	var request struct {
 		Email string `json:"email"`
 	}
 
-	if err := ctx.BindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
-		return
+	if err := ctx.BodyParser(&request); err != nil {
+		slog.Errorf("Invalid request format: %v", err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request format"})
 	}
 
-	res, err := c.service.Get(request.Email)
+	res, err := c.service.GetByEmail(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user info:": res})
-
+	slog.Info("GetUserByEmail request successful")
+	return ctx.Status(fiber.StatusOK).JSON(res)
 }
 
-func (c *userController) DeleteUser(ctx *gin.Context) {
-	//email := ctx.Param("email")
-	//res, err := c.service.Delete(email)
+func (c *UserController) GetUserByID(ctx *fiber.Ctx) error {
+	pid, err := strconv.ParseUint(ctx.Params("uid"), 10, 32)
+	if err != nil {
+		slog.Errorf("Failed to get the user id from param: %s", err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to get the user id"})
+	}
 
+	email, err := c.service.GetByID(uint32(pid))
+
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	slog.Info("GetUserByID request successful")
+	return ctx.JSON(email)
+}
+
+func (c *UserController) DeleteUser(ctx *fiber.Ctx) error {
 	var request struct {
 		Email string `json:"email"`
 	}
 
-	if err := ctx.BindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
-		return
+	if err := ctx.BodyParser(&request); err != nil {
+		slog.Errorf("Invalid request format: %v", err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request format"})
 	}
 
-	res, err := c.service.Delete(request.Email)
+	_, err := c.service.Delete(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"response": res, "error": err.Error()})
-		return
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ctx.JSON(http.StatusOK, "nice delete user")
-
+	slog.Infof("DeleteUser request successful")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User deleted successfully"})
 }
 
-func (c *userController) CreateUser(ctx *gin.Context) {
+func (c *UserController) CreateUser(ctx *fiber.Ctx) error {
 	var user model.UserCredentials
-	err := ctx.BindJSON(&user)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	res, err := c.service.Create(user)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"response": res, "error": err.Error()})
-		return
-	}
-	ctx.JSON(http.StatusOK, "nice create user")
-}
 
-func (c *userController) UpdateUser(ctx *gin.Context) {
+	err := ctx.BodyParser(&user)
+	if err != nil {
+		log.Printf("Invalid request format: %v", err)
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	_, err = c.service.Create(user)
+	if err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	log.Printf("CreateUser request successful")
+	return ctx.Status(http.StatusOK).JSON(fiber.Map{"message": "User created successfully"})
+}
+func (c *UserController) OTPCreateUser(ctx *fiber.Ctx) error {
 	var user model.UserCredentials
-	err := ctx.BindJSON(&user)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if err := ctx.BodyParser(&user); err != nil {
+		slog.Errorf("Invalid request format: %v", err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	res, err := c.service.Update(user)
+	_, err := c.service.Create(user)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"response": res, "error": err.Error()})
-		return
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
-	ctx.JSON(http.StatusOK, "nice user update")
+
+	slog.Infof("OTP CreateUser request successful")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "OTP User created successfully"})
 }
 
-func (c *userController) AddAdmin(ctx *gin.Context) {
-	//email := ctx.Param("email")
-	//res, err := c.service.AddAdmin(email)
+func (c *UserController) UpdateUser(ctx *fiber.Ctx) error {
+	var user model.UserCredentials
+	if err := ctx.BodyParser(&user); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	_, err := c.service.Update(user)
+	if err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	}
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User updated successfully"})
+}
 
+func (c *UserController) AddAdmin(ctx *fiber.Ctx) error {
 	var request struct {
 		Email string `json:"email"`
 	}
 
-	if err := ctx.BindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
-		return
+	if err := ctx.BodyParser(&request); err != nil {
+		slog.Errorf("Invalid request format: %v", err)
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request format"})
 	}
 
-	res, err := c.service.AddAdmin(request.Email)
+	_, err := c.service.AddAdmin(request.Email)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"response": res, "error": err.Error()})
-		return
+		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	ctx.JSON(http.StatusOK, "nice add admin")
+	slog.Errorf("AddAdmin request successful")
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Admin added successfully"})
 }

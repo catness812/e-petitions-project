@@ -1,26 +1,15 @@
 package security
 
 import (
-	"log"
-
-	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
-	"github.com/gin-gonic/gin"
+	"github.com/catness812/e-petitions-project/gateway/internal/security/pb"
+	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterSecurityRoutes(r *gin.Engine, cfg *config.Config) {
-	svc := InitAuthServiceClient(cfg)
-	securityrepo, err := NewSecurityRepository(cfg, svc)
-	securitysvc, err := NewSecurityService(securityrepo)
-
-	if err != nil {
-		log.Fatal("Failed to connect to security service grpc: ", err)
-	}
-	userctrl := NewSecurityController(securitysvc)
-
-	authenticationMiddleware := middleware.NewAuthenticationMiddleware(svc)
-	r.POST("/login", userctrl.Login)
-
-	r.GET("/refresh", authenticationMiddleware.Auth(), userctrl.Refresh)
-
+func RegisterSecurityRoutes(r *fiber.App, securityCtrl *SecurityController, securityClient pb.SecurityServiceClient) {
+	authenticationMiddleware := middleware.NewAuthenticationMiddleware(securityClient)
+	r.Post("/login", securityCtrl.Login)
+	r.Get("/refresh", authenticationMiddleware.Auth(), securityCtrl.Refresh)
+	r.Post("/send-otp", securityCtrl.SendOTP)
+	r.Get("/validate-otp", securityCtrl.ValidateOTP)
 }

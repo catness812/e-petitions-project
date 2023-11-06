@@ -3,8 +3,6 @@ syntax="proto3";
 option go_package="./pb";
 
 package proto;
-message Empty {
-}
 
 message UserInfo {
   string email = 2;
@@ -20,6 +18,7 @@ message UserCredentials {
 message Tokens {
   string access_token = 1;
   string refresh_token = 2;
+  string userId = 3;
 }
 
 message RefreshRequest {
@@ -28,7 +27,6 @@ message RefreshRequest {
 
 message RefreshResponse{
   map<string, string> tokens = 1;
-  string message = 2;
 }
 
 message Token {
@@ -38,4 +36,14 @@ message Token {
 message ValidateTokenResponse {
   string token = 1;
   string email = 2;
+}
+
+
+message OTPInfo{
+  string OTP = 1;
+  string email = 2;
+}
+
+message IsOTPValidated{
+  bool validated = 1;
 }

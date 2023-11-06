@@ -3,17 +3,13 @@ package postgres
 import (
 	"fmt"
 	"github.com/catness812/e-petitions-project/security_service/internal/config"
-	"log"
-
+	"github.com/gookit/slog"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-var Database *gorm.DB
-
-func Connect() {
+func Connect() *gorm.DB {
 	dbConfig := config.LoadConfig()
-	var err error
 	dsn := fmt.Sprintf("host=%s dbname=%s user=%s password=%s port=%d sslmode=disable",
 		dbConfig.Database.Host,
 		dbConfig.Database.DBName,
@@ -21,10 +17,11 @@ func Connect() {
 		dbConfig.Database.Password,
 		dbConfig.Database.Port,
 	)
-	Database, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Panic(err)
+		slog.Fatal(err)
 	} else {
-		log.Println("Successfully connected to the Postgres database")
+		slog.Println("Successfully connected to the Postgres database")
 	}
+	return database
 }
