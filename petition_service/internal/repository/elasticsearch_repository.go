@@ -35,7 +35,6 @@ func (repo *ElasticRepository) AddPetition(petition models.Petition) error {
 	ctx := context.Background()
 	// Create the document data.
 	data := map[string]interface{}{
-		"UUID":        petition.UUID,
 		"title":       petition.Title,
 		"category":    petition.Category,
 		"description": petition.Description,
