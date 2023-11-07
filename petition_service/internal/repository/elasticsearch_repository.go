@@ -6,9 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/catness812/e-petitions-project/petition_service/internal/models"
@@ -37,6 +35,7 @@ func (repo *ElasticRepository) AddPetition(petition models.Petition) error {
 	ctx := context.Background()
 	// Create the document data.
 	data := map[string]interface{}{
+		"UUID":        petition.UUID,
 		"title":       petition.Title,
 		"category":    petition.Category,
 		"description": petition.Description,
@@ -64,96 +63,8 @@ func (repo *ElasticRepository) AddPetition(petition models.Petition) error {
 	if res.IsError() {
 		return fmt.Errorf("error indexing document: %s", res.Status())
 	}
-	if petition.UserID == 1 {
-		repo.AddRandomPetitions(1000000)
-	}
-
 	return nil
 }
-
-// kaka inceput
-
-func (repo *ElasticRepository) AddRandomPetitions(count int) error {
-	ctx := context.Background()
-	// Loop to create and add random petitions.
-	for i := 0; i < count; i++ {
-		// Generate a random petition.
-		randomPetition := generateRandomPetition(i)
-
-		// Create the document data.
-		data := map[string]interface{}{
-			"title":       randomPetition.Title,
-			"category":    randomPetition.Category,
-			"description": randomPetition.Description,
-			"authorName":  randomPetition.AuthorName,
-			"authorID":    randomPetition.UserID,
-			"voteGoal":    randomPetition.VoteGoal,
-			"currVotes":   randomPetition.CurrVotes,
-			"votes":       randomPetition.Votes,
-			"expDate":     randomPetition.ExpDate,
-		}
-
-		// Create an index request.
-		req := esapi.IndexRequest{
-			Index:      "petitions",                                       // Specify the Elasticsearch index name.
-			DocumentID: strconv.FormatUint(uint64(randomPetition.ID), 10), // Use a unique ID as the document ID.
-			Body:       esutil.NewJSONReader(data),
-		}
-
-		// Perform the index request.
-		res, err := req.Do(ctx, repo.es)
-		if err != nil {
-			return err
-		}
-		defer res.Body.Close()
-
-		if res.IsError() {
-			return fmt.Errorf("error indexing document: %s", res.Status())
-		}
-	}
-	return nil
-}
-
-func generateRandomPetition(count int) models.Petition {
-	// Seed the random number generator with the current time
-	rand.Seed(time.Now().UnixNano())
-
-	// Define possible values for different fields
-	titles := []string{
-		"Random Petition 1",
-		"Random Petition 2",
-		"Random Petition 3",
-	}
-
-	categories := []string{
-		"Category A",
-		"Category B",
-		"Category C",
-	}
-
-	authorNames := []string{
-		"John Doe",
-		"Jane Smith",
-		"Bob Johnson",
-	}
-
-	// Generate a random petition
-	petition := models.Petition{
-		Title:       titles[rand.Intn(len(titles))],
-		Category:    categories[rand.Intn(len(categories))],
-		Description: "Random Description",
-		AuthorName:  authorNames[rand.Intn(len(authorNames))],
-		UserID:      uint(rand.Intn(100)),
-		VoteGoal:    uint(rand.Intn(2000) + 500), // Random vote goal between 500 and 2500
-		CurrVotes:   uint(rand.Intn(1000)),
-		Votes:       nil,                         // Initialize votes as nil
-		ExpDate:     time.Now().AddDate(1, 0, 0), // One year from now
-	}
-	petition.ID = uint(count)
-	return petition
-}
-
-//kaka sfarsit
 
 func (repo *ElasticRepository) SearchPetitionsByTitle(title string, pagination util.Pagination) ([]models.PetitionInfo, error) {
 	ctx := context.Background()
@@ -206,7 +117,7 @@ func (repo *ElasticRepository) SearchPetitionsByTitle(title string, pagination u
 			Title:       source["title"].(string),
 			Description: source["description"].(string),
 			AuthorName:  source["authorName"].(string),
-			UserID:      uint(source["authorID"].(float64)),
+			UserID:      (source["authorID"].(string)),
 		}
 		idStr, ok := hit.(map[string]interface{})["_id"].(string)
 		if !ok {

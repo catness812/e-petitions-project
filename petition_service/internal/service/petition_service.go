@@ -99,7 +99,7 @@ func (svc *PetitionService) CreateNew(petition models.Petition) (string, error) 
 
 	if err := svc.elasticSearchRepository.AddPetition(petition); err != nil {
 		slog.Errorf("could not add petition to elastic search: %s", err)
-		return 0, err
+		return "", err
 	}
 	slog.Infof("Petition %s created successfully", petition.Title)
 	return petition.UUID, nil
