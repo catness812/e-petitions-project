@@ -25,7 +25,6 @@ func LoadDatabase() *gorm.DB {
 	if err != nil {
 		slog.Error(err)
 	}
-
 	seedStatuses(db)
 	return db
 }
