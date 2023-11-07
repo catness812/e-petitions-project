@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"regexp"
 
 	"github.com/catness812/e-petitions-project/user_service/internal/models"
@@ -13,11 +14,11 @@ import (
 type IUserRepository interface {
 	Create(user *models.User) error
 	UpdatePasswordByEmail(user *models.User) error
-	CheckUserExistence(userid uint32) (bool, error)
+	CheckUserExistence(userid string) (bool, error)
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdminRole(userEmail string) error
-	GetUserEmailById(userID uint) (string, error)
+	GetUserEmailById(userID string) (string, error)
 	ValidateUserExistence(userEmail string) (*models.User, error)
 	UpdateUser(user *models.User) error
 }
@@ -52,6 +53,7 @@ func (svc *UserService) Create(user *models.User) (string, error) {
 			return "Error adding user", errors.New("can't register")
 		}
 		user.Password = hashedPassword
+		user.UUID = uuid.New().String()
 		err = svc.userRepo.Create(user)
 		if err != nil {
 			slog.Errorf("user failed to insert in database: %v\n", err.Error())
@@ -143,7 +145,7 @@ func (svc *UserService) GetUserByEmail(userEmail string) (*models.User, error) {
 	return user, nil
 }
 
-func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
+func (svc *UserService) GetUserEmailById(userID string) (string, error) {
 	userEmail, err := svc.userRepo.GetUserEmailById(userID)
 	if err == gorm.ErrRecordNotFound {
 		slog.Infof("User with ID %d not found", userID)
@@ -155,7 +157,7 @@ func (svc *UserService) GetUserEmailById(userID uint) (string, error) {
 	return userEmail, nil
 }
 
-func (svc *UserService) CheckUserExistence(userid uint32) (bool, error) {
+func (svc *UserService) CheckUserExistence(userid string) (bool, error) {
 	userExist, err := svc.userRepo.CheckUserExistence(userid)
 	if err != nil {
 		slog.Errorf("check user existance err:%v", err)

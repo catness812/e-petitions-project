@@ -10,7 +10,7 @@ service UserService{
 
 
 message GetUserEmailByIdRequest{
-    uint32 id = 1;
+    string id = 1;
 }
 
 message ResponseMessage{
@@ -18,7 +18,7 @@ message ResponseMessage{
 }
 
 message CheckUserExistenceRequest{
-    uint32 id = 1;
+    string id = 1;
 }
 
 message  CheckUserExistenceResponse{

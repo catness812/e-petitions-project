@@ -17,16 +17,16 @@ type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
 	GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error)
-	UpdateStatus(id uint, statusID uint) error
-	Delete(id uint) error
+	UpdateStatus(uuid string, statusID uint) error
+	Delete(uuid string) error
 	GetStatusByTitle(title string) (models.Status, error)
-	GetByID(id uint) (models.Petition, error)
-	GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	GetByID(uuid string) (models.Petition, error)
+	GetAllUserPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error)
 	SaveVote(Vote *models.Vote) error
-	CheckIfExists(id uint) error
-	GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error)
+	CheckIfExists(id string) error
+	GetAllUserVotedPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error)
 	UpdateCurrVotes(petition models.Petition) error
-	HasUserVoted(userID, petitionID uint) error
+	HasUserVoted(userUUID, petitionUUID string) error
 	GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error)
 	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
 	// SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.Petition, error)
@@ -38,8 +38,8 @@ type IPublisherRepository interface {
 }
 
 type IUserRepository interface {
-	GetEmailById(id uint) (string, error)
-	CheckUserExistence(id uint) (bool, error)
+	GetEmailById(id string) (string, error)
+	CheckUserExistence(id string) (bool, error)
 }
 
 type IElasticSearchRepository interface {
@@ -68,20 +68,20 @@ func NewPetitionService(
 	}
 }
 
-func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
+func (svc *PetitionService) CreateNew(petition models.Petition) (string, error) {
 	slog.Infof("Creating petition %s", petition.Title)
 	// save with draft status when created
 	status, err := svc.petitionRepository.GetStatusByTitle(models.DRAFT)
 	if err != nil {
 		slog.Errorf("Could not retrieve the DRAFT status: %s", err)
-		return 0, err
+		return "", err
 	}
 	petition.Status = status
 	// get user's email from User Service
 	email, err := svc.userRepository.GetEmailById(petition.UserID)
 	if err != nil {
 		slog.Errorf("Could not retrieve the email from User Service: %s", err)
-		return 0, err
+		return "", err
 	}
 	parts := strings.Split(email, "@")
 	nameParts := strings.Split(parts[0], ".")
@@ -89,12 +89,12 @@ func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
 	err = svc.publisherRepository.PublishMessage(email, fmt.Sprintf(`Petition "%s" has been successfully created!`, petition.Title))
 	if err != nil {
 		slog.Errorf("Could not publish message: %s", err)
-		return 0, err
+		return "", err
 	}
 
 	if err := svc.petitionRepository.Save(&petition); err != nil {
 		slog.Errorf("Could not create the petition: %s", err)
-		return 0, err
+		return "", err
 	}
 
 	if err := svc.elasticSearchRepository.AddPetition(petition); err != nil {
@@ -102,13 +102,13 @@ func (svc *PetitionService) CreateNew(petition models.Petition) (uint, error) {
 		return 0, err
 	}
 	slog.Infof("Petition %s created successfully", petition.Title)
-	return petition.ID, nil
+	return petition.UUID, nil
 }
 
 func (svc *PetitionService) CreateVote(vote models.Vote) error {
-	slog.Infof("Creating vote, user %d, petition %d", vote.UserID, vote.PetitionID)
+	slog.Infof("Creating vote, user %s, petition %s", vote.UserID, vote.PetitionUUID)
 	// see if petition exists
-	petition, err := svc.petitionRepository.GetByID(vote.PetitionID)
+	petition, err := svc.petitionRepository.GetByID(vote.PetitionUUID)
 	if err != nil {
 		slog.Errorf("Could not create vote: %s", err)
 		return err
@@ -121,18 +121,18 @@ func (svc *PetitionService) CreateVote(vote models.Vote) error {
 		return err
 	}
 	if !exists {
-		slog.Errorf("Could not create vote - user %d does not exist: %s", vote.UserID, err)
+		slog.Errorf("Could not create vote - user %s does not exist: %s", vote.UserID, err)
 		return fmt.Errorf("user doesn't exists")
 	}
 
-	if err := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionID); err != nil {
-		slog.Errorf("Could not check if user %d has voted petition %d: %s", vote.UserID, vote.PetitionID, err)
+	if err := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionUUID); err != nil {
+		slog.Errorf("Could not check if user %s has voted petition %d: %s", vote.UserID, vote.PetitionUUID, err)
 		return err
 	}
 
 	petition.CurrVotes++
 	if err := svc.petitionRepository.UpdateCurrVotes(petition); err != nil {
-		slog.Errorf("Could not update current votes for petition %d: %s", petition.ID, err)
+		slog.Errorf("Could not update current votes for petition %s: %s", petition.UUID, err)
 		return err
 	}
 
@@ -159,7 +159,7 @@ func (svc *PetitionService) CreateVote(vote models.Vote) error {
 		}
 	}
 
-	slog.Info("Vote for user %d, petition %d successfully created", vote.UserID, vote.PetitionID)
+	slog.Info("Vote for user %s, petition %s successfully created", vote.UserID, vote.PetitionUUID)
 	return nil
 }
 
@@ -168,7 +168,7 @@ func (svc *PetitionService) GetAll(pagination util.Pagination) []models.Petition
 	return svc.petitionRepository.GetAll(pagination)
 }
 
-func (svc *PetitionService) UpdateStatus(id uint, status string) error {
+func (svc *PetitionService) UpdateStatus(uuid string, status string) error {
 	// check if status exists first
 	newStatus, err := svc.petitionRepository.GetStatusByTitle(status)
 	if err != nil {
@@ -180,15 +180,15 @@ func (svc *PetitionService) UpdateStatus(id uint, status string) error {
 		return fmt.Errorf("error getting status %v", err)
 	}
 	// update status
-	if err := svc.petitionRepository.UpdateStatus(id, newStatus.ID); err != nil {
+	if err := svc.petitionRepository.UpdateStatus(uuid, newStatus.ID); err != nil {
 		if err == gorm.ErrRecordNotFound {
-			slog.Errorf("Petition %v not found", id)
-			return fmt.Errorf("petition %v not found", id)
+			slog.Errorf("Petition %v not found", uuid)
+			return fmt.Errorf("petition %v not found", uuid)
 		}
 		slog.Errorf("error updating status %v", err)
 		return fmt.Errorf("error updating status %v", err)
 	}
-	slog.Infof("Petition %v status successfully updated", id)
+	slog.Infof("Petition %v status successfully updated", uuid)
 	return nil
 }
 
@@ -202,51 +202,51 @@ func (svc *PetitionService) UpdatePetition(petition *models.PetitionUpdate) erro
 	return nil
 }
 
-func (svc *PetitionService) Delete(id uint) error {
-	slog.Infof("Deleting petition %d", id)
-	err := svc.petitionRepository.Delete(id)
+func (svc *PetitionService) Delete(uuid string) error {
+	slog.Infof("Deleting petition %d", uuid)
+	err := svc.petitionRepository.Delete(uuid)
 	if err != nil {
 		slog.Errorf("Error deleting petition: %s", err)
 		return err
 	}
 
-	slog.Infof("Successfully deleted petition %d", id)
+	slog.Infof("Successfully deleted petition %d", uuid)
 	return nil
 }
 
-func (svc *PetitionService) GetByID(id uint) (models.Petition, error) {
-	slog.Infof("Getting petition %d", id)
-	petition, err := svc.petitionRepository.GetByID(id)
+func (svc *PetitionService) GetByID(uuid string) (models.Petition, error) {
+	slog.Infof("Getting petition %s", uuid)
+	petition, err := svc.petitionRepository.GetByID(uuid)
 	if err != nil {
 		slog.Errorf("Error getting petition: %s", err)
 		return petition, err
 	}
 
-	slog.Infof("Successfully retrieved petition %d", id)
+	slog.Infof("Successfully retrieved petition %s", uuid)
 	return petition, nil
 }
 
-func (svc *PetitionService) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
-	slog.Info("Geting all petitions for user %d", userID)
-	return svc.petitionRepository.GetAllUserPetitions(userID, pagination)
+func (svc *PetitionService) GetAllUserPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error) {
+	slog.Info("Geting all petitions for user %s", userUUID)
+	return svc.petitionRepository.GetAllUserPetitions(userUUID, pagination)
 }
 
-func (svc *PetitionService) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
-	slog.Info("Geting all voted petitions for user %d", userID)
-	return svc.petitionRepository.GetAllUserVotedPetitions(userID, pagination)
+func (svc *PetitionService) GetAllUserVotedPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error) {
+	slog.Info("Geting all voted petitions for user %s", userUUID)
+	return svc.petitionRepository.GetAllUserVotedPetitions(userUUID, pagination)
 }
 
 func (svc *PetitionService) CheckPetitionExpiration(petition models.Petition) (string, error) {
-	slog.Info("Checking if petition %d has expired", petition.ID)
+	slog.Info("Checking if petition %s has expired", petition.UUID)
 	if time.Now().After(petition.ExpDate) {
-		slog.Info("Petition %d has expired", petition.ID)
+		slog.Info("Petition %d has expired", petition.UUID)
 		email, err := svc.userRepository.GetEmailById(petition.UserID)
 		if err != nil {
 			slog.Errorf("Could not retrieve email: %s", err)
 			return "", err
 		}
 
-		err = svc.UpdateStatus(petition.ID, "ARCHIVE")
+		err = svc.UpdateStatus(petition.UUID, "ARCHIVE")
 		if err != nil {
 			slog.Errorf("Could not update status: %s", err)
 			return "", err
@@ -258,7 +258,7 @@ func (svc *PetitionService) CheckPetitionExpiration(petition models.Petition) (s
 			return "", err
 		}
 	}
-	slog.Info("Petition %d has NOT expired", petition.ID)
+	slog.Info("Petition %s has NOT expired", petition.UUID)
 	return "", nil
 }
 
@@ -267,7 +267,7 @@ func (svc *PetitionService) ScheduleDailyCheck() {
 	slog.Info("Scheduled Expiration Checker successfully started...")
 	_, err := c.AddFunc("0 0 * * *", func() {
 		resultChan := make(chan struct {
-			ID    uint
+			ID    string
 			Error error
 		})
 		offset := 0
@@ -291,10 +291,10 @@ func (svc *PetitionService) ScheduleDailyCheck() {
 				go func(petition models.Petition) {
 					_, err := svc.CheckPetitionExpiration(petition)
 					resultChan <- struct {
-						ID    uint
+						ID    string
 						Error error
 					}{
-						ID:    petition.ID,
+						ID:    petition.UUID,
 						Error: err,
 					}
 				}(petition)

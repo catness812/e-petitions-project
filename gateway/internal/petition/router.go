@@ -21,7 +21,7 @@ func RegisterPetitionRoutes(r *fiber.App, c *config.Config) {
 
 	route := r.Group("/petition")
 
-	route.Post("/update", petitionController.UpdatePetition)
+	// route.Post("/update", petitionController.UpdatePetition)
 	route.Post("", petitionController.CreatePetition)
 	route.Get("/:pid", petitionController.GetPetitionByID)
 	route.Get("/all/:page/:limit", petitionController.GetPetitions)
