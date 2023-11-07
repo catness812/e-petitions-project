@@ -30,7 +30,7 @@ func (repo *SecurityRepository) Login(loginUser model.UserCredentials) (model.To
 	}
 	tokens.AccessToken = res.AccessToken
 	tokens.RefreshToken = res.RefreshToken
-	tokens.UserId = res.UserId
+	tokens.UserUUID = res.UserId
 	return tokens, nil
 }
 

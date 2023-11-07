@@ -6,12 +6,11 @@ import (
 	"github.com/gookit/slog"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type IUserService interface {
 	GetByEmail(email string) (model.User, error)
-	GetByID(id uint32) (string, error)
+	GetByID(id string) (string, error)
 	Delete(email string) (string, error)
 	Create(createUser model.UserCredentials) (string, error)
 	OTPCreate(createUser model.UserCredentials) (string, error)
@@ -47,13 +46,9 @@ func (c *UserController) GetUserByEmail(ctx *fiber.Ctx) error {
 }
 
 func (c *UserController) GetUserByID(ctx *fiber.Ctx) error {
-	pid, err := strconv.ParseUint(ctx.Params("uid"), 10, 32)
-	if err != nil {
-		slog.Errorf("Failed to get the user id from param: %s", err)
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Failed to get the user id"})
-	}
+	pid := ctx.Params("uid")
 
-	email, err := c.service.GetByID(uint32(pid))
+	email, err := c.service.GetByID(pid)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})

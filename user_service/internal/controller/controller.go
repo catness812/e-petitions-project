@@ -16,8 +16,8 @@ type IUserService interface {
 	Delete(userEmail string) error
 	GetUserByEmail(userEmail string) (*models.User, error)
 	AddAdmin(userEmail string) error
-	GetUserEmailById(userID uint) (string, error)
-	CheckUserExistence(userid uint32) (bool, error)
+	GetUserEmailById(userID string) (string, error)
+	CheckUserExistence(userid string) (bool, error)
 	GetAdminEmails() ([]string, error)
 }
 
@@ -82,7 +82,7 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 
 	userResponse := &pb.GetUserByEmailResponse{
 		Email:      req.Email,
-		Id:         user.Id,
+		Uuid:       user.UUID,
 		Password:   user.Password,
 		Role:       user.Role,
 		HasAccount: user.HasAccount,
@@ -91,7 +91,7 @@ func (ctrl *UserController) GetUserByEmail(ctx context.Context, req *pb.GetUserB
 }
 
 func (ctrl *UserController) CheckUserExistence(ctx context.Context, req *pb.CheckUserExistenceRequest) (*pb.CheckUserExistenceResponse, error) {
-	userExistnce, err := ctrl.userservice.CheckUserExistence(req.Id)
+	userExistnce, err := ctrl.userservice.CheckUserExistence(req.Uuid)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "User not found")
 	}
@@ -99,8 +99,8 @@ func (ctrl *UserController) CheckUserExistence(ctx context.Context, req *pb.Chec
 }
 
 func (ctrl *UserController) GetUserEmailById(ctx context.Context, req *pb.GetUserEmailByIdRequest) (*pb.ResponseMessage, error) {
-	userId := req.Id
-	userEmail, err := ctrl.userservice.GetUserEmailById(uint(userId))
+	userId := req.Uuid
+	userEmail, err := ctrl.userservice.GetUserEmailById(userId)
 	if err != nil {
 		return nil, status.Error(codes.NotFound, "User email not found")
 	}

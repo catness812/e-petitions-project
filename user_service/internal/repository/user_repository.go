@@ -61,17 +61,17 @@ func (repo *UserRepository) ValidateUserExistence(userEmail string) (*models.Use
 	err := repo.dbClient.Debug().Where("email = ?", userEmail).First(&user).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
-	} else if err == gorm.ErrRecordNotFound || user.Id == 0 {
+	} else if err == gorm.ErrRecordNotFound || user.UUID == "0" {
 		return nil, nil
 	}
 	return user, nil
 }
 
-func (repo *UserRepository) GetUserEmailById(userID uint) (string, error) {
+func (repo *UserRepository) GetUserEmailById(userID string) (string, error) {
 	var userEmail string
 	user := &models.User{}
 
-	err := repo.dbClient.Debug().Where("id = ?", userID).First(&user).Error
+	err := repo.dbClient.Debug().Where("uuid = ?", userID).First(&user).Error
 	if err != nil {
 		return "", err
 	}
@@ -99,10 +99,10 @@ func (repo *UserRepository) UpdatePasswordByEmail(user *models.User) error {
 func (repo *UserRepository) UpdateUser(user *models.User) error {
 	existingUser := &models.User{}
 
-	err := repo.dbClient.Where("id = ?", user.Id).First(&existingUser).Error
+	err := repo.dbClient.Where("uuid = ?", user.UUID).First(&existingUser).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return fmt.Errorf("user with ID %d not found", user.Id)
+			return fmt.Errorf("user with ID %d not found", user.UUID)
 		}
 		return err
 	}
@@ -117,10 +117,10 @@ func (repo *UserRepository) UpdateUser(user *models.User) error {
 	return nil
 }
 
-func (repo *UserRepository) CheckUserExistence(userid uint32) (bool, error) {
+func (repo *UserRepository) CheckUserExistence(userid string) (bool, error) {
 	var user models.User
-	err := repo.dbClient.Debug().Model(models.User{}).Where("id = ?", userid).First(&user).Error
-	if user.Id == 0 || err != nil {
+	err := repo.dbClient.Debug().Model(models.User{}).Where("uuid = ?", userid).First(&user).Error
+	if user.UUID == "0" || err != nil {
 		return false, err
 	}
 	return true, err
