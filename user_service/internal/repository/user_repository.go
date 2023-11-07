@@ -102,7 +102,7 @@ func (repo *UserRepository) UpdateUser(user *models.User) error {
 	err := repo.dbClient.Where("uuid = ?", user.UUID).First(&existingUser).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return fmt.Errorf("user with ID %d not found", user.UUID)
+			return fmt.Errorf("user with ID %v not found", user.UUID)
 		}
 		return err
 	}

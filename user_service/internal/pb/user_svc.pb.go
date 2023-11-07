@@ -24,7 +24,7 @@ var File_user_svc_proto protoreflect.FileDescriptor
 var file_user_svc_proto_rawDesc = []byte{
 	0x0a, 0x0e, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x73, 0x76, 0x63, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x12, 0x05, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x0e, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6d, 0x73,
-	0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0xb0, 0x04, 0x0a, 0x0b, 0x55, 0x73, 0x65, 0x72,
+	0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0xff, 0x04, 0x0a, 0x0b, 0x55, 0x73, 0x65, 0x72,
 	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x38, 0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61, 0x74,
 	0x65, 0x55, 0x73, 0x65, 0x72, 0x12, 0x12, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x55, 0x73,
 	0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x70, 0x72, 0x6f, 0x74,
@@ -59,8 +59,13 @@ var file_user_svc_proto_rawDesc = []byte{
 	0x65, 0x63, 0x6b, 0x55, 0x73, 0x65, 0x72, 0x45, 0x78, 0x69, 0x73, 0x74, 0x65, 0x6e, 0x63, 0x65,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2e,
 	0x43, 0x68, 0x65, 0x63, 0x6b, 0x55, 0x73, 0x65, 0x72, 0x45, 0x78, 0x69, 0x73, 0x74, 0x65, 0x6e,
-	0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x2f,
-	0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4d, 0x0a, 0x0e, 0x47, 0x65,
+	0x74, 0x41, 0x64, 0x6d, 0x69, 0x6e, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x73, 0x12, 0x1c, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x64, 0x6d, 0x69, 0x6e, 0x45, 0x6d, 0x61,
+	0x69, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2e, 0x47, 0x65, 0x74, 0x41, 0x64, 0x6d, 0x69, 0x6e, 0x45, 0x6d, 0x61, 0x69, 0x6c,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x2f, 0x70,
+	0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var file_user_svc_proto_goTypes = []interface{}{
@@ -70,32 +75,36 @@ var file_user_svc_proto_goTypes = []interface{}{
 	(*GetUserEmailByIdRequest)(nil),    // 3: proto.GetUserEmailByIdRequest
 	(*AddAdminRequest)(nil),            // 4: proto.AddAdminRequest
 	(*CheckUserExistenceRequest)(nil),  // 5: proto.CheckUserExistenceRequest
-	(*ResponseMessage)(nil),            // 6: proto.ResponseMessage
-	(*GetUserByEmailResponse)(nil),     // 7: proto.GetUserByEmailResponse
-	(*CheckUserExistenceResponse)(nil), // 8: proto.CheckUserExistenceResponse
+	(*GetAdminEmailsRequest)(nil),      // 6: proto.GetAdminEmailsRequest
+	(*ResponseMessage)(nil),            // 7: proto.ResponseMessage
+	(*GetUserByEmailResponse)(nil),     // 8: proto.GetUserByEmailResponse
+	(*CheckUserExistenceResponse)(nil), // 9: proto.CheckUserExistenceResponse
+	(*GetAdminEmailsResponse)(nil),     // 10: proto.GetAdminEmailsResponse
 }
 var file_user_svc_proto_depIdxs = []int32{
-	0, // 0: proto.UserService.CreateUser:input_type -> proto.UserRequest
-	0, // 1: proto.UserService.CreateUserOTP:input_type -> proto.UserRequest
-	0, // 2: proto.UserService.UpdateUser:input_type -> proto.UserRequest
-	1, // 3: proto.UserService.DeleteUser:input_type -> proto.DeleteUserRequest
-	2, // 4: proto.UserService.GetUserByEmail:input_type -> proto.GetUserByEmailRequest
-	3, // 5: proto.UserService.GetUserEmailById:input_type -> proto.GetUserEmailByIdRequest
-	4, // 6: proto.UserService.AddAdmin:input_type -> proto.AddAdminRequest
-	5, // 7: proto.UserService.CheckUserExistence:input_type -> proto.CheckUserExistenceRequest
-	6, // 8: proto.UserService.CreateUser:output_type -> proto.ResponseMessage
-	6, // 9: proto.UserService.CreateUserOTP:output_type -> proto.ResponseMessage
-	6, // 10: proto.UserService.UpdateUser:output_type -> proto.ResponseMessage
-	6, // 11: proto.UserService.DeleteUser:output_type -> proto.ResponseMessage
-	7, // 12: proto.UserService.GetUserByEmail:output_type -> proto.GetUserByEmailResponse
-	6, // 13: proto.UserService.GetUserEmailById:output_type -> proto.ResponseMessage
-	6, // 14: proto.UserService.AddAdmin:output_type -> proto.ResponseMessage
-	8, // 15: proto.UserService.CheckUserExistence:output_type -> proto.CheckUserExistenceResponse
-	8, // [8:16] is the sub-list for method output_type
-	0, // [0:8] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: proto.UserService.CreateUser:input_type -> proto.UserRequest
+	0,  // 1: proto.UserService.CreateUserOTP:input_type -> proto.UserRequest
+	0,  // 2: proto.UserService.UpdateUser:input_type -> proto.UserRequest
+	1,  // 3: proto.UserService.DeleteUser:input_type -> proto.DeleteUserRequest
+	2,  // 4: proto.UserService.GetUserByEmail:input_type -> proto.GetUserByEmailRequest
+	3,  // 5: proto.UserService.GetUserEmailById:input_type -> proto.GetUserEmailByIdRequest
+	4,  // 6: proto.UserService.AddAdmin:input_type -> proto.AddAdminRequest
+	5,  // 7: proto.UserService.CheckUserExistence:input_type -> proto.CheckUserExistenceRequest
+	6,  // 8: proto.UserService.GetAdminEmails:input_type -> proto.GetAdminEmailsRequest
+	7,  // 9: proto.UserService.CreateUser:output_type -> proto.ResponseMessage
+	7,  // 10: proto.UserService.CreateUserOTP:output_type -> proto.ResponseMessage
+	7,  // 11: proto.UserService.UpdateUser:output_type -> proto.ResponseMessage
+	7,  // 12: proto.UserService.DeleteUser:output_type -> proto.ResponseMessage
+	8,  // 13: proto.UserService.GetUserByEmail:output_type -> proto.GetUserByEmailResponse
+	7,  // 14: proto.UserService.GetUserEmailById:output_type -> proto.ResponseMessage
+	7,  // 15: proto.UserService.AddAdmin:output_type -> proto.ResponseMessage
+	9,  // 16: proto.UserService.CheckUserExistence:output_type -> proto.CheckUserExistenceResponse
+	10, // 17: proto.UserService.GetAdminEmails:output_type -> proto.GetAdminEmailsResponse
+	9,  // [9:18] is the sub-list for method output_type
+	0,  // [0:9] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_user_svc_proto_init() }
