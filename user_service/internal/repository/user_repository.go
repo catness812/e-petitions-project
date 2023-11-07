@@ -147,3 +147,14 @@ func (repo *UserRepository) AddAdminRole(userEmail string) error {
 
 	return err
 }
+
+func (repo *UserRepository) GetAdminEmails() ([]string, error) {
+	var emails []string
+	err := repo.dbClient.Debug().
+		Model(models.User{}).
+		Where("role = ?", "admin").
+		Pluck("email", &emails).
+		Error
+
+	return emails, err
+}
