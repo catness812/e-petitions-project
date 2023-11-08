@@ -102,7 +102,7 @@ func (repo *UserRepository) UpdateUser(user *models.User) error {
 	err := repo.dbClient.Where("uuid = ?", user.UUID).First(&existingUser).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return fmt.Errorf("user with ID %d not found", user.UUID)
+			return fmt.Errorf("user with ID %v not found", user.UUID)
 		}
 		return err
 	}
@@ -146,4 +146,15 @@ func (repo *UserRepository) AddAdminRole(userEmail string) error {
 		Update("role", "admin").Error
 
 	return err
+}
+
+func (repo *UserRepository) GetAdminEmails() ([]string, error) {
+	var emails []string
+	err := repo.dbClient.Debug().
+		Model(models.User{}).
+		Where("role = ?", "admin").
+		Pluck("email", &emails).
+		Error
+
+	return emails, err
 }

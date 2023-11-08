@@ -21,6 +21,8 @@ type IUserRepository interface {
 	GetUserEmailById(userID string) (string, error)
 	ValidateUserExistence(userEmail string) (*models.User, error)
 	UpdateUser(user *models.User) error
+
+	GetAdminEmails() ([]string, error)
 }
 
 type UserService struct {
@@ -173,4 +175,13 @@ func validMailAddress(address string) bool {
 		return false
 	}
 	return valid
+}
+
+func (svc *UserService) GetAdminEmails() ([]string, error) {
+	adminEmails, err := svc.userRepo.GetAdminEmails()
+	if err != nil {
+		slog.Errorf("Failed to fetch admin emails from the database: %v", err.Error())
+		return nil, err
+	}
+	return adminEmails, nil
 }

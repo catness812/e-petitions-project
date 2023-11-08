@@ -18,6 +18,7 @@ type IUserService interface {
 	AddAdmin(userEmail string) error
 	GetUserEmailById(userID string) (string, error)
 	CheckUserExistence(userid string) (bool, error)
+	GetAdminEmails() ([]string, error)
 }
 
 type UserController struct {
@@ -127,4 +128,16 @@ func (ctrl *UserController) AddAdmin(ctx context.Context, req *pb.AddAdminReques
 		return nil, status.Error(codes.NotFound, "Couldn't update role")
 	}
 	return &pb.ResponseMessage{Message: "User role updated successfully"}, nil
+}
+
+func (ctrl *UserController) GetAdminEmails(ctx context.Context, req *pb.GetAdminEmailsRequest) (*pb.GetAdminEmailsResponse, error) {
+	adminEmails, err := ctrl.userservice.GetAdminEmails()
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to retrieve admin emails")
+	}
+
+	response := &pb.GetAdminEmailsResponse{
+		AdminEmails: adminEmails,
+	}
+	return response, nil
 }

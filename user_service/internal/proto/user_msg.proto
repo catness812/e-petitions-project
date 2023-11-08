@@ -42,3 +42,10 @@ message CheckUserExistenceRequest{
 message  CheckUserExistenceResponse{
     bool message = 1;
 }
+
+message GetAdminEmailsResponse {
+  repeated string admin_emails = 1;
+}
+
+message GetAdminEmailsRequest {
+}
