@@ -109,23 +109,23 @@ services:
     ports:
       - "50052:50052"
 
-  petition-service:
-    container_name: petition-service
-    image: e-petitions-petition:1.0
-    build:
-      context: ./petition_service
-      dockerfile: Dockerfile
-    networks:
-      - e-petitions-network
-    depends_on:
-      user-service:
-        condition: service_started
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    ports:
-      - "50050:50050"
+#  petition-service:
+#    container_name: petition-service
+#    image: e-petitions-petition:1.0
+#    build:
+#      context: ./petition_service
+#      dockerfile: Dockerfile
+#    networks:
+#      - e-petitions-network
+#    depends_on:
+#      user-service:
+#        condition: service_started
+#      postgres:
+#        condition: service_healthy
+#      rabbitmq:
+#        condition: service_healthy
+#    ports:
+#      - "50050:50050"
 
   mail-service:
     container_name: mail-service

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/catness812/e-petitions-project/petition_service/internal/config"
 	"github.com/catness812/e-petitions-project/petition_service/internal/pb"
@@ -21,8 +22,23 @@ func NewUserRepository() *UserRepository {
 	}
 }
 
+func NewUserControllerClient() pb.UserServiceClient {
+	cc, err := grpc.Dial(config.Cfg.UserService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	if err != nil {
+		slog.Fatal("Could not connect:", err)
+	}
+
+	client := pb.NewUserServiceClient(cc)
+
+	return client
+}
+
 func (userRepo *UserRepository) GetEmailById(uuid string) (string, error) {
-	res, err := userRepo.rpcClient.GetUserEmailById(context.Background(),
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	res, err := userRepo.rpcClient.GetUserEmailById(ctx,
 		&pb.GetUserEmailByIdRequest{Id: uuid},
 	)
 
@@ -34,7 +50,10 @@ func (userRepo *UserRepository) GetEmailById(uuid string) (string, error) {
 }
 
 func (userRepo *UserRepository) CheckUserExistence(uuid string) (bool, error) {
-	res, err := userRepo.rpcClient.CheckUserExistence(context.Background(),
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	res, err := userRepo.rpcClient.CheckUserExistence(ctx,
 		&pb.CheckUserExistenceRequest{Id: uuid},
 	)
 	if err != nil {
@@ -43,14 +62,14 @@ func (userRepo *UserRepository) CheckUserExistence(uuid string) (bool, error) {
 	return res.Message, nil
 }
 
-func NewUserControllerClient() pb.UserServiceClient {
-	cc, err := grpc.Dial(config.Cfg.UserService.Port, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func (userRepo *UserRepository) GetAdminEmails() ([]string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
 
+	res, err := userRepo.rpcClient.GetAdminEmails(ctx, &pb.GetAdminEmailsRequest{})
 	if err != nil {
-		slog.Fatal("Could not connect:", err)
+		return nil, err
 	}
 
-	client := pb.NewUserServiceClient(cc)
-
-	return client
+	return res.AdminEmails, nil
 }
