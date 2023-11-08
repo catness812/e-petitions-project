@@ -67,6 +67,12 @@ services:
       - e-petitions-network
     ports:
       - "1337:1337"
+    depends_on:
+      redis:
+        condition: service_started
+      petition-service:
+        condition: service_started
+
   security-service:
     container_name: security-service
     image: e-petitions-security:1.0
@@ -82,6 +88,7 @@ services:
         condition: service_healthy
     ports:
       - "50051:50051"
+
   user-service:
     container_name: user-service
     image: e-petitions-user:1.0

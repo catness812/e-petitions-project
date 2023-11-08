@@ -14,6 +14,7 @@ func main() {
 	r := fiber.New()
 	r.Use(middleware.RateLimiterMiddleware())
 	r.Use(middleware.CorsMiddleware())
+	r.Use(middleware.Cache())
 	registerRoutes(r)
 	err := r.Listen(":1337")
 	if err != nil {
