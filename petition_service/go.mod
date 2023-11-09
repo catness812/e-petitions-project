@@ -18,6 +18,9 @@ require (
 )
 
 require (
+	github.com/elastic/elastic-transport-go/v8 v8.3.0 // indirect
+	github.com/elastic/go-elasticsearch/v7 v7.17.10 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.10.1 // indirect
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/gookit/goutil v0.6.12 // indirect
 	github.com/gookit/gsr v0.1.0 // indirect

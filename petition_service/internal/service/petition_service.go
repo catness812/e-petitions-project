@@ -29,6 +29,7 @@ type IPetitionRepository interface {
 	HasUserVoted(userUUID, petitionUUID string) error
 	GetPetitionsTitles(pagination util.Pagination) ([]models.PetitionInfo, error)
 	SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error)
+	// SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.Petition, error)
 	UpdatePetition(petition *models.PetitionUpdate) error
 }
 
@@ -41,21 +42,29 @@ type IUserRepository interface {
 	CheckUserExistence(id string) (bool, error)
 }
 
+type IElasticSearchRepository interface {
+	AddPetition(petition models.Petition) error
+	SearchPetitionsByTitle(title string, pagination util.Pagination) ([]models.PetitionInfo, error)
+}
+
 type PetitionService struct {
-	petitionRepository  IPetitionRepository
-	publisherRepository IPublisherRepository
-	userRepository      IUserRepository
+	petitionRepository      IPetitionRepository
+	publisherRepository     IPublisherRepository
+	userRepository          IUserRepository
+	elasticSearchRepository IElasticSearchRepository
 }
 
 func NewPetitionService(
 	petRepo IPetitionRepository,
 	pubRepo IPublisherRepository,
 	userRepo IUserRepository,
+	elasticSearchRepo IElasticSearchRepository,
 ) *PetitionService {
 	return &PetitionService{
-		petitionRepository:  petRepo,
-		publisherRepository: pubRepo,
-		userRepository:      userRepo,
+		petitionRepository:      petRepo,
+		publisherRepository:     pubRepo,
+		userRepository:          userRepo,
+		elasticSearchRepository: elasticSearchRepo,
 	}
 }
 
@@ -88,6 +97,10 @@ func (svc *PetitionService) CreateNew(petition models.Petition) (string, error) 
 		return "", err
 	}
 
+	if err := svc.elasticSearchRepository.AddPetition(petition); err != nil {
+		slog.Errorf("could not add petition to elastic search: %s", err)
+		return "", err
+	}
 	slog.Infof("Petition %s created successfully", petition.Title)
 	return petition.UUID, nil
 }
@@ -361,8 +374,10 @@ func (svc *PetitionService) GetAllSimilarPetitions(title string) ([]models.Petit
 }
 
 func (svc *PetitionService) SearchPetitionsByTitle(searchTerm string, pagination util.Pagination) ([]models.PetitionInfo, error) {
+
 	slog.Infof("Searching petitions with term %s", searchTerm)
-	similarPetitions, err := svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
+	// similarPetitions, err := svc.petitionRepository.SearchPetitionsByTitle(searchTerm, pagination)
+	similarPetitions, err := svc.elasticSearchRepository.SearchPetitionsByTitle(searchTerm, pagination)
 	if err != nil {
 		slog.Errorf("Error searching petitions: %s", err)
 		return nil, err
