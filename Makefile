@@ -9,7 +9,8 @@ proto_user_gateway:
 	protoc -I gateway/internal/user/proto --go_out=gateway/internal/user --go-grpc_out=gateway/internal/user gateway/internal/user/proto/*.proto
 
 mail-docker-build:
-	docker build -t e-petitions-mail:1.0 ./mail_serviceproto_security:
+	docker build -t e-petitions-mail:1.0 ./mail_service
+proto_security:
 	protoc -I security_service/internal/proto --go_out=security_service/internal/ --go-grpc_out=require_unimplemented_servers=false:security_service/internal security_service/internal/proto/*.proto
 
 proto_file:
