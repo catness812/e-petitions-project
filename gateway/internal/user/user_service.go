@@ -4,7 +4,7 @@ import "github.com/catness812/e-petitions-project/gateway/model"
 
 type IUserRepository interface {
 	GetByEmail(email string) (model.User, error)
-	GetByID(id uint32) (string, error)
+	GetByID(id string) (string, error)
 	Delete(email string) (string, error)
 	Create(createUser model.UserCredentials) (string, error)
 	OTPCreate(createUser model.UserCredentials) (string, error)
@@ -24,7 +24,7 @@ func (svc *UserService) GetByEmail(email string) (model.User, error) {
 	return svc.repo.GetByEmail(email)
 }
 
-func (svc *UserService) GetByID(id uint32) (string, error) {
+func (svc *UserService) GetByID(id string) (string, error) {
 	return svc.repo.GetByID(id)
 }
 

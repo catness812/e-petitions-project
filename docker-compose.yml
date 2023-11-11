@@ -49,13 +49,26 @@ services:
       interval: 30s
       timeout: 30s
 
-#  front:
-#    container_name: front
-#    image: ktruedat/e-petitions-front:1.1
-#    networks:
-#      - e-petitions-network
-#    ports:
-#      - "8080:8080"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+    container_name: e-petitions-project-elasticsearch
+    networks:
+      - e-petitions-network
+    environment:
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  front:
+    container_name: front
+    image: ktruedat/e-petitions-front:1.1
+    networks:
+      - e-petitions-network
+    ports:
+      - "8080:8080"
 
   gateway:
     container_name: gateway
@@ -131,7 +144,8 @@ volumes:
     driver: local
   redis-data:
     driver: local
-
+  esdata:
+    driver: local
 networks:
   e-petitions-network:
     driver: bridge

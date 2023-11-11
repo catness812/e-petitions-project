@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
+	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition"
 	"github.com/catness812/e-petitions-project/gateway/internal/security"
 	"github.com/catness812/e-petitions-project/gateway/internal/user"
@@ -11,7 +12,8 @@ import (
 
 func main() {
 	r := fiber.New()
-	//r.Use(corsMiddleware())
+	r.Use(middleware.RateLimiterMiddleware())
+	r.Use(middleware.CorsMiddleware())
 	registerRoutes(r)
 	err := r.Listen(":1337")
 	if err != nil {
@@ -40,23 +42,3 @@ func registerRoutes(r *fiber.App) {
 	security.RegisterSecurityRoutes(r, securityCtrl, securityClient)
 
 }
-
-//func corsMiddleware() fiber.Handler {
-//	return func(c *gin.Context) {
-//		//origin := c.Request.Header.Get("Origin")
-//		//if origin == "https://epetitii.co" {
-//		//	c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
-//		//}
-//		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-//		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-//		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-//		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-//		c.Writer.Header().Set("Access-Control-Max-Age", "3600")
-//
-//		if c.Request.Method == "OPTIONS" {
-//			c.AbortWithStatus(http.StatusNoContent)
-//		} else {
-//			c.Next()
-//		}
-//	}
-//}

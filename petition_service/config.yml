@@ -16,3 +16,7 @@ rabbit:
 user_service:
   port: user-service:50052
   host: "user-service"
+
+elastic_search:
+  port: 9200
+  host: "elasticsearch"

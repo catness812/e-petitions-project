@@ -16,7 +16,7 @@ message GetUserByEmailRequest {
 }
 
 message GetUserByEmailResponse {
-    uint32 id = 1;
+    string uuid = 1;
     string email = 2;
     string password = 3;
     string role = 4;
@@ -28,9 +28,17 @@ message AddAdminRequest{
 }
 
 message GetUserEmailByIdRequest{
-    uint32 id = 1;
+    string uuid = 1;
 }
 
 message ResponseMessage{
     string message = 1;
+}
+
+message CheckUserExistenceRequest{
+    string uuid = 1;
+}
+
+message  CheckUserExistenceResponse{
+    bool message = 1;
 }

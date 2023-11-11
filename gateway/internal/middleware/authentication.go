@@ -18,7 +18,7 @@ func (auth *AuthenticationMiddleware) Auth() fiber.Handler {
 		tokenString := c.Get("Authorization")
 
 		if tokenString == "" {
-			return c.Status(401).JSON(fiber.Map{"message": "Request does not contain an access token"})
+			return c.Status(401).JSON(fiber.Map{"error": "Request does not contain an access token"})
 		}
 
 		token := &pb.Token{Token: tokenString}
@@ -26,7 +26,7 @@ func (auth *AuthenticationMiddleware) Auth() fiber.Handler {
 		response, err := auth.securityClient.ValidateToken(c.Context(), token)
 
 		if err != nil {
-			return c.Status(401).JSON(fiber.Map{"message": err.Error()})
+			return c.Status(401).JSON(fiber.Map{"error": err.Error()})
 		}
 
 		c.Locals("userEmail", response.Email)

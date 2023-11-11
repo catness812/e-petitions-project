@@ -21,9 +21,9 @@ func NewUserRepository() *UserRepository {
 	}
 }
 
-func (userRepo *UserRepository) GetEmailById(id uint) (string, error) {
+func (userRepo *UserRepository) GetEmailById(uuid string) (string, error) {
 	res, err := userRepo.rpcClient.GetUserEmailById(context.Background(),
-		&pb.GetUserEmailByIdRequest{Id: uint32(id)},
+		&pb.GetUserEmailByIdRequest{Id: uuid},
 	)
 
 	if err != nil {
@@ -33,9 +33,9 @@ func (userRepo *UserRepository) GetEmailById(id uint) (string, error) {
 	return res.Message, nil
 }
 
-func (userRepo *UserRepository) CheckUserExistence(id uint) (bool, error) {
+func (userRepo *UserRepository) CheckUserExistence(uuid string) (bool, error) {
 	res, err := userRepo.rpcClient.CheckUserExistence(context.Background(),
-		&pb.CheckUserExistenceRequest{Id: uint32(id)},
+		&pb.CheckUserExistenceRequest{Id: uuid},
 	)
 	if err != nil {
 		return false, err

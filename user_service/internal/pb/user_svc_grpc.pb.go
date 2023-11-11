@@ -30,6 +30,7 @@ type UserServiceClient interface {
 	GetUserEmailById(ctx context.Context, in *GetUserEmailByIdRequest, opts ...grpc.CallOption) (*ResponseMessage, error)
 	AddAdmin(ctx context.Context, in *AddAdminRequest, opts ...grpc.CallOption) (*ResponseMessage, error)
 	CheckUserExistence(ctx context.Context, in *CheckUserExistenceRequest, opts ...grpc.CallOption) (*CheckUserExistenceResponse, error)
+	GetAdminEmails(ctx context.Context, in *GetAdminEmailsRequest, opts ...grpc.CallOption) (*GetAdminEmailsResponse, error)
 }
 
 type userServiceClient struct {
@@ -112,6 +113,15 @@ func (c *userServiceClient) CheckUserExistence(ctx context.Context, in *CheckUse
 	return out, nil
 }
 
+func (c *userServiceClient) GetAdminEmails(ctx context.Context, in *GetAdminEmailsRequest, opts ...grpc.CallOption) (*GetAdminEmailsResponse, error) {
+	out := new(GetAdminEmailsResponse)
+	err := c.cc.Invoke(ctx, "/proto.UserService/GetAdminEmails", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceServer is the server API for UserService service.
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
@@ -124,6 +134,7 @@ type UserServiceServer interface {
 	GetUserEmailById(context.Context, *GetUserEmailByIdRequest) (*ResponseMessage, error)
 	AddAdmin(context.Context, *AddAdminRequest) (*ResponseMessage, error)
 	CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error)
+	GetAdminEmails(context.Context, *GetAdminEmailsRequest) (*GetAdminEmailsResponse, error)
 }
 
 // UnimplementedUserServiceServer must be embedded to have forward compatible implementations.
@@ -153,6 +164,9 @@ func (UnimplementedUserServiceServer) AddAdmin(context.Context, *AddAdminRequest
 }
 func (UnimplementedUserServiceServer) CheckUserExistence(context.Context, *CheckUserExistenceRequest) (*CheckUserExistenceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUserExistence not implemented")
+}
+func (UnimplementedUserServiceServer) GetAdminEmails(context.Context, *GetAdminEmailsRequest) (*GetAdminEmailsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdminEmails not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}
 
@@ -311,6 +325,24 @@ func _UserService_CheckUserExistence_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserService_GetAdminEmails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdminEmailsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceServer).GetAdminEmails(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/proto.UserService/GetAdminEmails",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceServer).GetAdminEmails(ctx, req.(*GetAdminEmailsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -349,6 +381,10 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckUserExistence",
 			Handler:    _UserService_CheckUserExistence_Handler,
+		},
+		{
+			MethodName: "GetAdminEmails",
+			Handler:    _UserService_GetAdminEmails_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
