@@ -13,7 +13,6 @@ type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
 	Database postgres `yaml:"postgres"`
 	Redis    redis    `yaml:"redis"`
-	Token    token    `yaml:"token"`
 	Rabbit   rabbit   `yaml:"rabbit"`
 	Gateway  gateway  `yaml:"gateway"`
 }
@@ -31,11 +30,6 @@ type redis struct {
 	Port     string `yaml:"port"`
 	Password string `yaml:"password"`
 	RedisDB  int    `yaml:"db"`
-}
-
-type token struct {
-	TKey  string `yaml:"T_KEY"`
-	RTKey string `yaml:"RT_KEY"`
 }
 
 type rabbit struct {
