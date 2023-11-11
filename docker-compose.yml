@@ -49,13 +49,13 @@ services:
       interval: 30s
       timeout: 30s
 
-  front:
-    container_name: front
-    image: ktruedat/e-petitions-front:1.1
-    networks:
-      - e-petitions-network
-    ports:
-      - "8080:8080"
+#  front:
+#    container_name: front
+#    image: ktruedat/e-petitions-front:1.1
+#    networks:
+#      - e-petitions-network
+#    ports:
+#      - "8080:8080"
 
   gateway:
     container_name: gateway
@@ -114,17 +114,17 @@ services:
     ports:
       - "50050:50050"
 
-  mail-service:
-    container_name: mail-service
-    image: e-petitions-mail:1.0
-    build:
-      context: ./mail_service
-      dockerfile: Dockerfile
-    networks:
-      - e-petitions-network
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+#  mail-service:
+#    container_name: mail-service
+#    image: e-petitions-mail:1.0
+#    build:
+#      context: ./mail_service
+#      dockerfile: Dockerfile
+#    networks:
+#      - e-petitions-network
+#    depends_on:
+#      rabbitmq:
+#        condition: service_healthy
 
 volumes:
   postgres-db:

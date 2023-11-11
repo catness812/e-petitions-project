@@ -1,14 +1,13 @@
 package service
 
-import (
-	"errors"
-	"github.com/gookit/slog"
-	"sync"
-)
+import "github.com/catness812/e-petitions-project/file_service/internal/model"
 
 type IFileRepository interface {
-	ProcessAndStoreChunk(fileID uint, sequenceNumber int, chunk []byte) error
-	StoreFileData(uid, fileType string) (uint, error)
+	StoreFile(file *model.File) (uint32, error)
+	StoreUserPic(pic *model.UserPhoto) error
+	FetchUserPic(userID uint32) (*model.File, error)
+	FetchFile(fileID uint32) (*model.File, error)
+	FetchPetitionFiles(petitionID uint32) ([]model.File, error)
 }
 
 type FileService struct {
@@ -19,68 +18,48 @@ func NewFileService(repo IFileRepository) *FileService {
 	return &FileService{repo: repo}
 }
 
-func (fileSvc *FileService) UploadFileData(data []byte, uid, fileType string) error {
-	chunkSize, err := calculateChunkSize(len(data))
-	if err != nil {
+func (fileSvc *FileService) SendFile(file *model.File) error {
+	if _, err := fileSvc.repo.StoreFile(file); err != nil {
 		return err
 	}
-	fileID, err := fileSvc.repo.StoreFileData(uid, fileType)
-	if err != nil {
-		return err
-	}
-
-	maxRoutines := 4
-	tasks := make(chan struct{}, maxRoutines)
-	var wg sync.WaitGroup
-	for i, chunk := range splitIntoChunks(data, chunkSize) {
-		wg.Add(1)
-		tasks <- struct{}{}
-		go func(chunk []byte, sequenceNumber int) {
-			defer func() {
-				<-tasks
-				wg.Done()
-			}()
-			if err := fileSvc.repo.ProcessAndStoreChunk(fileID, sequenceNumber, chunk); err != nil {
-				slog.Errorf("Failed to store the chunk of data: %v", err)
-			}
-		}(chunk, i+1)
-	}
-	wg.Wait()
 	return nil
 }
 
-func splitIntoChunks(data []byte, chunkSize int) [][]byte {
-	slog.Info("file is being split into chunks")
-	var chunks [][]byte
-
-	for i := 0; i < len(data); i += chunkSize {
-		end := i + chunkSize
-		if end > len(data) {
-			end = len(data)
-		}
-		chunks = append(chunks, data[i:end])
+func (fileSvc *FileService) SendUserPic(file *model.File) error {
+	fileID, err := fileSvc.repo.StoreFile(file)
+	if err != nil {
+		return err
 	}
-	slog.Info("file successfully split")
-	return chunks
+	pic := &model.UserPhoto{
+		UserID: file.UserID,
+		FileID: fileID,
+	}
+	if err := fileSvc.repo.StoreUserPic(pic); err != nil {
+		return err
+	}
+	return nil
 }
 
-func calculateChunkSize(fileSize int) (int, error) {
-	// Define a reasonable default chunk size.
-	defaultChunkSize := 1024 * 1024 // 1 MB
-
-	// You can adjust the chunk size based on your requirements.
-	// For example, you can consider the file size and available memory.
-	// Here, we use a 10 MB chunk size as an example.
-	if fileSize <= 0 {
-		return 0, errors.New("file size is equal to 0")
+func (fileSvc *FileService) GetUserPic(userID uint32) (*model.File, error) {
+	pic, err := fileSvc.repo.FetchUserPic(userID)
+	if err != nil {
+		return nil, err
 	}
+	return pic, err
+}
 
-	// Calculate the chunk size as a fraction of the file size,
-	// or use the default chunk size if the file size is too small.
-	chunkSize := fileSize / 10 // 10% of file size
-	if chunkSize < defaultChunkSize {
-		return defaultChunkSize, nil
+func (fileSvc *FileService) GetFile(fileID uint32) (*model.File, error) {
+	file, err := fileSvc.repo.FetchFile(fileID)
+	if err != nil {
+		return nil, err
 	}
+	return file, nil
+}
 
-	return chunkSize, nil
+func (fileSvc *FileService) GetPetitionFiles(petitionID uint32) ([]model.File, error) {
+	files, err := fileSvc.repo.FetchPetitionFiles(petitionID)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
 }

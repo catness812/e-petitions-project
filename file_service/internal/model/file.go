@@ -1,12 +1,11 @@
 package model
 
-import "gorm.io/gorm"
-
 type File struct {
-	gorm.Model
-	UserID   string
-	FileType string
-	Chunks   []Chunk
+	Id         uint32 `gorm:"primaryKey;autoIncrement:true;unique"`
+	UserID     uint32 `gorm:"not null"`
+	PetitionID uint32
+	Type       string `gorm:"not null"`
+	Data       []byte `gorm:"not null"`
 }
 
 type User struct {
@@ -15,12 +14,12 @@ type User struct {
 	Password   string `gorm:"not null" json:"password"`
 	Role       string `json:"role"`
 	HasAccount bool   `json:"HasAccount"`
-	Files      []File `gorm:"many2many:user_files"`
 }
 
-type Chunk struct {
-	ID             uint   `gorm:"primaryKey"`
-	SequenceNumber int    `gorm:"not null"`
-	Data           []byte `gorm:"not null"`
-	FileID         uint   `gorm:"not null"`
+type UserPhoto struct {
+	Id     uint32 `gorm:"primaryKey;autoIncrement:true;unique"`
+	UserID uint32
+	User   User `gorm:"foreignKey:UserID"`
+	FileID uint32
+	File   File `gorm:"foreignKey:FileID"`
 }

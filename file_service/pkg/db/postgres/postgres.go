@@ -24,12 +24,20 @@ func Connect(dbConfig *config.Config) *gorm.DB {
 		slog.Info("Successfully connected to the Postgres database")
 	}
 
+	autoMigrate(database)
+
+	return database
+}
+
+func autoMigrate(database *gorm.DB) {
+
 	if err := database.AutoMigrate(&model.File{}); err != nil {
 		slog.Fatalf("failed to automigrate file model: %v", err)
 	}
-	if err := database.AutoMigrate(&model.Chunk{}); err != nil {
+	if err := database.AutoMigrate(&model.User{}); err != nil {
 		slog.Fatalf("failed to automigrate chunk model: %v", err)
 	}
-
-	return database
+	if err := database.AutoMigrate(&model.UserPhoto{}); err != nil {
+		slog.Fatalf("failed to automigrate chunk model: %vd", err)
+	}
 }

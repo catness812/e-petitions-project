@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/catness812/e-petitions-project/file_service/internal/model"
-	"github.com/gookit/slog"
 	"gorm.io/gorm"
 )
 
@@ -14,34 +13,44 @@ func NewFileRepository(dbClient *gorm.DB) *FileRepository {
 	return &FileRepository{dbClient: dbClient}
 }
 
-func (fileRepo *FileRepository) ProcessAndStoreChunk(fileID uint, sequenceNumber int, chunk []byte) error {
-	chunkData := &model.Chunk{FileID: fileID, SequenceNumber: sequenceNumber, Data: chunk}
-	if err := fileRepo.dbClient.Debug().Model(model.Chunk{}).Create(chunkData).Error; err != nil {
-		slog.Errorf("failed to insert chunk: %v", err)
+func (repo *FileRepository) StoreFile(file *model.File) (uint32, error) {
+	if err := repo.dbClient.Debug().Model(model.File{}).Create(file).Error; err != nil {
+		return 0, err
+	}
+	return file.Id, nil
+}
+
+func (repo *FileRepository) StoreUserPic(pic *model.UserPhoto) error {
+	if err := repo.dbClient.Debug().Model(model.UserPhoto{}).Create(pic).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-//func (fileRepo *FileRepository) CreateFile() (uint, error) {
-//	file := &model.File{}
-//	if err := fileRepo.dbClient.Debug().Model(model.File{}).Create(file).Error; err != nil {
-//		slog.Errorf("failed to insert file: %v", err)
-//		return 0, err
-//	}
-//	return file.ID, nil
-//}
-
-func (fileRepo *FileRepository) StoreFileData(uid, fileType string) (uint, error) {
-	file := &model.File{
-		UserID:   uid,
-		FileType: fileType,
+func (repo *FileRepository) FetchUserPic(userID uint32) (*model.File, error) {
+	pic := &model.UserPhoto{}
+	if err := repo.dbClient.Debug().Model(model.UserPhoto{}).Where("user_id = ?", userID).First(pic).Error; err != nil {
+		return nil, err
 	}
-	if err := fileRepo.dbClient.Debug().Model(model.File{}).Create(file).Error; err != nil {
-		slog.Errorf("failed to insert file: %v", err)
-		return 0, err
+	file := &model.File{}
+	if err := repo.dbClient.Debug().Model(model.File{}).Where("id = ?", pic.FileID).First(file).Error; err != nil {
+		return nil, err
 	}
-	return file.ID, nil
+	return file, nil
 }
 
-func (fileRepo *FileRepository) FetchFileData()
+func (repo *FileRepository) FetchFile(fileID uint32) (*model.File, error) {
+	file := &model.File{}
+	if err := repo.dbClient.Debug().Model(model.File{}).Where("id = ?", fileID).First(file).Error; err != nil {
+		return nil, err
+	}
+	return file, nil
+}
+
+func (repo *FileRepository) FetchPetitionFiles(petitionID uint32) ([]model.File, error) {
+	var files []model.File
+	if err := repo.dbClient.Debug().Model(model.File{}).Where("petition_id = ?", petitionID).Find(&files).Error; err != nil {
+		return nil, err
+	}
+	return files, nil
+}
