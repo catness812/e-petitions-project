@@ -148,15 +148,15 @@ func (repo *PetitionRepository) CheckIfExists(uuid string) error {
 
 func (repo *PetitionRepository) HasUserVoted(userID, petitionID string) error {
 	var vote models.Vote
-	if err := repo.db.Where("petition_id = ?", petitionID).First(&vote).Error; err != nil {
+	if err := repo.db.Where("petition_uuid = ?", petitionID).First(&vote).Error; err != nil {
 		return nil
 	}
 
 	if vote.UserID == userID {
-		return nil
+		return errors.New("user has already voted")
 	}
 
-	return errors.New("user has already voted")
+	return nil
 }
 
 func (repo *PetitionRepository) GetAllUserPetitions(userID string, pagination util.Pagination) ([]models.Petition, error) {
