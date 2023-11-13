@@ -6,6 +6,7 @@ option go_package="./pb";
 service UserService{
     rpc GetUserEmailById(GetUserEmailByIdRequest) returns (ResponseMessage);
     rpc CheckUserExistence(CheckUserExistenceRequest) returns (CheckUserExistenceResponse);
+    rpc GetAdminEmails(GetAdminEmailsRequest) returns (GetAdminEmailsResponse);
 }
 
 
@@ -23,4 +24,11 @@ message CheckUserExistenceRequest{
 
 message  CheckUserExistenceResponse{
     bool message = 1;
+}
+
+message GetAdminEmailsResponse {
+    repeated string admin_emails = 1;
+}
+
+message GetAdminEmailsRequest {
 }

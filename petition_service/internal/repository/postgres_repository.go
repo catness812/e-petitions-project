@@ -38,11 +38,21 @@ func (repo *PetitionRepository) GetAll(pagination util.Pagination) []models.Peti
 	return petitions
 }
 
-func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error) {
+func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagination util.Pagination, order util.PetitionOrder) ([]models.Petition, error) {
 	var petitions []models.Petition
 
-	err := repo.db.Preload("Status").Scopes(postgres.Paginate(pagination)).
-		Where("status_id = ?", status.ID).Limit(50).Find(&petitions).Error
+	query := repo.db.Preload("Status").Scopes(postgres.Paginate(pagination)).
+		Where("status_id = ?", status.ID)
+
+	if order.CreatedAt != "" {
+		query.Order("created_at " + order.CreatedAt)
+	}
+
+	if order.Title != "" {
+		query.Order("title " + order.Title)
+	}
+
+	err := query.Find(&petitions).Error
 	if err != nil {
 		return nil, err
 	}
@@ -184,8 +194,8 @@ func (repo *PetitionRepository) GetAllUserVotedPetitions(userID string, paginati
 	return petitions, nil
 }
 
-func (r *PetitionRepository) UpdateCurrVotes(petition models.Petition) error {
-	if err := r.db.Save(&petition).Error; err != nil {
+func (repo *PetitionRepository) UpdateCurrVotes(petition models.Petition) error {
+	if err := repo.db.Save(&petition).Error; err != nil {
 		return err
 	}
 	return nil
