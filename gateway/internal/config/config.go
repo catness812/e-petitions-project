@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/gookit/slog"
-	"gopkg.in/yaml.v2"
 	"os"
 	"path/filepath"
+
+	"github.com/gookit/slog"
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
@@ -12,6 +13,8 @@ type Config struct {
 	UserPort     string `yaml:"user_port"`
 	SecurityPort string `yaml:"security_port"`
 	HttpPort     string `yaml:"http_port"`
+	ShortTimeout int    `yaml:"short_timeout"`
+	LongTimeout  int    `yaml:"long_timeout"`
 }
 
 func LoadConfig() *Config {
