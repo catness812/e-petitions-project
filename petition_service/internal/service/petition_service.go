@@ -16,7 +16,7 @@ import (
 type IPetitionRepository interface {
 	Save(petition *models.Petition) error
 	GetAll(pagination util.Pagination) []models.Petition
-	GetPetitionsByStatus(status models.Status, pagination util.Pagination) ([]models.Petition, error)
+	GetPetitionsByStatus(status models.Status, pagination util.Pagination, order util.PetitionOrder) ([]models.Petition, error)
 	UpdateStatus(uuid string, statusID uint) error
 	Delete(uuid string) error
 	GetStatusByTitle(title string) (models.Status, error)
@@ -61,9 +61,9 @@ func NewPetitionService(
 	elasticSearchRepo IElasticSearchRepository,
 ) *PetitionService {
 	svc := &PetitionService{
-		petitionRepository:  petRepo,
-		publisherRepository: pubRepo,
-		userRepository:      userRepo,
+		petitionRepository:      petRepo,
+		publisherRepository:     pubRepo,
+		userRepository:          userRepo,
 		elasticSearchRepository: elasticSearchRepo,
 	}
 
@@ -274,7 +274,7 @@ func (svc *PetitionService) CheckPetitionExpiration(petition models.Petition) (s
 func (svc *PetitionService) scheduleDailyDigest() {
 	c := cron.New()
 	slog.Info("Scheduled Daily Petition Digest successfully started...")
-	_, err := c.AddFunc("* * * * *", func() {
+	_, err := c.AddFunc("0 10 * * *", func() {
 		slog.Info("Sending petition digest to admins...")
 		emails, err := svc.userRepository.GetAdminEmails()
 		if err != nil {
@@ -286,28 +286,22 @@ func (svc *PetitionService) scheduleDailyDigest() {
 			slog.Errorf("Could not retrieve status: %s", err)
 		}
 
-		// TODO count up nr of petitions in_review, divide by nr of admins to calculate lim?
-		// TODO hard cut to 50 if more
-		// TODO order in_review petitions oldest first
-
-		slog.Info(emails)
 		page := 1
 		for _, email := range emails {
 			petitions, err := svc.petitionRepository.GetPetitionsByStatus(status, util.Pagination{
 				Page:  page,
-				Limit: 50,
-			})
+				Limit: 30,
+			}, util.PetitionOrder{CreatedAt: util.ASC})
 			if err != nil {
 				slog.Errorf("Could not retrieve petitions: %s", err)
 			}
 
+			// TODO need to make a new mail template
 			message := "Here are some petitions awaiting your review!\n"
 			for _, pet := range petitions {
 				slog.Info(pet.Title)
 				message += fmt.Sprintf("* Title: %s; UUID: %s; Created At: %s \n", pet.Title, pet.UUID, pet.CreatedAt)
 			}
-
-			slog.Info(message, email)
 
 			if len(petitions) > 0 {
 				err := svc.publisherRepository.PublishMessage(email, message)
@@ -398,7 +392,7 @@ func (svc *PetitionService) GetAllActive(pagination util.Pagination) ([]models.P
 		slog.Errorf("Could not retrieve status: %s", err)
 		return nil, err
 	}
-	petitions, err := svc.petitionRepository.GetPetitionsByStatus(status, pagination)
+	petitions, err := svc.petitionRepository.GetPetitionsByStatus(status, pagination, util.PetitionOrder{})
 	if err != nil {
 		slog.Errorf("Could not retrieve petitions: %s", err)
 		return nil, err
