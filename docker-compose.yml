@@ -18,7 +18,7 @@ services:
       - "5435:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready", "-d", "db_prod" ]
-      interval: 30s
+      interval: 10s
       timeout: 60s
       retries: 5
       start_period: 60s
@@ -46,7 +46,7 @@ services:
       - "15672:15672"
     healthcheck:
       test: rabbitmq-diagnostics -q ping
-      interval: 30s
+      interval: 10s
       timeout: 30s
 
   elasticsearch:
@@ -61,6 +61,31 @@ services:
       - "9300:9300"
     volumes:
       - esdata:/usr/share/elasticsearch/data
+
+  prometheus:
+    image: prom/prometheus:v2.37.9
+    container_name: prometheus
+    networks:
+      - e-petitions-network
+    ports:
+      - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    networks:
+      - e-petitions-network
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    restart: unless-stopped
 
   front:
     container_name: front
@@ -80,6 +105,7 @@ services:
       - e-petitions-network
     ports:
       - "1337:1337"
+
   security-service:
     container_name: security-service
     image: e-petitions-security:1.0
@@ -95,6 +121,7 @@ services:
         condition: service_healthy
     ports:
       - "50051:50051"
+
   user-service:
     container_name: user-service
     image: e-petitions-user:1.0
@@ -126,6 +153,7 @@ services:
         condition: service_healthy
     ports:
       - "50050:50050"
+      - "40000:40000"
 
   mail-service:
     container_name: mail-service
@@ -145,6 +173,10 @@ volumes:
   redis-data:
     driver: local
   esdata:
+    driver: local
+  grafana-data:
+    driver: local
+  prometheus-data:
     driver: local
 networks:
   e-petitions-network:
