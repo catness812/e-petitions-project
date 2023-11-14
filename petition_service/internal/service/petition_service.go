@@ -22,7 +22,7 @@ type IPetitionRepository interface {
 	GetStatusByTitle(title string) (models.Status, error)
 	GetByID(uuid string) (models.Petition, error)
 	GetAllUserPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error)
-	SaveVote(Vote *models.Vote) error
+	SaveVote(Vote *models.Vote, petitionID uint) error
 	CheckIfExists(id string) error
 	GetAllUserVotedPetitions(userUUID string, pagination util.Pagination) ([]models.Petition, error)
 	UpdateCurrVotes(petition models.Petition) error
@@ -125,19 +125,25 @@ func (svc *PetitionService) CreateVote(vote models.Vote) error {
 		return fmt.Errorf("user doesn't exists")
 	}
 
-	if err := svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionUUID); err != nil {
-		slog.Errorf("Could not check if user %s has voted petition %d: %s", vote.UserID, vote.PetitionUUID, err)
+	err = svc.petitionRepository.HasUserVoted(vote.UserID, vote.PetitionUUID)
+	if err != nil {
+		if err.Error() == "user has already voted" {
+			slog.Errorf("User %s has already voted for petition %s", vote.UserID, vote.PetitionUUID)
+			return err
+		} else {
+			slog.Errorf("Could not check if user %s has voted petition %s: %s", vote.UserID, vote.PetitionUUID, err)
+			return err
+		}
+	}
+
+	if err := svc.petitionRepository.SaveVote(&vote, petition.ID); err != nil {
+		slog.Errorf("Could not save vote: %s", err)
 		return err
 	}
 
 	petition.CurrVotes++
 	if err := svc.petitionRepository.UpdateCurrVotes(petition); err != nil {
 		slog.Errorf("Could not update current votes for petition %s: %s", petition.UUID, err)
-		return err
-	}
-
-	if err := svc.petitionRepository.SaveVote(&vote); err != nil {
-		slog.Errorf("Could not save vote: %s", err)
 		return err
 	}
 

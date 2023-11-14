@@ -64,7 +64,8 @@ func (repo *PetitionRepository) UpdateStatus(id string, statusID uint) error {
 	return nil
 }
 
-func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
+func (repo *PetitionRepository) SaveVote(Vote *models.Vote, petitionID uint) error {
+	Vote.PetitionID = petitionID
 	err := repo.db.Create(Vote).Error
 	if err != nil {
 		return err
@@ -147,13 +148,16 @@ func (repo *PetitionRepository) CheckIfExists(uuid string) error {
 }
 
 func (repo *PetitionRepository) HasUserVoted(userID, petitionID string) error {
-	var vote models.Vote
-	if err := repo.db.Where("petition_uuid = ?", petitionID).First(&vote).Error; err != nil {
-		return nil
-	}
+	var votes []models.Vote
 
-	if vote.UserID == userID {
-		return errors.New("user has already voted")
+	// would need optimization eventually
+	if err := repo.db.Where("petition_uuid = ?", petitionID).Find(&votes).Error; err != nil {
+		return err
+	}
+	for _, vote := range votes {
+		if vote.UserID == userID {
+			return errors.New("user has already voted")
+		}
 	}
 
 	return nil

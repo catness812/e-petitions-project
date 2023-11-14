@@ -13,15 +13,7 @@ import (
 
 func LoadDatabase() *gorm.DB {
 	db := connect()
-	err := db.AutoMigrate(&models.Petition{})
-	if err != nil {
-		slog.Error(err)
-	}
-	err = db.AutoMigrate(&models.Status{})
-	if err != nil {
-		slog.Error(err)
-	}
-	err = db.AutoMigrate(&models.Vote{})
+	err := db.AutoMigrate(&models.Petition{}, &models.Status{}, &models.Vote{})
 	if err != nil {
 		slog.Error(err)
 	}
