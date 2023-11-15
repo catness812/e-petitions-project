@@ -2,10 +2,12 @@ package middleware
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
-	"github.com/gin-gonic/gin"
-	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type AuthMiddleware struct {
@@ -17,55 +19,57 @@ func NewAuthorizationMiddleware(userClient pb.UserServiceClient, rbacCfg *config
 	return &AuthMiddleware{userClient: userClient, cfg: rbacCfg}
 }
 
-func (auth *AuthMiddleware) Authorize(action, resourceCode string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		mail, ok := c.Get("userEmail")
+func (auth *AuthMiddleware) Authorize(action, resourceCode string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		mail, ok := c.Locals("userEmail").(string)
 		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 				"error":   "Unauthorized",
 				"message": "You do not have permission to perform this action.",
 			})
-			return
 		}
-		email, ok := mail.(string)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error":   "Unauthorized",
-				"message": "You do not have permission to perform this action.",
-			})
-			return
-		}
+
 		user, err := auth.userClient.GetUserByEmail(context.Background(), &pb.GetUserByEmailRequest{
-			Email: email,
+			Email: mail,
 		})
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+			return c.Status(http.StatusUnauthorized).JSON(fiber.Map{
 				"error":   "Unauthorized",
 				"message": "You do not have permission to perform this action.",
 			})
-			return
 		}
+
 		authorized := false
 		for _, perm := range auth.cfg.Permissions {
 			if perm.Resource == resourceCode && perm.Role == user.Role {
-				if (action == "read" && perm.Allow.Read) ||
-					(action == "write" && perm.Allow.Write) ||
-					(action == "delete" && perm.Allow.Delete) ||
-					(action == "update" && perm.Allow.Update) {
-					authorized = true
-					break
+				switch action {
+				case "read":
+					if perm.Allow.Read {
+						authorized = true
+					}
+				case "write":
+					if perm.Allow.Write {
+						authorized = true
+					}
+				case "delete":
+					if perm.Allow.Delete {
+						authorized = true
+					}
+				case "update":
+					if perm.Allow.Update {
+						authorized = true
+					}
 				}
 			}
 		}
 
 		if !authorized {
-			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{
+			return c.Status(http.StatusForbidden).JSON(fiber.Map{
 				"error":   "Forbidden",
 				"message": "You do not have permission to perform this action.",
 			})
-			return
 		}
-		c.Next()
-	}
 
+		return c.Next()
+	}
 }

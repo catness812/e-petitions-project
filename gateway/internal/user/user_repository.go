@@ -30,15 +30,15 @@ func (repo *UserRepository) GetByEmail(email string) (model.User, error) {
 	var user model.User
 	user.UserCredentials.Email = res.Email
 	user.UserCredentials.Password = res.Password
-	user.Id = res.Id
+	user.UUID = res.Uuid
 	user.Role = res.Role
 
 	return user, nil
 }
 
-func (repo *UserRepository) GetByID(id uint32) (string, error) {
+func (repo *UserRepository) GetByID(id string) (string, error) {
 	res, err := repo.client.GetUserEmailById(context.Background(), &pb.GetUserEmailByIdRequest{
-		Id: id,
+		Uuid: id,
 	})
 	if err != nil {
 		slog.Errorf("Error getting user by id: %v", err)

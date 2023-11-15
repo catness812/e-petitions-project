@@ -11,6 +11,7 @@ service PetitionService {
     rpc CreatePetition(CreatePetitionRequest) returns (PetitionId);
     rpc GetPetitions(GetPetitionsRequest) returns (GetPetitionsResponse);
     rpc UpdatePetitionStatus(UpdatePetitionStatusRequest) returns (google.protobuf.Empty);
+    rpc UpdatePetition(UpdatePetitionRequest) returns (google.protobuf.Empty);
     rpc DeletePetition(PetitionId) returns (google.protobuf.Empty);
     // returns empty if is valid, error if not valid
     rpc ValidatePetitionId(PetitionId) returns (google.protobuf.Empty);

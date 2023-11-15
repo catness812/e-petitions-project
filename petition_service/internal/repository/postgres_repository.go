@@ -49,9 +49,9 @@ func (repo *PetitionRepository) GetPetitionsByStatus(status models.Status, pagin
 	return petitions, nil
 }
 
-func (repo *PetitionRepository) UpdateStatus(id uint, statusID uint) error {
+func (repo *PetitionRepository) UpdateStatus(id string, statusID uint) error {
 	var petition models.Petition
-	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
+	err := repo.db.Where("uuid = ?", id).Preload("Status").First(&petition).Error
 	if err != nil {
 		return err
 	}
@@ -74,8 +74,8 @@ func (repo *PetitionRepository) SaveVote(Vote *models.Vote) error {
 
 func (repo *PetitionRepository) UpdatePetition(petition *models.PetitionUpdate) error {
 	existingPetition := &models.Petition{}
-	slog.Info("petition.id:", petition.ID)
-	err := repo.db.Where("id = ?", petition.ID).First(&existingPetition).Error
+	slog.Info("petition.id:", petition.UUID)
+	err := repo.db.Where("uuid = ?", petition.UUID).First(&existingPetition).Error
 	if err != nil {
 		return err
 	}
@@ -108,12 +108,12 @@ func (repo *PetitionRepository) UpdatePetition(petition *models.PetitionUpdate) 
 	return nil
 }
 
-func (repo *PetitionRepository) Delete(id uint) error {
+func (repo *PetitionRepository) Delete(uuid string) error {
 	var petition models.Petition
-	err := repo.db.Unscoped().Where("id = ?", id).Delete(&petition).Error
+	err := repo.db.Unscoped().Where("uuid = ?", uuid).Delete(&petition).Error
 	if err != nil {
 		return err
-	} else if petition.ID == 0 {
+	} else if petition.UUID == "0" {
 		return gorm.ErrRecordNotFound
 	}
 	return nil
@@ -128,32 +128,38 @@ func (repo *PetitionRepository) GetStatusByTitle(title string) (models.Status, e
 	return status, nil
 }
 
-func (repo *PetitionRepository) GetByID(id uint) (models.Petition, error) {
+func (repo *PetitionRepository) GetByID(uuid string) (models.Petition, error) {
 	var petition models.Petition
-	err := repo.db.Where("id = ?", id).Preload("Status").First(&petition).Error
+	err := repo.db.Where("uuid = ?", uuid).Preload("Status").First(&petition).Error
 	if err != nil {
 		return petition, err
 	}
 	return petition, nil
 }
 
-func (repo *PetitionRepository) CheckIfExists(id uint) error {
+func (repo *PetitionRepository) CheckIfExists(uuid string) error {
 	var petitions models.Petition
-	if err := repo.db.Where("id = ?", id).First(&petitions).Error; err != nil {
+	if err := repo.db.Where("uuid = ?", uuid).First(&petitions).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (repo *PetitionRepository) HasUserVoted(userID, petitionID uint) error {
+func (repo *PetitionRepository) HasUserVoted(userID, petitionID string) error {
 	var vote models.Vote
-	if err := repo.db.Where("user_id = ? AND petition_id = ?", userID, petitionID).First(&vote).Error; err != nil {
+	if err := repo.db.Where("petition_uuid = ?", petitionID).First(&vote).Error; err != nil {
 		return nil
 	}
-	return errors.New("user has already voted")
+
+	if vote.UserID == userID {
+		return errors.New("user has already voted")
+	}
+
+	return nil
 }
-func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+
+func (repo *PetitionRepository) GetAllUserPetitions(userID string, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
 	if err := repo.db.Scopes(postgres.Paginate(pagination)).Model(models.Petition{}).Where("user_id = ?", userID).Preload("Status").Find(&petitions).Error; err != nil {
 		return nil, err
@@ -161,13 +167,13 @@ func (repo *PetitionRepository) GetAllUserPetitions(userID uint, pagination util
 	return petitions, nil
 }
 
-func (repo *PetitionRepository) GetAllUserVotedPetitions(userID uint, pagination util.Pagination) ([]models.Petition, error) {
+func (repo *PetitionRepository) GetAllUserVotedPetitions(userID string, pagination util.Pagination) ([]models.Petition, error) {
 	var petitions []models.Petition
 
 	query := `
         SELECT petitions.*
         FROM petitions
-        JOIN votes ON petitions.id = votes.petition_id
+        JOIN votes ON petitions.uuid = votes.petition_uuid
         WHERE votes.user_id = ?
         LIMIT ? OFFSET ?
     `

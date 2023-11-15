@@ -3,6 +3,7 @@ module github.com/catness812/e-petitions-project/petition_service
 go 1.21.0
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/gookit/slog v0.5.4
 	github.com/kljensen/snowball v0.8.0
 	github.com/pemistahl/lingua-go v1.4.0
@@ -17,6 +18,9 @@ require (
 )
 
 require (
+	github.com/elastic/elastic-transport-go/v8 v8.3.0 // indirect
+	github.com/elastic/go-elasticsearch/v7 v7.17.10 // indirect
+	github.com/elastic/go-elasticsearch/v8 v8.10.1 // indirect
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/gookit/goutil v0.6.12 // indirect
 	github.com/gookit/gsr v0.1.0 // indirect

@@ -1,22 +1,23 @@
-FROM golang:1.21-alpine3.17 as builder
-
-COPY internal /app/internal/
-COPY pkg /app/pkg/
-COPY config.yml go.mod go.sum main.go /app/
-
-RUN cd /app/ && \
-    go mod download && \
-    go build -o main
-
-FROM alpine:3.17
-
+FROM golang:1.21.3-alpine3.18 as builder
 WORKDIR /app
 
+COPY internal ./internal/
+COPY pkg ./pkg/
+COPY config.yml go.mod go.sum main.go ./
+
+RUN go mod download && \
+    go build -o main
+
+FROM alpine:3.18
+WORKDIR /app
+
+RUN apk add openssl && \
+    adduser -D user && chown -R user /app
+
 COPY --from=builder /app/main /app/config.yml ./
+
+USER user
 
 EXPOSE 50052
 
 CMD ["./main"]
-
-#docker build -t e-petitions-user:1.0 .
-#docker run --name user-service -it e-petitions-user:1.0
