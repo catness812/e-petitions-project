@@ -1,6 +1,7 @@
 package service
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/aymerick/raymond"
@@ -14,7 +15,7 @@ func SendVerificationMail(msg string) error {
 	to = append(to, strings.Split(string(msg), " ")[0])
 	link := strings.Split(string(msg), " ")[1]
 
-	err := repository.SendMail(to, formatMailMessage(link, "user-register.html"))
+	err := repository.SendMail(to, formatMailMessage(link, "user-register.html"), "E-petitions verification link")
 	if err != nil {
 		return err
 	}
@@ -28,15 +29,9 @@ func SendNotificationMail(msg string) error {
 		message string
 	)
 
-	for i, buf := range strings.Split(string(msg), " ") {
-		if i == 0 {
-			to = append(to, strings.Split(string(msg), " ")[0])
-			continue
-		}
-		message = message + buf + " "
-	}
+	to, message = getMailsAndMessage(msg)
 
-	err := repository.SendMail(to, formatMailMessage(message, "notification.html"))
+	err := repository.SendMail(to, formatMailMessage(message, "notification.html"), "E-petitions notification")
 	if err != nil {
 		return err
 	}
@@ -57,4 +52,16 @@ func formatMailMessage(data string, path string) []byte {
 		"data": data,
 	}
 	return []byte(reg.MustExec(ctx))
+}
+
+func getMailsAndMessage(msg string) ([]string, string) {
+	mail_pattern := "[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+"
+
+	regex := regexp.MustCompile(mail_pattern)
+	mails := regex.FindAllString(msg, -1)
+
+	message_pattern := " [a-zA-Z0-9.,!?-]+[^@]* "
+	regex = regexp.MustCompile(message_pattern)
+	result := regex.FindAllString(msg+" ", -1)
+	return mails, result[0][1:]
 }
