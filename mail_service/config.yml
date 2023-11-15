@@ -4,5 +4,5 @@ smtp:
 
   
 rabbit:
-  host: "localhost"
+  host: "rabbitmq"
   port: "5672"
