@@ -11,6 +11,7 @@ import (
 
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
+	HttpPort int      `yaml:"http_port"`
 	Database postgres `yaml:"postgres"`
 	Redis    redis    `yaml:"redis"`
 	Token    token    `yaml:"token"`

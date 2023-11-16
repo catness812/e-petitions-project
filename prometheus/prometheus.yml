@@ -17,6 +17,13 @@ scrape_configs:
     static_configs:
       - targets:
           - petition-service:40000
+  - job_name: security
+    honor_timestamps: true
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - security-service:40001
   - job_name: gateway
     honor_timestamps: true
     metrics_path: /metrics

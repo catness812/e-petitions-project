@@ -121,6 +121,7 @@ services:
         condition: service_healthy
     ports:
       - "50051:50051"
+      - "40001:40001"
 
   user-service:
     container_name: user-service
@@ -135,6 +136,7 @@ services:
         condition: service_healthy
     ports:
       - "50052:50052"
+      - "40002:40002"
 
   petition-service:
     container_name: petition-service
