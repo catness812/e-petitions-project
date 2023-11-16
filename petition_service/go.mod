@@ -9,6 +9,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.0
 	github.com/kljensen/snowball v0.8.0
 	github.com/pemistahl/lingua-go v1.4.0
+	github.com/prometheus/client_golang v1.14.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/streadway/amqp v1.1.0
 	github.com/texttheater/golang-levenshtein/levenshtein v0.0.0-20200805054039-cae8b0eaed6c
@@ -27,7 +28,6 @@ require (
 	github.com/gookit/gsr v0.1.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.3 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
-	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect

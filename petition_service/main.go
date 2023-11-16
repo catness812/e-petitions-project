@@ -32,18 +32,10 @@ func main() {
 func grpcStart(petitionSvc rpc.IPetitionService) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", config.Cfg.GrpcPort))
 	if err != nil {
-		slog.Error(err)
-		panic(err)
+		slog.Fatal(err)
 	}
 
-	srvMetrics := grpcprom.NewServerMetrics(
-		grpcprom.WithServerHandlingTimeHistogram(
-			grpcprom.WithHistogramBuckets([]float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120}),
-		),
-	)
-	reg := prometheus.NewRegistry()
-	reg.MustRegister(srvMetrics)
-
+	srvMetrics := newServerMetrics()
 	s := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			srvMetrics.UnaryServerInterceptor(),
@@ -53,21 +45,30 @@ func grpcStart(petitionSvc rpc.IPetitionService) {
 	}
 
 	pb.RegisterPetitionServiceServer(s, server)
-	srvMetrics.InitializeMetrics(s)
-
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
-	go func() {
-		if err := http.ListenAndServe(":40000", nil); err != nil {
-			slog.Fatal(err)
-		} else {
-			slog.Info("HTTP server listening at 40000")
-		}
-	}()
 
 	slog.Infof("gRPC Server listening at %v\n", lis.Addr())
 
 	if err := s.Serve(lis); err != nil {
-		slog.Error(err)
-		panic(err)
+		slog.Fatal(err)
 	}
+}
+
+// newServerMetrics initializes Prometheus metrics with gRPC method interceptors
+// and sets up an HTTP endpoint for Prometheus to collect the metrics
+func newServerMetrics() *grpcprom.ServerMetrics {
+	srvMetrics := grpcprom.NewServerMetrics(
+		grpcprom.WithServerHandlingTimeHistogram(
+			grpcprom.WithHistogramBuckets([]float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120}),
+		),
+	)
+	reg := prometheus.NewRegistry()
+	reg.MustRegister(srvMetrics)
+
+	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+	go func() {
+		if err := http.ListenAndServe(fmt.Sprintf(":%v", config.Cfg.HttpPort), nil); err != nil {
+			slog.Fatal(err)
+		}
+	}()
+	return srvMetrics
 }
