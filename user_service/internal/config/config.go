@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	GrpcPort int      `yaml:"grpc_port"`
+	HttpPort int      `yaml:"http_port"`
 	Database Postgres `yaml:"postgres"`
 }
 

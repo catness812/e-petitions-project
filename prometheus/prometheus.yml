@@ -24,6 +24,13 @@ scrape_configs:
     static_configs:
       - targets:
           - security-service:40001
+  - job_name: user
+    honor_timestamps: true
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets:
+          - user-service:40002
   - job_name: gateway
     honor_timestamps: true
     metrics_path: /metrics
