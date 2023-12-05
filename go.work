@@ -1,4 +1,5 @@
-go 1.21.0
+go 1.21.1
+
 
 use (
 	./gateway
@@ -6,4 +7,5 @@ use (
 	./petition_service
 	./security_service
 	./user_service
+	./file_service
 )

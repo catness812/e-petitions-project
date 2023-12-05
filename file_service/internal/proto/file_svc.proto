@@ -1,0 +1,12 @@
+syntax="proto3";
+
+option go_package="./pb";
+
+package proto;
+
+import "file_msg.proto";
+
+
+service FileService{
+  rpc UploadFile (FileRequest) returns (FileResponse);
+}

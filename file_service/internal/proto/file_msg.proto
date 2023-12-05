@@ -1,0 +1,24 @@
+syntax="proto3";
+
+option go_package="./pb";
+
+package proto;
+message Empty {
+}
+
+message FileRequest{
+  bytes file_data = 1;
+  uint32 uid = 2;
+  uint32 pid = 3;
+  string type = 4;
+}
+
+message DownloadFileRequest{
+  uint32 fileID = 1;
+  uint32 userID = 2;
+  uint32 petitionID = 3;
+}
+
+message FileResponse{
+  string message = 1;
+}

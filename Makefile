@@ -10,6 +10,11 @@ proto_user_gateway:
 
 mail-docker-build:
 	docker build -t e-petitions-mail:1.0 ./mail_service
+proto_security:
+	protoc -I security_service/internal/proto --go_out=security_service/internal/ --go-grpc_out=require_unimplemented_servers=false:security_service/internal security_service/internal/proto/*.proto
+
+proto_file:
+	protoc -I file_service/internal/proto --go_out=file_service/internal/ --go-grpc_out=require_unimplemented_servers=false:file_service/internal file_service/internal/proto/*.proto
 
 build_container_images:
 	docker build -t e-petitions-gateway:1.0 ./gateway && \
