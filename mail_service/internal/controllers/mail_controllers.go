@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"time"
+
 	"github.com/catness812/e-petitions-project/mail_service/internal/service"
 	"github.com/gookit/slog"
 	"github.com/streadway/amqp"
@@ -28,11 +30,21 @@ func (c *Consumer) ConfirmationMail(name string) {
 	}
 
 	slog.Infof("Consumer %s started", name)
-	// print consumed messages from queue
 	forever := make(chan bool)
 	go func() {
 		for msg := range msgs {
-			service.SendVerificationMail(string(msg.Body))
+			if err := service.SendVerificationMail(string(msg.Body)); err != nil {
+				time.Sleep(time.Minute)
+				c.channel.Publish("",
+					q.Name,
+					false,
+					false,
+					amqp.Publishing{
+						ContentType: "text/plain",
+						Body:        msg.Body,
+					},
+				)
+			}
 		}
 	}()
 
@@ -51,11 +63,21 @@ func (c *Consumer) NotificationMail(name string) {
 	}
 
 	slog.Infof("Consumer %s started", name)
-	// print consumed messages from queue
 	forever := make(chan bool)
 	go func() {
 		for msg := range msgs {
-			service.SendNotificationMail(string(msg.Body))
+			if err := service.SendNotificationMail(string(msg.Body)); err != nil {
+				time.Sleep(time.Minute)
+				c.channel.Publish("",
+					q.Name,
+					false,
+					false,
+					amqp.Publishing{
+						ContentType: "text/plain",
+						Body:        msg.Body,
+					},
+				)
+			}
 		}
 	}()
 

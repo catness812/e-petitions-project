@@ -1,6 +1,7 @@
 package service
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/aymerick/raymond"
@@ -8,30 +9,34 @@ import (
 	"github.com/gookit/slog"
 )
 
-func SendVerificationMail(msg string) {
+func SendVerificationMail(msg string) error {
 	var to []string
 
 	to = append(to, strings.Split(string(msg), " ")[0])
 	link := strings.Split(string(msg), " ")[1]
 
-	repository.SendMail(to, formatMailMessage(link, "user-register.html"))
+	err := repository.SendMail(to, formatMailMessage(link, "user-register.html"), "E-petitions verification link")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func SendNotificationMail(msg string) {
+func SendNotificationMail(msg string) error {
 	var (
 		to      []string
 		message string
 	)
 
-	for i, buf := range strings.Split(string(msg), " ") {
-		if i == 0 {
-			to = append(to, strings.Split(string(msg), " ")[0])
-			continue
-		}
-		message = message + buf + " "
+	to, message = getMailsAndMessage(msg)
+
+	err := repository.SendMail(to, formatMailMessage(message, "notification.html"), "E-petitions notification")
+	if err != nil {
+		return err
 	}
 
-	repository.SendMail(to, formatMailMessage(message, "notification.html"))
+	return nil
 }
 
 func formatMailMessage(data string, path string) []byte {
@@ -47,4 +52,16 @@ func formatMailMessage(data string, path string) []byte {
 		"data": data,
 	}
 	return []byte(reg.MustExec(ctx))
+}
+
+func getMailsAndMessage(msg string) ([]string, string) {
+	mail_pattern := "[a-zA-Z0-9.]+@[a-zA-Z0-9.-]+"
+
+	regex := regexp.MustCompile(mail_pattern)
+	mails := regex.FindAllString(msg, -1)
+
+	message_pattern := " [a-zA-Z0-9.,!?-]+[^@]* "
+	regex = regexp.MustCompile(message_pattern)
+	result := regex.FindAllString(msg+" ", -1)
+	return mails, result[0][1:]
 }

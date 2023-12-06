@@ -1,24 +1,43 @@
 package repository
 
 import (
-	"net/smtp"
+	"crypto/tls"
 	"os"
 
-	"github.com/catness812/e-petitions-project/mail_service/internal/config"
-	sm "github.com/catness812/e-petitions-project/mail_service/pkg/smtp"
 	"github.com/gookit/slog"
+	gomail "gopkg.in/mail.v2"
 )
 
-func SendMail(to []string, msg []byte) {
-	s := config.LoadConfig().Smtp
-	auth := sm.SmtpAuth(os.Getenv("MAIL"), os.Getenv("PASS"))
-	addr := s.Host + ":" + s.Port
+func SendMail(to []string, msg []byte, subject string) error {
 
-	err := smtp.SendMail(addr, auth, os.Getenv("MAIL"), to, msg)
+	m := gomail.NewMessage()
 
-	if err != nil {
+	// Set E-Mail sender
+	m.SetHeader("From", os.Getenv("MAIL"))
+
+	// Set E-Mail receivers
+	m.SetHeader("To", to...)
+
+	// Set E-Mail subject
+	m.SetHeader("Subject", subject)
+
+	// Set E-Mail body. You can set plain text or html with text/html
+	m.SetBody("text/html", string(msg))
+
+	// Settings for SMTP server
+	d := gomail.NewDialer("smtp.gmail.com", 587, os.Getenv("MAIL"), os.Getenv("PASS"))
+
+	// This is only needed when SSL/TLS certificate is not valid on server.
+	// In production this should be set to false.
+	d.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+
+	// Now send E-Mail
+	if err := d.DialAndSend(m); err != nil {
 		slog.Fatalf("failed to send message: \t%v", err)
-		return
+		return (err)
 	}
-	slog.Printf("successfully sent message")
+
+	slog.Infof("Successfully sent message")
+
+	return nil
 }
