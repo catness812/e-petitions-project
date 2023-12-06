@@ -129,7 +129,11 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (s
 		slog.Errorf("Failed to convert time to Timestamp")
 		return "", errors.New("failed to convert time to Timestamp ")
 	}
-	resp, err := repo.client.CreatePetition(context.Background(), &pb.CreatePetitionRequest{
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	resp, err := repo.client.CreatePetition(ctx, &pb.CreatePetitionRequest{
 		Title:       petition.Title,
 		Description: petition.Description,
 		Image:       petition.Image,
@@ -141,7 +145,7 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (s
 
 	if err != nil {
 		slog.Errorf("Failed to create petition: ", err)
-		return "", nil
+		return "", err
 	}
 	return resp.Uuid, nil
 
@@ -149,7 +153,11 @@ func (repo *petitionRepository) CreatePetition(petition model.CreatePetition) (s
 
 func (repo *petitionRepository) GetPetitionByID(petitionID string) (model.Petition, error) {
 	var petition model.Petition
-	resp, err := repo.client.GetPetitionById(context.Background(), &pb.PetitionId{
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	resp, err := repo.client.GetPetitionById(ctx, &pb.PetitionId{
 		Uuid: petitionID,
 	})
 
@@ -168,7 +176,11 @@ func (repo *petitionRepository) GetPetitionByID(petitionID string) (model.Petiti
 
 func (repo *petitionRepository) GetPetitions(page uint32, limit uint32) ([]model.Petition, error) {
 	var petitions []model.Petition
-	resp, err := repo.client.GetPetitions(context.Background(), &pb.GetPetitionsRequest{
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	resp, err := repo.client.GetPetitions(ctx, &pb.GetPetitionsRequest{
 		Page:  page,
 		Limit: limit,
 	})
@@ -185,7 +197,11 @@ func (repo *petitionRepository) GetPetitions(page uint32, limit uint32) ([]model
 }
 
 func (repo *petitionRepository) UpdatePetitionStatus(id string, status string) error {
-	_, err := repo.client.UpdatePetitionStatus(context.Background(), &pb.UpdatePetitionStatusRequest{
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	_, err := repo.client.UpdatePetitionStatus(ctx, &pb.UpdatePetitionStatusRequest{
 		Uuid:   id,
 		Status: status,
 	})
@@ -197,7 +213,10 @@ func (repo *petitionRepository) UpdatePetitionStatus(id string, status string) e
 }
 
 func (repo *petitionRepository) DeletePetition(petitionID string) error {
-	_, err := repo.client.DeletePetition(context.Background(), &pb.PetitionId{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	_, err := repo.client.DeletePetition(ctx, &pb.PetitionId{
 		Uuid: petitionID,
 	})
 	if err != nil {
@@ -209,7 +228,10 @@ func (repo *petitionRepository) DeletePetition(petitionID string) error {
 }
 
 func (repo *petitionRepository) ValidatePetitionID(petitionID string) error {
-	_, err := repo.client.ValidatePetitionId(context.Background(), &pb.PetitionId{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	_, err := repo.client.ValidatePetitionId(ctx, &pb.PetitionId{
 		Uuid: petitionID,
 	})
 
@@ -221,7 +243,10 @@ func (repo *petitionRepository) ValidatePetitionID(petitionID string) error {
 }
 
 func (repo *petitionRepository) CreateVote(userID string, petitionID string) error {
-	_, err := repo.client.CreateVote(context.Background(), &pb.CreateVoteRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	_, err := repo.client.CreateVote(ctx, &pb.CreateVoteRequest{
 		PetitionId: petitionID,
 		UserId:     userID,
 	})
@@ -233,8 +258,10 @@ func (repo *petitionRepository) CreateVote(userID string, petitionID string) err
 }
 
 func (repo *petitionRepository) GetUserPetitions(userID string, page uint32, limit uint32) ([]model.Petition, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
 
-	resp, err := repo.client.GetUserPetitions(context.Background(), &pb.GetUserPetitionsRequest{
+	resp, err := repo.client.GetUserPetitions(ctx, &pb.GetUserPetitionsRequest{
 		UserId: userID,
 		Page:   page,
 		Limit:  limit,
@@ -256,7 +283,10 @@ func (repo *petitionRepository) GetUserPetitions(userID string, page uint32, lim
 }
 
 func (repo *petitionRepository) GetUserVotedPetitions(userID string, page uint32, limit uint32) ([]model.Petition, error) {
-	resp, err := repo.client.GetUserVotedPetitions(context.Background(), &pb.GetUserVotedPetitionsRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	resp, err := repo.client.GetUserVotedPetitions(ctx, &pb.GetUserVotedPetitionsRequest{
 		UserId: userID,
 		Page:   page,
 		Limit:  limit,
@@ -277,7 +307,10 @@ func (repo *petitionRepository) GetUserVotedPetitions(userID string, page uint32
 }
 
 func (repo *petitionRepository) GetAllSimilarPetitions(title string) ([]model.Petition, error) {
-	resp, err := repo.client.GetAllSimilarPetitions(context.Background(), &pb.PetitionSuggestionRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	resp, err := repo.client.GetAllSimilarPetitions(ctx, &pb.PetitionSuggestionRequest{
 		Title: title,
 	})
 	var petitions []model.Petition
@@ -294,8 +327,10 @@ func (repo *petitionRepository) GetAllSimilarPetitions(title string) ([]model.Pe
 }
 
 func (repo *petitionRepository) SearchPetitionsByTitle(title string, page uint32, limit uint32) ([]model.Petition, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
 
-	resp, err := repo.client.SearchPetitionsByTitle(context.Background(), &pb.SearchPetitionsByTitRequest{
+	resp, err := repo.client.SearchPetitionsByTitle(ctx, &pb.SearchPetitionsByTitRequest{
 		Title: title,
 		Page:  page,
 		Limit: limit,

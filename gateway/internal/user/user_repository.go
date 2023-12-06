@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/user/pb"
@@ -20,7 +21,10 @@ func NewUserRepository(cfg *config.Config, client pb.UserServiceClient) *UserRep
 }
 
 func (repo *UserRepository) GetByEmail(email string) (model.User, error) {
-	res, err := repo.client.GetUserByEmail(context.Background(), &pb.GetUserByEmailRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.GetUserByEmail(ctx, &pb.GetUserByEmailRequest{
 		Email: email,
 	})
 	if err != nil {
@@ -37,7 +41,10 @@ func (repo *UserRepository) GetByEmail(email string) (model.User, error) {
 }
 
 func (repo *UserRepository) GetByID(id string) (string, error) {
-	res, err := repo.client.GetUserEmailById(context.Background(), &pb.GetUserEmailByIdRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.GetUserEmailById(ctx, &pb.GetUserEmailByIdRequest{
 		Uuid: id,
 	})
 	if err != nil {
@@ -53,7 +60,10 @@ func (repo *UserRepository) GetByID(id string) (string, error) {
 }
 
 func (repo *UserRepository) Delete(email string) (string, error) {
-	res, err := repo.client.DeleteUser(context.Background(), &pb.DeleteUserRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.DeleteUser(ctx, &pb.DeleteUserRequest{
 		Email: email,
 	})
 	if err != nil {
@@ -70,8 +80,10 @@ func (repo *UserRepository) Delete(email string) (string, error) {
 }
 
 func (repo *UserRepository) Create(createUser model.UserCredentials) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
 
-	res, err := repo.client.CreateUser(context.Background(), &pb.UserRequest{
+	res, err := repo.client.CreateUser(ctx, &pb.UserRequest{
 		Email:    createUser.Email,
 		Password: createUser.Password,
 	})
@@ -92,8 +104,10 @@ func (repo *UserRepository) Create(createUser model.UserCredentials) (string, er
 }
 
 func (repo *UserRepository) OTPCreate(createUser model.UserCredentials) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
 
-	res, err := repo.client.CreateUserOTP(context.Background(), &pb.UserRequest{
+	res, err := repo.client.CreateUserOTP(ctx, &pb.UserRequest{
 		Email:    createUser.Email,
 		Password: createUser.Password,
 	})
@@ -114,7 +128,10 @@ func (repo *UserRepository) OTPCreate(createUser model.UserCredentials) (string,
 }
 
 func (repo *UserRepository) Update(createUser model.UserCredentials) (string, error) {
-	res, err := repo.client.UpdateUser(context.Background(), &pb.UserRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.UpdateUser(ctx, &pb.UserRequest{
 		Email:    createUser.Email,
 		Password: createUser.Password,
 	})
@@ -133,7 +150,10 @@ func (repo *UserRepository) Update(createUser model.UserCredentials) (string, er
 }
 
 func (repo *UserRepository) AddAdmin(email string) (string, error) {
-	res, err := repo.client.AddAdmin(context.Background(), &pb.AddAdminRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.AddAdmin(ctx, &pb.AddAdminRequest{
 		Email: email,
 	})
 	if err != nil {

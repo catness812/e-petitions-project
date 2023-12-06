@@ -2,6 +2,8 @@ package security
 
 import (
 	"context"
+	"time"
+
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/security/pb"
 	"github.com/catness812/e-petitions-project/gateway/model"
@@ -18,8 +20,10 @@ func NewSecurityRepository(cfg *config.Config, client pb.SecurityServiceClient) 
 }
 
 func (repo *SecurityRepository) Login(loginUser model.UserCredentials) (model.Tokens, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
 
-	res, err := repo.client.Login(context.Background(), &pb.UserCredentials{
+	res, err := repo.client.Login(ctx, &pb.UserCredentials{
 		Email:    loginUser.Email,
 		Password: loginUser.Password,
 	})
@@ -35,7 +39,10 @@ func (repo *SecurityRepository) Login(loginUser model.UserCredentials) (model.To
 }
 
 func (repo *SecurityRepository) Refresh(token string) (model.Tokens, error) {
-	res, err := repo.client.RefreshSession(context.Background(), &pb.RefreshRequest{
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.RefreshSession(ctx, &pb.RefreshRequest{
 		Token: token,
 	})
 	if err != nil {
@@ -50,7 +57,10 @@ func (repo *SecurityRepository) Refresh(token string) (model.Tokens, error) {
 }
 
 func (repo *SecurityRepository) SendOTP(email string) (string, error) {
-	res, err := repo.client.SendOTP(context.Background(), &pb.OTPInfo{Email: email})
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	res, err := repo.client.SendOTP(ctx, &pb.OTPInfo{Email: email})
 	if err != nil {
 		slog.Errorf("Could not send OTP: %v", err)
 		return "", err
@@ -59,7 +69,10 @@ func (repo *SecurityRepository) SendOTP(email string) (string, error) {
 }
 
 func (repo *SecurityRepository) ValidateOTP(otp, email string) (bool, error) {
-	validated, err := repo.client.ValidateOTP(context.Background(), &pb.OTPInfo{OTP: otp, Email: email})
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(repo.cfg.LongTimeout)*time.Second)
+	defer cancel()
+
+	validated, err := repo.client.ValidateOTP(ctx, &pb.OTPInfo{OTP: otp, Email: email})
 	if err != nil {
 		slog.Errorf("Could not validate OTP: %v", err)
 		return false, err
