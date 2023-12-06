@@ -49,11 +49,11 @@ func (repo *UserRepository) GetByID(id string) (string, error) {
 	})
 	if err != nil {
 		slog.Errorf("Error getting user by id: %v", err)
-		return res.Message, err
+		return "", err
 	}
 	if res == nil && res.Message == "" {
 		slog.Error("Response is empty")
-		return res.Message, errors.New("Response is empty ")
+		return "", errors.New("Response is empty ")
 	}
 
 	return res.Message, nil

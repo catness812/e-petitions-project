@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"github.com/catness812/e-petitions-project/gateway/model"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gookit/slog"
@@ -49,7 +50,7 @@ func (c *UserController) GetUserByID(ctx *fiber.Ctx) error {
 	pid := ctx.Params("uid")
 
 	email, err := c.service.GetByID(pid)
-
+	fmt.Print(err)
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": err.Error()})
 	}

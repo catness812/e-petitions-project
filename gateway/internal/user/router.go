@@ -14,7 +14,7 @@ func RegisterUserRoutes(r *fiber.App, rbacCfg *config.PermissionsConfig, userCtr
 	route := r.Group("/user")
 	route.Post("", userCtrl.CreateUser)
 	route.Post("/otp", userCtrl.OTPCreateUser)
-	route.Get("", authenticateMiddleware.Auth(), userCtrl.GetUserByEmail)
+	route.Get("", userCtrl.GetUserByEmail)
 	route.Get("/:uid", userCtrl.GetUserByID)
 	route.Post("/update", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("update", "user"), userCtrl.UpdateUser)
 	route.Delete("", authenticateMiddleware.Auth(), authorizeMiddleware.Authorize("delete", "user"), userCtrl.DeleteUser)
