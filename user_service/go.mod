@@ -3,6 +3,7 @@ module github.com/catness812/e-petitions-project/user_service
 go 1.21.0
 
 require (
+	github.com/google/uuid v1.4.0
 	github.com/gookit/slog v0.5.4
 	golang.org/x/crypto v0.14.0
 	google.golang.org/grpc v1.58.2
@@ -14,7 +15,6 @@ require (
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/uuid v1.4.0 // indirect
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/gookit/goutil v0.6.12 // indirect
 	github.com/gookit/gsr v0.1.0 // indirect
