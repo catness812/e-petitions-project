@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ansrivas/fiberprometheus/v2"
 	"github.com/catness812/e-petitions-project/gateway/internal/config"
 	"github.com/catness812/e-petitions-project/gateway/internal/middleware"
 	"github.com/catness812/e-petitions-project/gateway/internal/petition"
@@ -12,6 +13,11 @@ import (
 
 func main() {
 	r := fiber.New()
+
+	prometheus := fiberprometheus.New("gateway")
+	prometheus.RegisterAt(r, "/metrics")
+
+	r.Use(prometheus.Middleware)
 	r.Use(middleware.RateLimiterMiddleware())
 	r.Use(middleware.CorsMiddleware())
 	registerRoutes(r)

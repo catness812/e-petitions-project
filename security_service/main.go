@@ -11,10 +11,14 @@ import (
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/rabbitmq"
 	"github.com/catness812/e-petitions-project/security_service/pkg/database/redis_repository"
 	"github.com/gookit/slog"
+	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/streadway/amqp"
 	"gorm.io/gorm"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/redis/go-redis/v9"
@@ -37,7 +41,13 @@ func RunSecurityService() {
 	if err != nil {
 		slog.Fatalf("Failed to listen to security service on GRPC port %v: %v", cfg.GrpcPort, err)
 	}
-	grpcServer := grpc.NewServer()
+
+	srvMetrics := newServerMetrics(cfg)
+
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			srvMetrics.UnaryServerInterceptor(),
+		))
 	pb.RegisterSecurityServiceServer(grpcServer, sRpcServer)
 
 	slog.Infof("Listening security on %v", cfg.GrpcPort)
@@ -59,4 +69,24 @@ func fetchEnvVariables() (string, string) {
 		slog.Fatalf("Failed to read .env file: %v", err)
 	}
 	return os.Getenv("RABBITMQ_USER"), os.Getenv("RABBITMQ_PASS")
+}
+
+// newServerMetrics initializes Prometheus metrics with gRPC method interceptors
+// and sets up an HTTP endpoint for Prometheus to collect the metrics
+func newServerMetrics(cfg *config.Config) *grpcprom.ServerMetrics {
+	srvMetrics := grpcprom.NewServerMetrics(
+		grpcprom.WithServerHandlingTimeHistogram(
+			grpcprom.WithHistogramBuckets([]float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120}),
+		),
+	)
+	reg := prometheus.NewRegistry()
+	reg.MustRegister(srvMetrics)
+
+	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+	go func() {
+		if err := http.ListenAndServe(fmt.Sprintf(":%v", cfg.HttpPort), nil); err != nil {
+			slog.Fatal(err)
+		}
+	}()
+	return srvMetrics
 }

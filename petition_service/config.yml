@@ -1,4 +1,5 @@
 grpc_port: 50050
+http_port: 40000
 
 postgres:
   user: admin
